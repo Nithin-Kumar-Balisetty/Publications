@@ -121,7 +121,8 @@ background: rgba(52,57,87,0.9);
 								<input type="text" style="float: left; height: 35px;" id="sea" name="sea" placeholder="Want to search someone you know?"  value="" /><button class="btn btn-warning" >Edit</button></form>
 								</div> </li>
 								-->
-											
+								<li><a href="../Profile/publications.php"> <i class="fa fa-user"></i>Publications</a></li>
+								<li><a href="./searchpublications.php"><i class="fa fa-user">Search Publications</i></a></li>				
 							</ul>
 						</li> 
 						 
@@ -466,11 +467,27 @@ background: rgba(52,57,87,0.9);
     /*font-size: 20px;*/
     padding: 2.5px 10px;
 }
+.after{
+    background-color: #edeaea;
+    border-bottom: 2px solid white;
+}
+.para{
+    background-color: #214B8C;
+}
+#fullcontainer>div>div{
+    border-left: 1px solid white;
+    border-right: 0;
+}
+#fullcontainer>div>div:first-child{
+    border-right: 1px solid white;
+    border-left: 0  ;
+}
+
 </style>
 
 <script>
 
-    /*function searchname(ele){
+    function searchname(ele){
         //console.log($(ele).val());
         $.ajax({
             url : "./oninputtemp.php?q="+$(ele).val(),
@@ -481,7 +498,7 @@ background: rgba(52,57,87,0.9);
                 console.log("not working");
             }
         })
-    } */
+    } 
     function samp(ele){
         if($(ele).val()=="1"){
             $("#searchp1").remove();
@@ -529,18 +546,19 @@ background: rgba(52,57,87,0.9);
         </div>
         <div class="text-left formdiv" style="display : inline-block;">
             <form action="./searchpublications.php" method="GET">
-                <input type="text" name="searchfac" id="searchp" oninput="searchname(this)" placeholder="Enter Faculty name">
+                <input type="text" name="searchfac" id="searchp" oninput="searchname(this)" placeholder="Enter Faculty name"  autocomplete="off">
                 <button type="submit" class="btn btn-success">Search</button>
             </form>
         </div>
     </div>
  </div>
     <div class="mt-5">
-        <h3>Search Results</h3>
-        <hr class="my-2" style="border-top : 3px solid black;">
-        <div class="container mt-5">
+        <h3 style="display :none;">Search Results</h3>
+        <hr class="my-2" style="border-top : 3px solid black; display : none;">
+        <div class="container mt-5" id="notfullcontainer">
         <?php
-            if(isset($_GET["searchfac"])){
+            if(isset($_GET["searchfac"])&& (!isset($_GET["id"]))){
+                echo "<script>$('h3').css('display','block');$('hr').css('display','block');</script>";
                 $servername = 'localhost';
                 $username = 'root';
                 $dbname = 'internship';
@@ -557,6 +575,105 @@ background: rgba(52,57,87,0.9);
                         echo "</div>";
                     }
                     echo "</div>";
+                }
+            }
+            if(isset($_GET["searchfac"])&&isset($_GET["id"])){
+                $servername = 'localhost';
+                $username = 'root';
+                $dbname = 'internship';
+                $conn = mysqli_connect($servername, $username,'', $dbname);
+                if(!$conn) die();
+                else{
+                    $query1="SELECT ENAME from `users` where EID=".$_GET['id'].";";
+                    $name1 = mysqli_query($conn, $query1);
+                    $name = mysqli_fetch_array($name1);
+                    echo "<script>$('#notfullcontainer').attr('id','fullcontainer');$('h3').text('".$name["ENAME"]."')</script>";
+                    echo "<script>$('h3').css('display','block');$('hr').css('display','block');</script>";
+                    echo '<div class="row">';
+                    echo '<div class="para col-lg-8">';
+                    echo '<p class="mb-2 mt-2 text-center text-white">Publication Title</p>';
+                    echo '</div>';
+                    echo '<div class="para col-lg-4"><p class="mb-2 mt-2 text-center text-white">Contributed with</p></div></div>';
+                    $mainarr=array();
+                    $quer = "SELECT Title,PID FROM publications WHERE PID in (SELECT PID from pubicationauthor where EID=".$_GET["id"].");";
+                    $result = mysqli_query($conn, $quer);
+                    if(!$result) echo "<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>";
+                    else{
+                        while($row = mysqli_fetch_assoc($result)) {
+                            $subq = 'SELECT `ENAME` from `users` NATURAL JOIN `pubicationauthor` WHERE `PID`='.$row["PID"].' and EID!='.$_GET["id"].';';
+                            $str="";
+                            $result1 = mysqli_query($conn, $subq);
+                            while($row1= mysqli_fetch_assoc($result1)){
+                                $str=$str.$row1["ENAME"].",";
+                            }
+                            array_push($mainarr,($row["PID"]));
+                            if($str=="") echo '<div class="row after"><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["Title"].'</p></div><div class="col-lg-4"><p class="mb-2 mt-2 text-center">Fully Contibuted by you</p></div></div>';  
+                            else  echo '<div class="row after"><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["Title"].'</p></div><div class="col-lg-4"><p class="mb-2 mt-2 text-center">'.substr($str,0,strlen($str)-1).'</p></div></div>'; 
+                        }
+                    }
+                }
+            }
+            if(isset($_GET["searchyr"])){
+                $servername = 'localhost';
+                $username = 'root';
+                $dbname = 'internship';
+                $conn = mysqli_connect($servername, $username,'', $dbname);
+                if(!$conn) die();
+                else{
+                    echo "<script>$('#notfullcontainer').attr('id','fullcontainer');$('h3').text('".$_GET["searchyr"]."')</script>";
+                    echo "<script>$('h3').css('display','block');$('hr').css('display','block');</script>";
+                    echo '<div class="row">';
+                    echo '<div class="para col-lg-8">';
+                    echo '<p class="mb-2 mt-2 text-center text-white">Publication Title</p>';
+                    echo '</div>';
+                    echo '<div class="para col-lg-4"><p class="mb-2 mt-2 text-center text-white">Contributed with</p></div></div>';
+                    $query="SELECT PID,Title from `publications` where Year=".$_GET["searchyr"].";";
+                    $res=mysqli_query($conn,$query);
+                    if(!$res) echo "<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>";
+                    else{
+                        $mainarr=array();
+                        while($row=mysqli_fetch_assoc($res)){
+                            $query1='SELECT `ENAME` from `users` NATURAL JOIN `pubicationauthor` WHERE `PID`='.$row["PID"].';';
+                            $str="";
+                            $result1 = mysqli_query($conn, $query1);
+                            while($row1= mysqli_fetch_assoc($result1)){
+                                $str=$str.$row1["ENAME"].",";
+                            }
+                            array_push($mainarr,($row["PID"]));
+                            echo '<div class="row after"><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["Title"].'</p></div><div class="col-lg-4"><p class="mb-2 mt-2 text-center">'.substr($str,0,strlen($str)-1).'</p></div></div>'; 
+                        }   
+                    }
+                }
+            }
+            if(isset($_GET["searchyrA"])&&isset($_GET["searchyrB"])){
+                $servername = 'localhost';
+                $username = 'root';
+                $dbname = 'internship';
+                $conn = mysqli_connect($servername, $username,'', $dbname);
+                if(!$conn) die();
+                else{
+                    echo "<script>$('#notfullcontainer').attr('id','fullcontainer');$('h3').text('From Year ".$_GET["searchyrA"]." to ".$_GET["searchyrB"]."');$('hr').css('display','block');</script>";
+                    echo '<div class="row">';
+                    echo '<div class="para col-lg-8">';
+                    echo '<p class="mb-2 mt-2 text-center text-white">Publication Title</p>';
+                    echo '</div>';
+                    echo '<div class="para col-lg-3"><p class="mb-2 mt-2 text-center text-white">Contributed with</p></div><div class=" para col-lg-1"><p class="mb-2 mt-2 text-center text-white">Year</p></div></div>';
+                    $query="SELECT PID,Title,Year from `publications` where Year>=".$_GET['searchyrA']." and Year<=".$_GET['searchyrB']." ORDER by Year desc;";
+                    $res=mysqli_query($conn,$query);
+                    if(!$res) echo "<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>";
+                    else{
+                        $mainarr=array();
+                        while($row=mysqli_fetch_assoc($res)){
+                            $query1='SELECT `ENAME` from `users` NATURAL JOIN `pubicationauthor` WHERE `PID`='.$row["PID"].';';
+                            $str="";
+                            $result1 = mysqli_query($conn, $query1);
+                            while($row1= mysqli_fetch_assoc($result1)){
+                                $str=$str.$row1["ENAME"].",";
+                            }
+                            array_push($mainarr,($row["PID"]));
+                            echo '<div class="row after"><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["Title"].'</p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">'.substr($str,0,strlen($str)-1).'</p></div><div class="col-lg-1"><p class="mb-2 mt-2 text-center">'.$row["Year"].'</p></div></div>'; 
+                        }   
+                    }
                 }
             }
         ?>

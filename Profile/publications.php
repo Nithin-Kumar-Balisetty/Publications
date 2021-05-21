@@ -655,8 +655,8 @@ background: rgba(52,57,87,0.9);
         var element = beforeclone.cloneNode(true);
         element.children[2].children[0].innerHTML=element.children[2].children[0].innerHTML+'<i class="fa fa-minus-circle"style="color : red; font-size : 20px;" onclick="deleteC(this)"></i>';
         var str=ele.parentElement.parentElement.previousElementSibling.previousElementSibling.children[0].innerHTML;
-        $(element.children[1].children[0].children[0]).attr("name","Author"+(parseInt(str.slice(12,str.length-2))+1));
-        element.children[0].children[0].innerHTML="Contributor "+(parseInt(str.slice(12,str.length-2))+1)+" :";
+        $(element.children[1].children[0].children[0]).attr("name","Author"+(parseInt(str.slice(7,str.length-2))+1));
+        element.children[0].children[0].innerHTML="Author "+(parseInt(str.slice(7,str.length-2))+1)+" :";
         $(element).insertBefore("#appendbefore");
     }
     function deleteC(ele){
@@ -874,7 +874,7 @@ background: rgba(52,57,87,0.9);
             </div>
             <div class="row firstblock">
                 <div class="col-lg-3">
-                <label for="Link">Contributor 1 :</label>
+                <label for="Link">Author 1 :</label>
                 <span style="color:red;">(Enter email id)</span>
                 </div>
                 <div class="col-lg-auto" style="display: inline-block;">

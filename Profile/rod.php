@@ -6,12 +6,12 @@
     $conn = mysqli_connect($servername, $username,'', $dbname);
     if(!$conn) die();
     else{
-        $query="Select ENAME from `users`";
+        $query="Select * from `publications`";
         $res=mysqli_query($conn,$query);
         if($res){
             $pdf = new FPDF();
             $pdf->AddPage();
-            $pdf->SetFont('Arial','B',16);
+            $pdf->SetFont('Arial','B',10);
 
             foreach($res as $heading) {
                 foreach($heading as $column_heading)
