@@ -7,11 +7,16 @@ if(isset($_GET['q'])){
         $conn = mysqli_connect($servername, $username,'', $dbname);
         if(!$conn) die();
         else{
-            $query = 'SELECT EID,ENAME from `users` where ENAME LIKE "%'.$_GET["q"].'%";';
-            $res=mysqli_query($conn,$query);
-            $final="";
-            while($row=mysqli_fetch_array($res)){
-                echo $row["ENAME"];
+            if($_GET['q']!=""){
+                $query = 'SELECT EID,ENAME from `users` where ENAME LIKE "%'.$_GET["q"].'%";';
+                $res=mysqli_query($conn,$query);
+                $final="";
+                while($row=mysqli_fetch_array($res)){
+                    echo "<a href='./searchpublications.php?searchfac=".$row['ENAME']."&id=".$row['EID']."'>".$row['ENAME']."</a><br>";
+                }
+            }
+            else{
+                echo "";
             }
         }
 }

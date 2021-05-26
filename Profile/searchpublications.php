@@ -11,7 +11,7 @@
         <title>IIITDM Dashboard</title>
 
         <!-- Styles -->                        
-	<script type="text/javascript" src="http://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=mKXItK4TeJroSASXXe_5KSWnfxDJdrQzPpX53g5BOdG1FuAUtXL9FBLSZjMB8XD4GI9DGT2jmDoirP5meJ8OOFO2OH5mrDmgidYQXZKqPcK-yA7oYD67iPGaKMsiCgkW" charset="UTF-8"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
         <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">         
         <link href="https://www.iiitdm.ac.in/Profile/assets/css/lib/menubar/sidebar.css" rel="stylesheet">
         <link href="https://www.iiitdm.ac.in/Profile/assets/css/lib/bootstrap.min.css" rel="stylesheet"> 
@@ -482,7 +482,19 @@ background: rgba(52,57,87,0.9);
     border-right: 1px solid white;
     border-left: 0  ;
 }
-
+#zindex{
+    display: none;
+    border: 1px solid black;
+    border-top: 0;
+    position: relative;
+    left : 321.4px;
+    width: 250px;
+    z-index: 10;
+}
+#zindex>a{
+    padding: 5px;
+    margin: 0;
+}
 </style>
 
 <script>
@@ -493,13 +505,16 @@ background: rgba(52,57,87,0.9);
             url : "./oninputtemp.php?q="+$(ele).val(),
             type : "GET",
             success : function(data){
-                    console.log(data);
+                document.getElementById("zindex").innerHTML=data;
+                $("#zindex").show();
             },error : function(err){
                 console.log("not working");
             }
         })
     } 
     function samp(ele){
+        $("#searchp").show();
+        $("#searchp2").remove();
         if($(ele).val()=="1"){
             $("#searchp1").remove();
             $("#searchp").val("");
@@ -509,10 +524,11 @@ background: rgba(52,57,87,0.9);
         }
         if($(ele).val()=="2"){
             $("#searchp1").remove();
-            $("#searchp").val("");
-            $("#searchp").attr("name","searchdep");
-            $("#searchp").attr("type","text");
-            $("#searchp").attr("placeholder","Enter Dept name");
+            $("#searchp").hide();
+            $("#searchp").val('dept');
+            $("#searchp2").show();
+            $('<select id="searchp2" name="dept" style="height : 26px;"><?php $arr=array("CSE","MECH","ECE");for($i=0;$i<sizeof($arr);$i++){echo '<option value="'.$i.'">'.$arr[$i].'</option>';}?></select>').insertBefore("form>button");
+            $("form>button").css('margin-left','10px');
         }
         if($(ele).val()=="3"){
             $("#searchp1").remove();
@@ -549,10 +565,14 @@ background: rgba(52,57,87,0.9);
                 <input type="text" name="searchfac" id="searchp" oninput="searchname(this)" placeholder="Enter Faculty name"  autocomplete="off">
                 <button type="submit" class="btn btn-success">Search</button>
             </form>
+            
         </div>
     </div>
  </div>
-    <div class="mt-5">
+    <div id="zindex">
+           <p>mass</p> 
+    </div>
+    <div class="mt-5" style="position: absolute;">
         <h3 style="display :none;">Search Results</h3>
         <hr class="my-2" style="border-top : 3px solid black; display : none;">
         <div class="container mt-5" id="notfullcontainer">
@@ -676,6 +696,10 @@ background: rgba(52,57,87,0.9);
                     }
                 }
             }
+        if(isset($_GET["dept"])){
+
+        }
+
         ?>
         </div>
     </div>

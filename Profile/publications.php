@@ -1,5 +1,6 @@
 <?php
         session_start();
+        include "testingpdf.php";
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -768,16 +769,13 @@ background: rgba(52,57,87,0.9);
         </div>
         <?php
             //userdetails already stored in a variables of php script
-            $strname="";
-            $servername = 'localhost';
-            $username = 'root';
-            $dbname = 'internship';
-            $conn=mysqli_connect($servername, $username,'', $dbname);
+            $obj=new SQL();
+            $conn=$obj->SQLi();
             if(!$conn) die("<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>");
             else{
                 $mainarr=array();
                 $quer = "SELECT Title,PID FROM publications WHERE PID in (SELECT PID from pubicationauthor where EID in (SELECT EID from users where EMAIL='sample1@gmail.com'))";
-                $result = mysqli_query($conn, $quer);
+                $result = $obj->query($quer);
                 if(!$result) echo "<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>";
                 else{
                     while($row = mysqli_fetch_assoc($result)) {
@@ -834,6 +832,16 @@ background: rgba(52,57,87,0.9);
             </div>
             <div class="row">
                 <div class="col-lg-3">
+                <label for="ISSN">ISSN :</label>
+                </div>
+                <div class="col-lg-9">
+                <input type="number" name="ISSN1" required style="display : inline-block;" min="1000" max="9999">
+                <p style="display : inline-block;">-</p>
+                <input type="number" name="ISSN2" required style="display : inline-block;" min="1000" max="9999">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3">
                 <label for="VolumeNo">Volume Number :</label>
                 </div>
                 <div class="col-lg-4">
@@ -854,6 +862,19 @@ background: rgba(52,57,87,0.9);
                 </div>
                 <div class="col-lg-4">
                 <input type="number" name="Year" required>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3">
+                <label for="Year">Indexing :</label>
+                </div>
+                <div class="col-lg-9">
+                    <select name="indexing" id="indexing">
+                        <option value="Scopus">Scopus</option>
+                        <option value="SCI">SCI</option>
+                        <option value="Non-SCI">Non-SCI</option>
+                        <option value="Openaccess">Open Access</option>
+                    </select>
                 </div>
             </div>
             <div class="row">
