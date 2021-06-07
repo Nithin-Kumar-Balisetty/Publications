@@ -590,8 +590,11 @@ background: rgba(52,57,87,0.9);
                     echo "<div class='row'>";
                     if(mysqli_num_rows($res)==0) echo "No results found";
                     while($row=mysqli_fetch_array($res)){
+                        $query1="SELECT PID from `pubicationauthor` where EID=".$row['EID'].";";
+                        $res1=mysqli_query($conn,$query1);
                         echo "<div class='col-lg-12'>";
-                        echo "<a href='".("./searchpublications.php?searchfac=".$_GET["searchfac"]."&id=".$row["EID"])."'>".$row["ENAME"]."</a>";
+                        $rows=mysqli_num_rows($res1);
+                        echo "<a href='".("./searchpublications.php?searchfac=".$_GET["searchfac"]."&id=".$row["EID"])."'>".$row["ENAME"]."(".$rows.")"."</a>";
                         echo "</div>";
                     }
                     echo "</div>";

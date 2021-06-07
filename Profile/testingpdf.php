@@ -23,6 +23,24 @@
             }
         }
     }
+        /*$arr=array(1,2,3);
+        $obj=new SQL();
+        $obj->SQLi();
+        $servername = 'localhost';
+        $username = 'root';
+        $dbname = 'internship';
+        $conn = mysqli_connect($servername, $username,'', $dbname);
+        if(!$conn) die();
+        else{
+                $quer = 'SELECT ENAME from users where ENAME LIKE "%'.$_GET["qr"].'%";';
+                $res=mysqli_query($conn,$quer);
+                $final="";
+                echo "<datalist id='facultynames'>";
+                while($row=mysqli_fetch_array($res)){
+                    echo '<option data-value="'.$row["EID"].'" value="'.$row["ENAME"]." (".$row["dept"].")".'">';
+                }
+                echo "</datalist>";
+        }*/
 ?>
 <?php
     /*

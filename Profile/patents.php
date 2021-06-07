@@ -1,6 +1,5 @@
-<?php
-        session_start();
-        require "./testingpdf.php";
+<?php  
+    require "./testingpdf.php";
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -9,6 +8,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+
 
         <title>IIITDM Dashboard</title>
 
@@ -73,7 +73,7 @@ background: rgba(52,57,87,0.9);
     </head>
 
     <body oncontextmenu="return false" >
-  
+
         <div class="sidebar sidebar-hide-to-small sidebar-shrink sidebar-gestures">
             <div class="nano">
                 <div class="nano-content">
@@ -123,11 +123,7 @@ background: rgba(52,57,87,0.9);
 								<input type="text" style="float: left; height: 35px;" id="sea" name="sea" placeholder="Want to search someone you know?"  value="" /><button class="btn btn-warning" >Edit</button></form>
 								</div> </li>
 								-->
-
-                                <!-- code start-->
-                                <li><a href="./publications.php"> <i class="fa fa-user"></i>Publications </a></li>
-                                <li><a href="./patents.php"><i class="fa fa-user"></i>Patents</a></li>			
-								<li><a href="./searchpublications.php"><i class="fa fa-user"></i>Search Publications and Patents</a></li>			
+											
 							</ul>
 						</li> 
 						 
@@ -439,7 +435,7 @@ background: rgba(52,57,87,0.9);
 	  <ul class="navbar-nav" style="height:20px; background-color:#343A40" >
     
 		<!-- <li>Employee Personal Details</li> -->
-        <li>Your Publications</li>
+     
 	
 
   </ul>
@@ -452,273 +448,11 @@ background: rgba(52,57,87,0.9);
 
 
 
+
+
+
 <!-- code start -->
 
-
-
-<?php
-    if(isset($_POST["MANUALPOST"]) && $_POST["randcheck"]==$_SESSION['rand']){
-        $strname="";
-        $servername = 'localhost';
-        $username = 'root';
-        $dbname = 'internship';
-        $conn=mysqli_connect($servername, $username,'', $dbname);
-        if(!$conn) die();
-        else{
-            /*$query = 'SELECT COUNT(*) from `publications`;';
-            $res=mysqli_query($conn,$query);
-            $rows=0;
-            while($row=mysqli_fetch_assoc($res)){ $rows=$row["COUNT(*)"]; }
-            $str=''.($rows+1).',"'.$_POST["Title"].'","'.$_POST["ConferenceName"].'","'.$_POST["Source_Title"].'",'.$_POST["Vol"].','.$_POST["Pages"].','.$_POST["Year"].',"'.$_POST["Website"].'","'.$_POST["Link"].'","../uploads/Publications/'.($rows+1).'"';
-            $query1="INSERT INTO publications (PID,Title,ConferenceName,Source_Title,Vol,Pages,Year,Website,Link,Filename) values(".$str.")";
-            if(mysqli_query($conn,$query1)){
-                //successfully inserted
-                $i=9;
-                while($i<=count($_POST)-2){
-                    $query3 = 'SELECT EID from `users` where EMAIL="'.$_POST["Author".($i-8)].'";';
-                    $res=mysqli_query($conn,$query3);
-                    $temp=0;
-                    while($row=mysqli_fetch_assoc($res)){ $temp=$row["EID"]; }
-                    $query2= "INSERT INTO pubicationauthor (PID,EID,Noofauth) values(".($rows+1).",".$temp.",".(count($_POST)-10).")";
-                    if(mysqli_query($conn,$query2)){
-                        // succesfully inserted in publicationauthor table
-                    }
-                    else{
-                        echo "<script>alert('Error in posting data.Please Try again');</script>";
-                    }
-                    $i++;
-                }
-            }
-            else{
-                echo "<script>alert('Error in inserting data.Please Try again');</script>";
-            }*/
-            var_dump($_POST);
-            echo count($_POST);
-            $check=0;
-            $str=strtolower($_POST["Title"]);
-            $quer='SELECT PID,Title from publications;';
-            $res=mysqli_query($conn,$quer);
-            while($row=mysqli_fetch_assoc($res)){
-                $title=strtolower($row["Title"]);
-                similar_text($title,$str,$per);
-                if($per<=100 && $per>=90){
-                    echo strcmp($title,$str);
-                    echo "<br>".$title."<br> compared <br>".$str;
-                    echo "<script>console.log('yes with a similarity of ".$per." and PID of ".$row["PID"]."')</script>";
-                    $check=1;
-                    break;
-                }
-            }
-            if($check==0){
-                echo "<script>console.log('No match found')</script>";
-            }
-        }
-        mysqli_close($conn);       
-    }
-    if(isset($_POST["uploadexcel"]) && $_POST["randcheck1"]==$_SESSION['rand1']){
-        $target_dir = 'uploads/';
-        $target_file = $target_dir . basename($_FILES["csvfile"]["name"]);
-        $imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
-        $arr = array("xlsx","xlsm","csv");
-        if(!in_array($imageFileType,$arr)){
-            echo "<script>alert('Not in xlsx or xlsm or csv format');</script>";
-        }
-        else{
-        move_uploaded_file($_FILES["csvfile"]["tmp_name"], $target_file);
-        require_once dirname(__FILE__) . '/Classes/PHPExcel/IOFactory.php';
-        $inputFileType = PHPExcel_IOFactory::identify($target_file);
-        $objReader = PHPExcel_IOFactory::createReader($inputFileType);
-        $objPHPExcel = $objReader->load($target_file);
-        $i=2;
-        $count=0;
-        $strname="";
-        $servername = 'localhost';
-        $username = 'root';
-        $dbname = 'internship';
-        $conn=mysqli_connect($servername, $username,'', $dbname);
-        if(!$conn) die();
-        else{
-            $query = 'SELECT COUNT(*) from `publications`;';
-            $res=mysqli_query($conn,$query);
-            $rows=0;
-            while($row=mysqli_fetch_assoc($res)){ $rows=$row["COUNT(*)"]; }
-        while($objPHPExcel->getActiveSheet()->getCell('A'.$i)->getValue()!=''){
-            $count++;
-            //echo $objPHPExcel->getActiveSheet()->getCell('B'.$i)->getValue();
-            $id=$rows+$count;
-            $title=$objPHPExcel->getActiveSheet()->getCell('A'.$i)->getValue();
-            $confn=$objPHPExcel->getActiveSheet()->getCell('B'.$i)->getValue();
-            $sourcet=$objPHPExcel->getActiveSheet()->getCell('C'.$i)->getValue();
-            $vol=$objPHPExcel->getActiveSheet()->getCell('D'.$i)->getValue();
-            $pages=$objPHPExcel->getActiveSheet()->getCell('E'.$i)->getValue();
-            $year=$objPHPExcel->getActiveSheet()->getCell('F'.$i)->getValue();
-            $webname=$objPHPExcel->getActiveSheet()->getCell('G'.$i)->getValue();
-            $url=$objPHPExcel->getActiveSheet()->getCell('H'.$i)->getValue();
-            $str=''.$id.',"'.$title.'","'.$confn.'","'.$sourcet.'",'.$vol.','.$pages.','.$year.',"'.$webname.'","'.$url.'","../uploads/Publications/'.$id.'"';
-            $query1="INSERT INTO publications (PID,Title,ConferenceName,Source_Title,Vol,Pages,Year,Website,Link,Filename) values(".$str.")";
-            if(mysqli_query($conn,$query1)){
-                //successfully inserted
-                $col='I';
-                $countt=0;
-                while($objPHPExcel->getActiveSheet()->getCell($col.$i)->getValue()!=''){
-                    $query3 = 'SELECT EID from `users` where EMAIL="'.$objPHPExcel->getActiveSheet()->getCell($col.$i)->getValue().'";';
-                    $res=mysqli_query($conn,$query3);
-                    $temp=0;
-                    while($row=mysqli_fetch_assoc($res)){ $temp=$row["EID"]; }
-                    $query2= "INSERT INTO pubicationauthor (PID,EID,Noofauth) values(".($id).",".$temp.",0)";
-                    if(mysqli_query($conn,$query2)){
-                        // succesfully inserted in publicationauthor table
-                    }
-                    else{
-                        echo "<script>alert('Error in posting data.Please Try again');</script>";
-                    }
-                    $col++;
-                    $countt++;
-                }
-                $upd=mysqli_query($conn,"UPDATE `pubicationauthor` SET Noofauth=$countt WHERE PID=$id;");
-            }
-            else{
-                echo "<script>alert('Error in inserting data.Please Try again');</script>";
-            }
-            $i++;
-                }
-            }
-        }
-    }
-
-    if(isset($_GET["q"])){
-        $servername = 'localhost';
-        $username = 'root';
-        $dbname = 'internship';
-        $conn=mysqli_connect($servername, $username,'', $dbname);
-        if(!$conn) die();
-        else{
-            $query="DELETE FROM `pubicationauthor` where PID=".$_GET["q"].";";
-            if(mysqli_query($conn,$query)){
-                $queryy="DELETE FROM `publications` WHERE PID=".$_GET["q"].";";
-                if(mysqli_query($conn,$queryy)){
-                    //deleted query
-                    echo "<script>window.location.href='./publications.php';</script>";
-                }
-            }
-        }
-    }
-
-
-?>
-
-<script type="text/javascript">
-     function searchname(ele){
-        //console.log($(ele).val());
-        if(($(ele).val().length>=1) && ($(ele).val().includes("(") || $(ele).val().includes(")") )){
-            var datalistele= ele.nextElementSibling.children[0].children; 
-            for(var i=0;i<datalistele.length;i++){
-                    if($(datalistele[i]).val() == $(ele).val()){
-                        $(ele.nextElementSibling.nextElementSibling).val($(datalistele[i]).attr('data-value'));
-                    }
-                }
-        }
-        else{
-            $.ajax({
-            url : "./oninputtemp.php?qr="+$(ele).val(),
-            type : "GET",
-            success : function(data){
-                $(ele).attr("list","facultynames");
-                ele.nextElementSibling.innerHTML=data;
-                var datalistele= ele.nextElementSibling.children[0].children; 
-                $(ele.nextElementSibling.nextElementSibling).val("null");
-                for(var i=0;i<datalistele.length;i++){
-                    if($(datalistele[i]).val() == $(ele).val()){
-                        $(ele.nextElementSibling.nextElementSibling).val($(datalistele[i]).attr('data-value'));
-                    }
-                }
-            },error : function(err){
-                console.log("not working");
-            }
-        })
-        }
-    } 
-    function EDITbutton(element){
-        console.log(element);
-    }
-    /*function DELETEbutton(element){
-        //$("body").children().attr('z-index',-1000);
-        //$('<div id="deleteclick"><div class="centreblock">mass mrnfkeefkfe</div></div>').appendTo("body");
-        $("body").children().hide();
-        $("#massmass").show();
-    }*/
-    function clickingchec(element){
-        if(element.checked){
-            $(".check").attr("disabled",true);
-            $(element).removeAttr("disabled");
-            $(".insertbutton").toggle();
-            $('<div class="EDbuttons d-flex justify-content-between mt-5"><button class="btn btn-primary mr-2" id="EDIT">EDIT</button><button class="btn btn-danger ml-2" id="DELETE">DELETE</button></div>').insertAfter("#fullcontainer");
-            $("#EDIT").click(function(){
-                EDITbutton(element);
-            });
-            $("#DELETE").click(function(){
-                DELETEbutton(element);
-            });
-        }
-        else{
-            $(".check").removeAttr("disabled");
-            $(".insertbutton").show();
-            $(".EDbuttons").remove();
-        }
-    }
-    function expand(ele){
-       // $(ele.nextElementSibling).toggle(); 
-       if($($('.excelform')[0].parentElement).css("display")!="none") $($('.excelform')[0].parentElement).css("display","none");
-        $("#expand").toggle();
-    }
-    function excel(ele){
-        //$(ele.previousElementSibling).toggle();
-        if($("#expand").css("display")!="none") $("#expand").css("display","none");
-        $($('.excelform')[0].parentElement).toggle();
-    }
-
-    ///////
-    function dlgout(){
-                $("#white-background").css("display","none");
-                $("#dlgbox").css("display","none");
-    }
-    function dlgLogin(ele){
-        console.log($("#fullcontainer>div").index($(ele.parentElement.parentElement)));
-        window.location.href=window.location.href+"?q="+($("#fullcontainer>div").index($(ele.parentElement.parentElement))-1);
-    }        
-    function DELETEbutton(ele){
-        var whitebg = document.getElementById("white-background");
-        var dlg = document.getElementById("dlgbox");
-        whitebg.style.display = "block";
-        dlg.style.display = "block";
-
-        var winWidth = window.innerWidth;
-        var winHeight = window.innerHeight;
-        
-        dlg.style.left = (winWidth/2) - 480/2 + "px";
-        dlg.style.top = "150px";
-        $("#dlgLogin").click(function(){
-            dlgLogin(ele);
-        })
-    }
-    function insertC(ele){
-        var beforeclone=document.getElementsByClassName("firstblock")[0];
-        var element = beforeclone.cloneNode(true);
-        $(element.children[1].children[0].children[1].children[0]).remove();
-        $(element.children[1].children[0].children[0]).val("");
-        element.children[2].children[0].innerHTML=element.children[2].children[0].innerHTML+'<i class="fa fa-minus-circle"style="color : red; font-size : 20px;" onclick="deleteC(this)"></i>';
-        var str=ele.parentElement.parentElement.previousElementSibling.previousElementSibling.children[0].innerHTML;
-        $(element.children[1].children[0].children[0]).attr("name","Author"+(parseInt(str.slice(7,str.length-2))+1));
-        $(element.children[1].children[0].children[2]).attr("name","AuthorID"+$(element.children[1].children[0].children[0]).attr("name").slice(6));
-        element.children[0].children[0].innerHTML="Author "+(parseInt(str.slice(7,str.length-2))+1)+" :";
-        $(element).insertBefore("#appendbefore");
-    }
-    function deleteC(ele){
-        $(ele.parentElement.parentElement.parentElement).remove();
-    }
-////
-
-</script>
 
 <style>
 /* template start*/ 
@@ -793,20 +527,10 @@ background: rgba(52,57,87,0.9);
     display: inline-block;
 }
 </style>
- <!-- dialog box --> 
-<div id="white-background"></div>
-<div id="dlgbox">
-    <div id="dlg-header">You are deleting an entry.</div>
-    <div id="dlg-body">Are you sure?</div>
-    <div id="dlg-footer">
-        <button class="btn btn-danger" id="dlgLogin">Yes</button>
-        <button class="btn btn-primary" onclick="dlgout()">No</button>
-    </div>
-</div>
-<!-- dialog box -->
-
+ 
+  
 <div class="container">
-    <h2 class="" style="text-align:center; margin-top: 0">Publication Details</h2>
+    <h2 class="" style="text-align:center; margin-top: 0">Patent Details</h2>
     <div class="container" id="fullcontainer" style="margin : 0;margin-top : 30px; font-size:18px;">
         <div class="row">
             <div class="para col-lg-1">
@@ -844,159 +568,25 @@ background: rgba(52,57,87,0.9);
             }
         ?>
     </div>
-    <div class="insertbutton text-center mt-5">
-        <button class="btn btn-success mr-4" style="font-size:16px;" onclick="expand(this)">Insert</button>
-        <button class="btn btn-success ml-4" onclick='excel(this)' style="font-size : 16px;">Excel</button>
-    </div>
-    <div id="expand" style="display :none;">
-        <h3>Publication Details</h3>
-        <hr class="mt-2">
-        <form action="../Profile/publications.php" method="POST">
-            <?php
-                $rand=rand();
-                $_SESSION['rand']=$rand;
-            ?>
-            <input type="hidden" value="<?php echo $rand; ?>" name="randcheck" />
-            <div class="row">
-                <div class="col-lg-3">
-                <label for="PName">Paper Title : <span style="color : red;">*</span></label>
-                </div>
-                <div class="col-lg-4">
-                <input type="text" name="Title">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-3">
-                <label for="SourceTi">Source Title :</label>
-                </div>
-                <div class="col-lg-4">
-                <input type="text" name="Source_Title" >
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-3">
-                <label for="ConName">Conference :</label>
-                </div>
-                <div class="col-lg-4">
-                <input type="text" name="ConferenceName" >
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-3">
-                <label for="ISSN">ISSN :</label>
-                </div>
-                <div class="col-lg-9">
-                <input type="number" name="ISSN1"  style="display : inline-block;" min="1000" max="9999">
-                <p style="display : inline-block;">-</p>
-                <input type="number" name="ISSN2"  style="display : inline-block;" min="1000" max="9999">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-3">
-                <label for="VolumeNo">Volume No :</label>
-                </div>
-                <div class="col-lg-4">
-                <input type="number" name="Vol" >
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-3">
-                <label for="Pages">Pages :</label>
-                </div>
-                <div class="col-lg-4">
-                <input type="number" name="Pages" >
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-3">
-                <label for="Year">Year :</label>
-                </div>
-                <div class="col-lg-4">
-                <input type="number" name="Year" >
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-3">
-                <label for="Year">Indexing :</label>
-                </div>
-                <div class="col-lg-9">
-                    <select name="indexing" id="indexing">
-                        <option value="Scopus">Scopus</option>
-                        <option value="SCI">SCI</option>
-                        <option value="Non-SCI">Non-SCI</option>
-                        <option value="Openaccess">Open Access</option>
-                    </select>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-3">
-                <label for="Website">Website Source :</label>
-                </div>
-                <div class="col-lg-4">
-                <input type="text" name="Website" >
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-3">
-                <label for="Link">Publication website URL :</label>
-                </div>
-                <div class="col-lg-4">
-                <input type="text" name="Link" >
-                </div>
-            </div>
-            <div class="row firstblock">
-                <div class="col-lg-3">
-                <label for="Link">Author 1 :</label>
-                <span style="color:red;">(Enter email id)</span>
-                </div>
-                <div class="col-lg-auto" style="display: inline-block;">
-                    <div style="margin-top: 7.5px;">
-                        <input type="text" name="Author1" oninput="searchname(this)" autocomplete="off" value="" >
-                        <div class="appearfac"></div>
-                        <input type="hidden" name="AuthorID1" value="null">
-                    </div>
-                </div>
-                <div style="display : inline-block;">
-                        <div style="margin-top: 10px;">
-                            <i class="fa fa-plus-circle" style="color : green; font-size : 20px;" onclick="insertC(this)"></i>
-                        </div>
-                </div>
-            </div>
+    
 
-            <div class="text-center mt-4" id="appendbefore">
-                <button type="submit" name="MANUALPOST" class="btn btn-success">POST THE DETAILS</button>
-            </div>
-        </form>
-    </div>
-    <div class="text-center" style="display: none;">
-        <form action="../Profile/publications.php" method="post" enctype="multipart/form-data" class="excelform mt-5">
-            <?php
-                $rand1=rand();
-                $_SESSION['rand1']=$rand1;
-            ?>
-            <input type="hidden" value="<?php echo $rand1; ?>" name="randcheck1" />
-            <div class="row text-center">
-                <div class="mt-2">
-                    <input type="file" name="csvfile" required>
-                </div>
-                <div>
-                    <button type="submit" name="uploadexcel" class="btn btn-info">Upload CSV</button>
-                </div>
-            </div>
-        </form>
-        <div class="text-center" style="color:red;">
-            *Table columns must be in the order (Publication Title,Conference Name,Source Title,Volume,Pages,Year,Website name,URL of publication)
-        </div>
-    </div>
+
 </div>
-<!-- code end -->                        
+
+<!-- code end -->
+  
+  
+  
+
+</div>
+                        
 <div class="content-wrap">
             <div class="main">
                 <div class="container-fluid">
 
                 </div>
             </div>
-</div>
+        </div>
 		
                <style type="text/css">
 
