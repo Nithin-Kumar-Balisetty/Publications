@@ -1,5 +1,6 @@
 <?php  
     require "./testingpdf.php";
+    session_start();    
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -536,10 +537,10 @@ background: rgba(52,57,87,0.9);
             <div class="para col-lg-1">
             </div>
             <div class="para col-lg-8">
-            <p class="mb-2 mt-2 text-center text-white">Publication Title</p>
+            <p class="mb-2 mt-2 text-center text-white">Patent Title</p>
             </div>
             <div class="para col-lg-3">
-            <p class="mb-2 mt-2 text-center text-white">Contributed with</p>
+            <p class="mb-2 mt-2 text-center text-white">Role</p>
             </div>
         </div>
         <?php
@@ -548,28 +549,271 @@ background: rgba(52,57,87,0.9);
             $conn=$obj->SQLi();
             if(!$conn) die("<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>");
             else{
-                $mainarr=array();
-                $quer = "SELECT Title,PID FROM publications WHERE PID in (SELECT PID from pubicationauthor where EID in (SELECT EID from users where EMAIL='sample1@gmail.com'))";
+                $quer = "SELECT PTitle,PaId FROM patents WHERE PIid in (SELECT EID from users where EMAIL='sample1@gmail.com')";
                 $result = $obj->query($quer);
-                if(!$result) echo "<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>";
-                else{
+                if(!$result) echo "<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found as a PRINCIPAL INVESTIGATOR.Post your first entry</p></div></div>";
+                else{   
                     while($row = mysqli_fetch_assoc($result)) {
-                        $subq = 'SELECT `ENAME` from `users` NATURAL JOIN `pubicationauthor` WHERE `PID`='.$row["PID"].' and `EMAIL`!="sample1@gmail.com"';
-                        $str="";
-                        $result1 = mysqli_query($conn, $subq);
-                        while($row1= mysqli_fetch_assoc($result1)){
-                            $str=$str.$row1["ENAME"].",";
-                        }
-                        array_push($mainarr,($row["PID"]));
-                        if($str=="") echo '<div class="row after"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this)" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["Title"].'</p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">Fully Contibuted by you</p></div></div>';  
-                        else  echo '<div class="row after"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this)" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["Title"].'</p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">'.substr($str,0,strlen($str)-1).'</p></div></div>'; 
+                         echo '<div class="row after"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this)" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["PTitle"].'</p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">'."Pricipal Investigator".'</p></div></div>'; 
+                    }
+                }
+                $quer1 = "SELECT PTitle,PaId FROM patents WHERE PaId in (Select PaId from `patentcopi` where COPI in (SELECT EID from users where EMAIL='sample1@gmail.com'))";
+                $result1 = $obj->query($quer1);
+                if(!$result1) echo "<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found as a CO-PRINCIPAL INVESTIGATOR.Post your first entry</p></div></div>";
+                else{   
+                    while($row = mysqli_fetch_assoc($result1)) {
+                         echo '<div class="row after"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this)" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["PTitle"].'</p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">'."Co-Pricipal Investigator".'</p></div></div>'; 
                     }
                 }
             }
         ?>
     </div>
-    
+    <script>
+        function expand(ele){
+            // $(ele.nextElementSibling).toggle(); 
+            if($($('.excelform')[0].parentElement).css("display")!="none") $($('.excelform')[0].parentElement).css("display","none");
+            $("#expand").toggle();
+        }
+        function excel(ele){
+            //$(ele.previousElementSibling).toggle();
+            if($("#expand").css("display")!="none") $("#expand").css("display","none");
+            $($('.excelform')[0].parentElement).toggle();
+        }
+    </script>
+    <div class="insertbutton text-center mt-5">
+        <button class="btn btn-success mr-4" style="font-size:16px;" onclick="expand(this)">Insert</button>
+        <button class="btn btn-success ml-4" onclick='excel(this)' style="font-size : 16px;">Excel</button>
+    </div>
+    <div id="expand" style="display :none;">
+        <h3>Patent Details</h3>
+        <hr class="mt-2">
+        <?php 
+        if(isset($_POST["MANUALPOST"])){
+            //var_dump($_POST);
+            $obj=new SQL();
+            $conn=$obj->SQLi();
+            if(!$conn) die("<script>alert('Data not able added.Try again !');</script>");
+            else{
+                $quer = "INSERT into `patents`(PTitle,PNum,PIid,Ftype,Status,Year,Details) values('".$_POST["Title"]."',".$_POST["PNum"].",".$_POST["PIid1"].",'".$ftype[(int)($_POST["ftype"])]."','".$_POST["fstatus"]."',".$_POST["Year"].",'".$_POST["Details"]."');";
+                if($obj->query($quer) == FALSE) die("<script>alert('Data not able added.Try again !');</script>");
+                else{
+                    $i=1;
+                    while(isset($_POST["COPIid".$i])) {
+                        $quer2="SELECT COUNT(*) as total from `patents`;";
+                        $res=$obj->query($quer2);
+                        $data=mysqli_fetch_assoc($res);
+                        $quer1 = "INSERT into `patentcopi`(PaId,COPI) values(".$data["total"].",".$_POST["COPIid".$i].");";
+                        if($obj->query($quer1) == FALSE) die("<script>alert('Error occured. Try Again !!');</script>");
+                        $i++;
+                    }
+                }
+                
+            }
+        }
+        ?>
+        <form action="../Profile/patents.php" method="POST">
+            <?php
+                $rand=rand();
+                $_SESSION['rand']=$rand;
+            ?>
+            <input type="hidden" value="<?php echo $rand; ?>" name="randcheck" />
+            <div class="row">
+                <div class="col-lg-3">
+                <label for="PName">Patent Title : <span style="color : red;">*</span></label>
+                </div>
+                <div class="col-lg-4">
+                <input type="text" name="Title">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3">
+                    <label for="ISSN">Patent Number :</label>
+                </div>
+                <div class="col-lg-9">
+                    <input type="number" name="PNum"  style="display : inline-block;">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3">
+                <label for="Year">Year :</label>
+                </div>
+                <div class="col-lg-4">
+                <input type="year" name="Year" >
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3">
+                <label for="Year">Filing Type :</label>
+                </div>
+                <div class="col-lg-9">
+                    <select name="ftype" id="ftype">
+                    <?php 
+                         for($i=0;$i<sizeof($ftype);$i++){
+                            echo '<option value="'.$i.'">'.$ftype[$i].'</option>';
+                         }   
+                    ?>  
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3">
+                <label for="Year">Status :</label>
+                </div>
+                <div class="col-lg-9">
+                    <select name="fstatus" id="fstatus">
+                        <option value="0">Submitted</option>
+                        <option value="1">Published</option>
+                        <option value="2">Awarded</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3">
+                <label for="Link">Details :</label>
+                </div>
+                <div class="col-lg-4">
+                <input type="text" name="Details">
+                </div>
+            </div>
+            <script>
+                function insertC(ele,strname){
+                    if(strname=='PI')
+                                var beforeclone=document.getElementsByClassName("firstblock")[0];
+                    else    
+                        var beforeclone=document.getElementsByClassName("secondblock")[0];
 
+                    var element = beforeclone.cloneNode(true);
+                    $(element.children[1].children[0].children[1].children[0]).remove();
+                    $(element.children[1].children[0].children[0]).val("");
+                    element.children[2].children[0].innerHTML=element.children[2].children[0].innerHTML+'<i class="fa fa-minus-circle"style="color : red; font-size : 20px;" onclick="deleteC(this)"></i>';
+                    var str=ele.parentElement.parentElement.previousElementSibling.previousElementSibling.children[0].innerHTML;
+                    if(strname=="PI")   $(element.children[1].children[0].children[0]).attr("name",strname+(parseInt(str.slice(23,str.length-2))+1));
+                    else $(element.children[1].children[0].children[0]).attr("name",strname+(parseInt(str.slice(26,str.length-2))+1));
+                    $(element.children[1].children[0].children[2]).attr("name",strname+"id"+$(element.children[1].children[0].children[0]).attr("name").slice(strname.length));
+                    if(strname=='PI') element.children[0].children[0].innerHTML="Principal Investigator "+(parseInt(str.slice(23,str.length-2))+1)+" :";
+                    else element.children[0].children[0].innerHTML="CO Principal Investigator "+(parseInt(str.slice(26,str.length-2))+1)+" :";
+                    $(element.children[1].children[0].children[0]).removeAttr('list');
+                    console.log((element.children[1].children[0].children[0]));
+                    if(strname=='PI')
+                        $(element).insertBefore(".secondblock");
+                    else    
+                        $(element).insertBefore("#appendbefore");
+
+                }
+                function deleteC(ele){
+                    $(ele.parentElement.parentElement.parentElement).remove();
+                }
+                function searchname(ele){   
+                    //console.log($(ele).val());
+                    if(($(ele).val().length>=1) && ($(ele).val().includes("(") || $(ele).val().includes(")") )){
+                        var datalistele= ele.nextElementSibling.children[0].children; 
+                        for(var i=0;i<datalistele.length;i++){
+                                if($(datalistele[i]).val() == $(ele).val()){
+                                    $(ele.nextElementSibling.nextElementSibling).val($(datalistele[i]).attr('data-value'));
+                                }
+                            }
+                    }
+                    else{
+                        console.log($(ele).attr('name'));
+                        if($(ele).attr("name")=="PI1"){
+                            $.ajax({
+                                url : "./oninputtemp.php?qr="+$(ele).val(),
+                                type : "GET",
+                                success : function(data){
+                                    ele.nextElementSibling.innerHTML=data;
+                                    $(ele).attr("list","facultynames");
+                                    var datalistele= ele.nextElementSibling.children[0].children; 
+                                    $(ele.nextElementSibling.nextElementSibling).val("null");
+                                    for(var i=0;i<datalistele.length;i++){
+                                        if($(datalistele[i]).val() == $(ele).val()){
+                                            $(ele.nextElementSibling.nextElementSibling).val($(datalistele[i]).attr('data-value'));
+                                        }
+                                    }
+                                },error : function(err){
+                                    console.log("not working");
+                                }
+                            })
+                        }
+                    else{
+                        $.ajax({
+                        url : "./oninputtemp.php?qrr="+$(ele).val()+"&id="+$(ele).attr('name').slice(4),
+                        type : "GET",
+                        success : function(data){
+                            ele.nextElementSibling.innerHTML=data;
+                            $(ele).attr("list","facultynames"+$(ele).attr('name').slice(4));
+                            var datalistele= ele.nextElementSibling.children[0].children; 
+                            $(ele.nextElementSibling.nextElementSibling).val("null");
+                            for(var i=0;i<datalistele.length;i++){
+                                if($(datalistele[i]).val() == $(ele).val()){
+                                    $(ele.nextElementSibling.nextElementSibling).val($(datalistele[i]).attr('data-value'));
+                                }
+                            }
+                        },error : function(err){
+                            console.log("not working");
+                        }
+                    })
+                    }
+                } 
+            }
+            </script> 
+            <div class="row firstblock">
+                <div class="col-lg-3">
+                <label for="Link">Principal Investigator 1 :</label>
+                <span style="color:red;"></span>
+                </div>
+                <div class="col-lg-auto" style="display: inline-block;">
+                    <div style="margin-top: 7.5px;">
+                        <input type="text" name="PI1" oninput="searchname(this)" autocomplete="off" value="">
+                        <div class="appearfac"></div>
+                        <input type="hidden" name="PIid1" value="null">
+                    </div>
+                </div>
+
+            </div>
+            <div class="row secondblock">
+                <div class="col-lg-3">
+                <label for="Link">CO Principal Investigator 1 :</label>
+                <span style="color:red;"></span>
+                </div>
+                <div class="col-lg-auto" style="display: inline-block;">
+                    <div style="margin-top: 7.5px;">
+                        <input type="text" name="COPI1" oninput="searchname(this)" autocomplete="off" value="">
+                        <div class="appearfac"></div>
+                        <input type="hidden" name="COPIid1" value="null">
+                    </div>
+                </div>
+                <div style="display : inline-block;">
+                        <div style="margin-top: 10px;">
+                            <i class="fa fa-plus-circle" style="color : green; font-size : 20px;" onclick="insertC(this,'COPI')"></i>
+                        </div>
+                </div>
+            </div>
+            <div class="text-center mt-4" id="appendbefore">
+                <button type="submit" name="MANUALPOST" class="btn btn-success">POST THE DETAILS</button>
+            </div>
+        </form>
+    </div>
+    
+    <div class="text-center" style="display: none;">
+        <form action="../Profile/publications.php" method="post" enctype="multipart/form-data" class="excelform mt-5">
+            <?php
+                $rand1=rand();
+                $_SESSION['rand1']=$rand1;
+            ?>
+            <input type="hidden" value="<?php echo $rand1; ?>" name="randcheck1" />
+            <div class="row text-center">
+                <div class="mt-2">
+                    <input type="file" name="csvfile" required>
+                </div>
+                <div>
+                    <button type="submit" name="uploadexcel" class="btn btn-info">Upload CSV</button>
+                </div>
+            </div>
+        </form>
+        <div class="text-center" style="color:red;">
+            *Table columns must be in the order (Publication Title,Conference Name,Source Title,Volume,Pages,Year,Website name,URL of publication)
+        </div>
+    </div>
 
 </div>
 

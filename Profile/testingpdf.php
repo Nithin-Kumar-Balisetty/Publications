@@ -41,6 +41,13 @@
                 }
                 echo "</datalist>";
         }*/
+        /* patents */
+        $ftype=array("Non-Provisional","Convention","PCT International","PCT National Phase","Divisional","Patent of Addition");
+        $status=array("Submitted","Published","Awarded");
+        /* patent end*/
+        $journalpublisher = array("Springer","Elsevier");
+        $indexing=array("SCI","Non-SCI","Scopus","Open-access");
+
 ?>
 <?php
     /*
