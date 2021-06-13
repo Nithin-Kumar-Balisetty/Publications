@@ -635,78 +635,62 @@ background: rgba(52,57,87,0.9);
 
 <?php
     if(isset($_POST["ConferencePOST"]) && $_POST["randcheck2"]==$_SESSION['rand2']){
-        $strname="";
-        $servername = 'localhost';
-        $username = 'root';
-        $dbname = 'internship';
-        $conn=mysqli_connect($servername, $username,'', $dbname);
-        if(!$conn) die();
+        $obj=new SQL();
+        $conn=$obj->SQLi();
+        if(!$conn)  echo '<script>popupform("Your Conference Publication is not posted","There an internal issue in the server.Sorry for the inconvinience!");</script>';
         else{
-            /*$query = 'SELECT COUNT(*) from `publications`;';
-            $res=mysqli_query($conn,$query);
-            $rows=0;
-            while($row=mysqli_fetch_assoc($res)){ $rows=$row["COUNT(*)"]; }
-            $str=''.($rows+1).',"'.$_POST["Title"].'","'.$_POST["ConferenceName"].'","'.$_POST["Source_Title"].'",'.$_POST["Vol"].','.$_POST["Pages"].','.$_POST["Year"].',"'.$_POST["Website"].'","'.$_POST["Link"].'","../uploads/Publications/'.($rows+1).'"';
-            $query1="INSERT INTO publications (PID,Title,ConferenceName,Source_Title,Vol,Pages,Year,Website,Link,Filename) values(".$str.")";
-            if(mysqli_query($conn,$query1)){
-                //successfully inserted
-                $i=9;
-                while($i<=count($_POST)-2){
-                    $query3 = 'SELECT EID from `users` where EMAIL="'.$_POST["Author".($i-8)].'";';
-                    $res=mysqli_query($conn,$query3);
-                    $temp=0;
-                    while($row=mysqli_fetch_assoc($res)){ $temp=$row["EID"]; }
-                    $query2= "INSERT INTO pubicationauthor (PID,EID,Noofauth) values(".($rows+1).",".$temp.",".(count($_POST)-10).")";
-                    if(mysqli_query($conn,$query2)){
-                        // succesfully inserted in publicationauthor table
-                    }
-                    else{
-                        echo "<script>alert('Error in posting data.Please Try again');</script>";
-                    }
-                    $i++;
+            $check=0;
+            $str=strtolower($_POST["Title"]);
+            $quer='SELECT PID,Title from `publications`;';
+            $res=mysqli_query($conn,$quer);
+            while($row=mysqli_fetch_assoc($res)){
+                $title=strtolower($row["Title"]);
+                similar_text($title,$str,$per);
+                if($per<=100 && $per>=90){
+                    $check=1;
+                    echo "<script>popupform('Your Conference publication is not posted','There is already a Conference publication under this TITLE')</script>";
+                    break;
                 }
             }
-            else{
-                echo "<script>alert('Error in inserting data.Please Try again');</script>";
-            }*/
-           // var_dump($_POST);
-            echo count($_POST);
-            
+            if($check==0){
+                $i=1;
+                $noofauth=0;
+                while(isset($_POST["Author".$i])){
+                    $noofauth++;
+                    $i++;
+                }
+                $quer='INSERT INTO `publications`(Title,ConferenceName,Vol,Pages,Year,Indexing,No_of_Auth,Source_Title,ISSN,Proceedings) values("'.$_POST["Title"].'","'.$_POST["ConferenceName"].'",'.$_POST["Vol"].','.$_POST["Pages"].','.$_POST["Year"].',"'.$indexing[(int)$_POST["indexing"]].'",'.$noofauth.',"'.$_POST["Source_Title"].'","'.(($_POST["ISSN1"].$_POST["ISSN2"])).'","'.$_POST["Proceedings"].'");';
+                if(mysqli_query($conn,$quer)){
+                    $rowcount=mysqli_fetch_array(mysqli_query($conn,'SELECT MAX(PID) as max FROM `publications`;'));
+                    $j=1;
+                    while(isset($_POST["AuthorID".$j])){
+                        if(mysqli_query($conn,'INSERT into `pubicationauthor`(PID,EID) values('.$rowcount["max"].','.$_POST["AuthorID".$j].')')){
+                            $j++;
+                        }
+                        else{
+                            break;
+                        }
+                    }
+                    if($j-1==$noofauth)  echo "<script>popupform('Success','Your Conference Publication has been posted')</script>"; 
+                    else echo "<script>popupform('Publication not posted','Server Error.Sorry for the inconvinience!')</script>"; 
+                }
+                else{
+                     echo "<script>popupform('Insert Publication not posted','Server Error.Sorry for the inconvinience!');console.log('".mysqli_error($conn)."');</script>"; 
+                }
+            }
         }
-        mysqli_close($conn);
-        var_dump($_POST);
-
     }
     if(isset($_POST["JournalPOST"]) && $_POST["randcheck"]==$_SESSION['rand']){
-        /*
-        $mainarr=array();
-                $quer = "SELECT Title,PID FROM publications WHERE PID in (SELECT PID from pubicationauthor where EID in (SELECT EID from faculty where email='sample1@gmail.com'))";
-                $result = $obj->query($quer);
-                if(!$result) echo "<div class='row after publication conference data'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>";
-                else{
-                    while($row = mysqli_fetch_assoc($result)) {
-                        $subq = 'SELECT `name` from `faculty` NATURAL JOIN `pubicationauthor` WHERE `PID`='.$row["PID"].' and `email`!="sample1@gmail.com"';
-                        $str="";
-                        $result1 = mysqli_query($conn, $subq);
-                        while($row1= mysqli_fetch_assoc($result1)){
-                            $str=$str.$row1["name"].",";
-                        }
-                        array_push($mainarr,($row["PID"]));
-                        if($str=="") echo '<div class="row after publication conference data"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this)" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["Title"].'</p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">Fully Contibuted by you</p></div></div>';  
-                        else  echo '<div class="row after publication conference data"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this)" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["Title"].'</p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">'.substr($str,0,strlen($str)-1).'</p></div></div>'; 
-                    }
-                }
-        */
         $obj=new SQL();
         $conn=$obj->SQLi();
         if(!$conn)  echo '<script>popupform("Your Publication is not posted","There an internal issue in the server.Sorry for the inconvinience!");</script>';
         else{
             $check=0;
             $str=strtolower($_POST["Title"]);
-            $quer='SELECT PID,Title from publications;';
+            $quer='SELECT JID,Paper_Title from `journals`;';
             $res=mysqli_query($conn,$quer);
             while($row=mysqli_fetch_assoc($res)){
-                $title=strtolower($row["Title"]);
+                $title=strtolower($row["Paper_Title"]);
                 similar_text($title,$str,$per);
                 if($per<=100 && $per>=90){
                     $check=1;
@@ -723,10 +707,9 @@ background: rgba(52,57,87,0.9);
                 }
                 $quer='INSERT INTO `journals`(Paper_Title,Journal,VolNo,Issue,Pages,Year,Publisher,Indexing,No_of_Auth,source_title,ISSN) values("'.$_POST["Title"].'","'.$_POST["ConferenceName"].'",'.$_POST["Vol"].','.$_POST["Issue"].','.$_POST["Pages"].','.$_POST["Year"].',"'.$journalpublisher[(int)$_POST["publisher"]].'","'.$indexing[(int)$_POST["indexing"]].'",'.$noofauth.',"'.$_POST["Source_Title"].'","'.(($_POST["ISSN1"].$_POST["ISSN2"])).'");';
                 if(mysqli_query($conn,$quer)){
-                    $rowcount=mysqli_num_rows(mysqli_query($conn,'SELECT JID from `journals`'));
-                    $j=1;
+                    $rowcount=mysqli_fetch_array(mysqli_query($conn,'SELECT MAX(JID) as max FROM `journals`;'));                    $j=1;
                     while(isset($_POST["AuthorID".$j])){
-                        if(mysqli_query($conn,'INSERT into `journalauthor`(JID,EID) values('.$rowcount.','.$_POST["AuthorID".$j].')')){
+                        if(mysqli_query($conn,'INSERT into `journalauthor`(JID,EID) values('.$rowcount["max"].','.$_POST["AuthorID".$j].')')){
                             $j++;
                         }
                         else{
@@ -1055,6 +1038,14 @@ background: rgba(52,57,87,0.9);
                 </div>
                 <div class="col-lg-4">
                 <input type="text" name="ConferenceName" >
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3">
+                <label for="ConName">Proceedings :</label>
+                </div>
+                <div class="col-lg-4">
+                <textarea name="Proceedings" id="" cols="40" rows="5"></textarea>
                 </div>
             </div>
             <div class="row">
