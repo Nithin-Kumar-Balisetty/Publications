@@ -479,7 +479,7 @@ background: rgba(52,57,87,0.9);
         dlg.style.left = (winWidth/2) - 480/2 + "px";
         dlg.style.top = "150px";
         $("#dlg-header").text(strheader);
-        $("#dlg-body").text(str);
+        $("#dlg-body").text(strbody);
         $("#dlgLogin").hide();
         $("#dlgLogout").text("Go Back");
         $("#dlgLogout").click(function (){
@@ -716,13 +716,14 @@ background: rgba(52,57,87,0.9);
             }
             if($check==0){
                 $i=1;
+                $noofauth=0;
                 while(isset($_POST["Author".$i])){
                     $noofauth++;
                     $i++;
                 }
-                $quer='INSERT INTO `journals`(Paper_Title,Journal,VolNo,Issue,Pages,Year,Publisher,Indexing,No_of_Auth,source_title,ISSN) values("'.$_POST["Title"].'","'.$_POST["ConferenceName"].'",'.$_POST["Vol"].','.$_POST["Issue"].','.$_POST["Pages"].','.$_POST["Year"].'"'.$journalpublisher[(int)$_POST["publisher"]].'","'.$indexing[(int)$_POST["indexing"]].'",'.$noofauth.',"'.$_POST["Source_Title"].'",'.((int)($_POST["ISSN1"].$_POST["ISSN2"])).');';
+                $quer='INSERT INTO `journals`(Paper_Title,Journal,VolNo,Issue,Pages,Year,Publisher,Indexing,No_of_Auth,source_title,ISSN) values("'.$_POST["Title"].'","'.$_POST["ConferenceName"].'",'.$_POST["Vol"].','.$_POST["Issue"].','.$_POST["Pages"].','.$_POST["Year"].',"'.$journalpublisher[(int)$_POST["publisher"]].'","'.$indexing[(int)$_POST["indexing"]].'",'.$noofauth.',"'.$_POST["Source_Title"].'","'.(($_POST["ISSN1"].$_POST["ISSN2"])).'");';
                 if(mysqli_query($conn,$quer)){
-                    $rowcount=mysqli_num_rows(mysqli_query($con,'SELECT JID from `journals`'));
+                    $rowcount=mysqli_num_rows(mysqli_query($conn,'SELECT JID from `journals`'));
                     $j=1;
                     while(isset($_POST["AuthorID".$j])){
                         if(mysqli_query($conn,'INSERT into `journalauthor`(JID,EID) values('.$rowcount.','.$_POST["AuthorID".$j].')')){
@@ -734,6 +735,9 @@ background: rgba(52,57,87,0.9);
                     }
                     if($j-1==$noofauth)  echo "<script>popupform('Success','Your Journal Publication has been posted')</script>"; 
                     else echo "<script>popupform('Publication not posted','Server Error.Sorry for the inconvinience!')</script>"; 
+                }
+                else{
+                     echo "<script>popupform('Insert Publication not posted','Server Error.Sorry for the inconvinience!');console.log('".mysqli_error($conn)."');</script>"; 
                 }
             }
         }
