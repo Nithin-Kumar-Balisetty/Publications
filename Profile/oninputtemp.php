@@ -1,6 +1,6 @@
 <?php
 
-if(isset($_GET['q'])){
+/*if(isset($_GET['q'])){
         $servername = 'localhost';
         $username = 'root';
         $dbname = 'internship';
@@ -12,13 +12,35 @@ if(isset($_GET['q'])){
                 $res=mysqli_query($conn,$query);
                 $final="";
                 while($row=mysqli_fetch_array($res)){
-                    echo "<a href='./searchpublications.php?searchfac=".$row['ENAME']."&id=".$row['EID']."'>".$row['name']."</a><br>";
+                    echo "<a href='./searchpublications.php?searchfac=".$row['name']."&id=".$row['EID']."'>".$row['name']."</a><br>";
                 }
             }
             else{
                 echo "";
             }
         }
+}*/
+if(isset($_GET['q'])){
+    $servername = 'localhost';
+    $username = 'root';
+    $dbname = 'internship';
+    $conn = mysqli_connect($servername, $username,'', $dbname);
+    if(!$conn) die();
+    else{
+        if($_GET['q']!=""){
+            $query = 'SELECT EID,name,dept from `faculty` where name LIKE "%'.$_GET["q"].'%";';
+            $res=mysqli_query($conn,$query);
+            $final="";
+            echo "<datalist id='facultynames'>";
+                while($row=mysqli_fetch_array($res)){
+                    echo '<option data-value="'.$row["EID"].'" value="'.$row["name"]." (".$row["dept"].")".'">';
+                }
+                echo "</datalist>";
+        }
+        else{
+            echo "<datalist></datalist>";
+        }
+    }
 }
 if(isset($_GET['qr'])){
     $servername = 'localhost';

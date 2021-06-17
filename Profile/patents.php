@@ -11,7 +11,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
 
-        <title>IIITDM Dashboard</title>
+        <title>Patents</title>
 
         <!-- Styles -->                        
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -549,7 +549,7 @@ background: rgba(52,57,87,0.9);
             $conn=$obj->SQLi();
             if(!$conn) die("<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>");
             else{
-                $quer = "SELECT PTitle,PaId FROM patents WHERE PIid in (SELECT EID from users where EMAIL='sample1@gmail.com')";
+                $quer = "SELECT PTitle,PaId FROM patents WHERE PIid in (SELECT EID from faculty where email='sadagopan@iiitdm.ac.in')";
                 $result = $obj->query($quer);
                 if(!$result) echo "<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found as a PRINCIPAL INVESTIGATOR.Post your first entry</p></div></div>";
                 else{   
@@ -557,7 +557,7 @@ background: rgba(52,57,87,0.9);
                          echo '<div class="row after"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this)" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["PTitle"].'</p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">'."Pricipal Investigator".'</p></div></div>'; 
                     }
                 }
-                $quer1 = "SELECT PTitle,PaId FROM patents WHERE PaId in (Select PaId from `patentcopi` where COPI in (SELECT EID from users where EMAIL='sample1@gmail.com'))";
+                $quer1 = "SELECT PTitle,PaId FROM patents WHERE PaId in (Select PaId from `patentcopi` where COPI in (SELECT EID from faculty where email='sadagopan@iiitdm.ac.in'))";
                 $result1 = $obj->query($quer1);
                 if(!$result1) echo "<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found as a CO-PRINCIPAL INVESTIGATOR.Post your first entry</p></div></div>";
                 else{   
@@ -599,11 +599,11 @@ background: rgba(52,57,87,0.9);
                 else{
                     $i=1;
                     while(isset($_POST["COPIid".$i])) {
-                        $quer2="SELECT COUNT(*) as total from `patents`;";
+                        $quer2="SELECT COUNT(PaId) as total from `patents`;";
                         $res=$obj->query($quer2);
-                        $data=mysqli_fetch_assoc($res);
+                        $data=mysqli_fetch_array($res);
                         $quer1 = "INSERT into `patentcopi`(PaId,COPI) values(".$data["total"].",".$_POST["COPIid".$i].");";
-                        if($obj->query($quer1) == FALSE) die("<script>alert('Error occured. Try Again !!');</script>");
+                        if($obj->query($quer1) == FALSE) die("<script>alert('".mysqli_error($conn)."');</script>");
                         $i++;
                     }
                 }

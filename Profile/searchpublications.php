@@ -8,7 +8,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
 
-        <title>IIITDM Dashboard</title>
+        <title>Search Publications and Patents</title>
 
         <!-- Styles -->                        
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -448,6 +448,10 @@ background: rgba(52,57,87,0.9);
 
 
 <!-- code start -->
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+
 <style>
 #searchtype{
     color : black;
@@ -505,8 +509,8 @@ background: rgba(52,57,87,0.9);
             url : "./oninputtemp.php?q="+$(ele).val(),
             type : "GET",
             success : function(data){
-                document.getElementById("zindex").innerHTML=data;
-                $("#zindex").show();
+                $(data).insertAfter($(ele));
+                $(ele).attr("list","facultynames");
             },error : function(err){
                 console.log("not working");
             }
@@ -527,7 +531,7 @@ background: rgba(52,57,87,0.9);
             $("#searchp").hide();
             $("#searchp").val('dept');
             $("#searchp2").show();
-            $('<select id="searchp2" name="dept" style="height : 26px;"><?php $arr=array("CSE","MECH","ECE");for($i=0;$i<sizeof($arr);$i++){echo '<option value="'.$i.'">'.$arr[$i].'</option>';}?></select>').insertBefore("form>button");
+            $('<select id="searchp2" name="dept" style="height : 26px;"><?php $arr=array("CE","EE","ME","MAT","PHY");for($i=0;$i<sizeof($arr);$i++){echo '<option value="'.$arr[$i].'">'.$arr[$i].'</option>';}?></select>').insertBefore("form>button");
             $("form>button").css('margin-left','10px');
         }
         if($(ele).val()=="3"){
@@ -538,11 +542,20 @@ background: rgba(52,57,87,0.9);
             $("#searchp").attr("placeholder","Enter Year");
         }
         if($(ele).val()=="4"){
+            $("#searchp1").remove();
             $("#searchp").val("");
             $("#searchp").attr("name","searchyrA");
             $("#searchp").attr("type","number");
             $("#searchp").attr("placeholder","Enter Year A");
-            $('<input type="number" name="searchyrB" id="searchp1" oninput="searchname1(this)" placeholder="Enter the Year B">').insertBefore("form>button");
+            $('<input type="number" name="searchyrB" id="searchp1" placeholder="Enter the Year B">').insertBefore("form>button");
+        }
+        if($(ele).val()=="5"){
+            $("#searchp1").remove();
+            $("#searchp").val("");
+            $("#searchp").attr("name","facname");
+            $("#searchp").attr("type","text");
+            $("#searchp").attr("placeholder","Faculty Name");
+            $('<input type="number" name="searchyrB" id="searchp1" placeholder="Enter the Year" required>').insertBefore("form>button");
         }
     }
 </script>
@@ -562,16 +575,18 @@ background: rgba(52,57,87,0.9);
         </div>
         <div class="text-left formdiv" style="display : inline-block;">
             <form action="./searchpublications.php" method="GET">
-                <input type="text" name="searchfac" id="searchp" oninput="searchname(this)" placeholder="Enter Faculty name"  autocomplete="off">
-                <button type="submit" class="btn btn-success">Search</button>
+            
+                <input type="text" name="searchfac" id="searchp" oninput="searchname(this)" placeholder="Enter Faculty name"  autocomplete="off" style="display : inline-block;">
+                <!--<div class="appearfac"></div>-->
+             <button type="submit" class="btn btn-success" style="display : inline-block;">Search</button>
             </form>
             
         </div>
     </div>
  </div>
-    <div id="zindex">
-           <p></p> 
-    </div>
+ <div id="zindex"> 
+
+</div>
     <div class="container mt-5">
         <div class="row">
             <div class='col-sm-6 text-center publi'> <p onclick="expandpublic()">Publications</p></div>
@@ -605,7 +620,7 @@ background: rgba(52,57,87,0.9);
         <hr class="my-2" style="border-top : 3px solid black; display : none;">
         <div class="container mt-5" id="notfullcontainer">
         <?php
-            if(isset($_GET["searchfac"])&& (!isset($_GET["id"]))){
+            if(isset($_GET["searchfac"])&& (!isset($_GET["id"]))&& (!isset($_GET["dept"]))){
                 echo '<div id="publicationvi">';
                 echo "<script>$('h3').css('display','block');$('hr').css('display','block');</script>";
                 $servername = 'localhost';
@@ -614,18 +629,41 @@ background: rgba(52,57,87,0.9);
                 $conn = mysqli_connect($servername, $username,'', $dbname);
                 if(!$conn) die();
                 else{
-                    $query ="SELECT EID,ENAME from `users` where ENAME like '%".$_GET["searchfac"]."%'";
+                    $name1="";
+                    for($i=0;$i<strlen($_GET["searchfac"]);$i++){
+                        if($_GET["searchfac"][$i]=='(' && $i>=2){
+                            $name1=$name1.(substr($_GET["searchfac"],0,$i-1));
+                            break;
+                        }
+                    }
+                    //echo "<script>alert('".$name1."')</script>";
+                    $query ="SELECT EID,name from `faculty` where name like ";
+                    if($name1==$_GET["searchfac"]){
+                        $query=$query."'%".$_GET["searchfac"]."%'";
+                    }
+                    else{
+                        $query=$query."'%".$name1."%';";
+                    }
                     $res=mysqli_query($conn,$query);
                     echo "<div class='row'>";
                     if(mysqli_num_rows($res)==0) echo "No results found";
-                    while($row=mysqli_fetch_array($res)){
-                        $query1="SELECT PID from `pubicationauthor` where EID=".$row['EID'].";";
-                        $res1=mysqli_query($conn,$query1);
-                        $rows=mysqli_num_rows($res1);
-                        echo "<div class='col-lg-12'>";
-                        echo "<a href='".("./searchpublications.php?searchfac=".$_GET["searchfac"]."&id=".$row["EID"])."&type=publications'>".$row["ENAME"]."(".$rows.")"."</a>";
-                        echo "</div>";
-                    }
+                    
+                        while($row=mysqli_fetch_array($res)){
+                            $query1="SELECT PID from `pubicationauthor` where EID=".$row['EID'].";";
+                            $res1=mysqli_query($conn,$query1);
+                            $rows=mysqli_num_rows($res1);
+                            if(($rows) >=1){
+                            echo "<div class='col-lg-12'>";
+                            echo "<a href='".("./searchpublications.php?searchfac=".$_GET["searchfac"]."&id=".$row["EID"])."&type=publications'>".$row["name"]."(".$rows.")"."</a>";
+                            echo "</div>";
+                            }
+                            else{
+                                echo "<div class='col-lg-12'>";
+                                echo "No results found";
+                                echo "</div>";
+                            }
+                        }
+                    
                     echo "</div>";
                 }
                 echo '</div>';
@@ -637,7 +675,21 @@ background: rgba(52,57,87,0.9);
                 $conn = mysqli_connect($servername, $username,'', $dbname);
                 if(!$conn) die();
                 else{
-                    $query ="SELECT EID,ENAME from `users` where ENAME like '%".$_GET["searchfac"]."%'";
+                    $name1="";
+                    for($i=0;$i<strlen($_GET["searchfac"]);$i++){
+                        if($_GET["searchfac"][$i]=='(' && $i>=2){
+                            $name1=$name1.(substr($_GET["searchfac"],0,$i-1));
+                            break;
+                        }
+                    }
+                    //echo "<script>alert('".$name1."')</script>";
+                    $query ="SELECT EID,name from `faculty` where name like ";
+                    if($name1==$_GET["searchfac"]){
+                        $query=$query."'%".$_GET["searchfac"]."%'";
+                    }
+                    else{
+                        $query=$query."'%".$name1."%';";
+                    }
                     $res=mysqli_query($conn,$query);
                     echo "<div class='row'>";
                     if(mysqli_num_rows($res)==0) echo "No results found";
@@ -650,7 +702,12 @@ background: rgba(52,57,87,0.9);
                         $rows1=mysqli_num_rows($res2);
                         if(($rows+$rows1) >=1){
                             echo "<div class='col-lg-12'>";
-                            echo "<a href='".("./searchpublications.php?searchfac=".$_GET["searchfac"]."&id=".$row["EID"])."&type=patents'>".$row["ENAME"]."(".($rows+$rows1).")"."</a>";
+                            echo "<a href='".("./searchpublications.php?searchfac=".$_GET["searchfac"]."&id=".$row["EID"])."&type=patents'>".$row["name"]."(".($rows+$rows1).")"."</a>";
+                            echo "</div>";
+                        }
+                        else{
+                            echo "<div class='col-lg-12'>";
+                            echo "No results found";
                             echo "</div>";
                         }
                     }
@@ -658,20 +715,20 @@ background: rgba(52,57,87,0.9);
                 }
                 echo '</div>';
             }
-            if(isset($_GET["searchfac"])&&isset($_GET["id"])&&isset($_GET['type'])){
-                if($_GET["type"]=='publications'){
+            if(isset($_GET["searchfac"])&&isset($_GET["id"])){
                     $servername = 'localhost';
                     $username = 'root';
                     $dbname = 'internship';
                     $conn = mysqli_connect($servername, $username,'', $dbname);
                     if(!$conn) die();
                     else{
-                        echo '<script>$("#publicationvi").show();$("#patentvi").hide();$("#patentvi").hide();if($("#patentvi").css("display")=="block"){console.log("masss");window.location.href=window.location.href.slice(0,-12)+"patents";}</script>';
-                        $query1="SELECT ENAME from `users` where EID=".$_GET['id'].";";
+                        echo "<script>$('#notfullcontainer').attr('id','fullcontainer');$('h3').text('ndewekw')</script>";
+                        echo "<script>$('h3').css('display','block');$('hr').css('display','block');</script>";
+                        $query1="SELECT name from `faculty` where EID=".$_GET['id'].";";
                         $name1 = mysqli_query($conn, $query1);
                         $name = mysqli_fetch_array($name1);
                         echo "<div id='publicationvi'>";
-                        echo "<script>$('#notfullcontainer').attr('id','fullcontainer');$('h3').text('".$name["ENAME"]."')</script>";
+                        echo "<script>$('#notfullcontainer').attr('id','fullcontainer');$('h3').text('".$name["name"]."')</script>";
                         echo "<script>$('h3').css('display','block');$('hr').css('display','block');</script>";
                         echo '<div class="row">';
                         echo '<div class="para col-lg-8">';
@@ -684,11 +741,11 @@ background: rgba(52,57,87,0.9);
                         if(!$result) echo "<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>";
                         else{
                             while($row = mysqli_fetch_assoc($result)) {
-                                $subq = 'SELECT `ENAME` from `users` NATURAL JOIN `pubicationauthor` WHERE `PID`='.$row["PID"].' and EID!='.$_GET["id"].';';
+                                $subq = 'SELECT `name` from `faculty` NATURAL JOIN `pubicationauthor` WHERE `PID`='.$row["PID"].' and EID!='.$_GET["id"].';';
                                 $str="";
                                 $result1 = mysqli_query($conn, $subq);
                                 while($row1= mysqli_fetch_assoc($result1)){
-                                    $str=$str.$row1["ENAME"].",";
+                                    $str=$str.$row1["name"].",";
                                 }
                                 array_push($mainarr,($row["PID"]));
                                 if($str=="") echo '<div class="row after"><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["Title"].'</p></div><div class="col-lg-4"><p class="mb-2 mt-2 text-center">Fully Contibuted by you</p></div></div>';  
@@ -696,22 +753,11 @@ background: rgba(52,57,87,0.9);
                             }
                         }
                         echo "</div>";
-                    }
-                }
-                if($_GET["type"]=='patents'){
-                   echo '<script>$("#publicationvi").hide();$("#patentvi").show();if($("#publicationvi").css("display")=="block"){window.location.href=window.location.href.slice(0,-7)+"publications";}</script>';
-                    $servername = 'localhost';
-                    $username = 'root';
-                    $dbname = 'internship';
-                    $conn = mysqli_connect($servername, $username,'', $dbname);
-                    if(!$conn) die();
-                    else{
-                        $query1="SELECT ENAME from `users` where EID=".$_GET['id'].";";
+
+                        $query1="SELECT name from `faculty` where EID=".$_GET['id'].";";
                         $name1 = mysqli_query($conn, $query1);
                         $name = mysqli_fetch_array($name1);
-                        echo "<div id='patentvi'>";
-                        echo "<script>$('#notfullcontainer').attr('id','fullcontainer');$('h3').text('".$name["ENAME"]."')</script>";
-                        echo "<script>$('h3').css('display','block');$('hr').css('display','block');</script>";
+                        echo "<div id='patentvi' style='display : none;'>";
                         echo '<div class="row">';
                         echo '<div class="para col-lg-8">';
                         echo '<p class="mb-2 mt-2 text-center text-white">Patent Title</p>';
@@ -734,8 +780,7 @@ background: rgba(52,57,87,0.9);
                             }
                         }
                         echo "</div>";
-                    }
-                }
+                    }                
             }
             if(isset($_GET["searchyr"])){
                 $servername = 'localhost';
@@ -758,11 +803,11 @@ background: rgba(52,57,87,0.9);
                     else{
                         $mainarr=array();
                         while($row=mysqli_fetch_assoc($res)){
-                            $query1='SELECT `ENAME` from `users` NATURAL JOIN `pubicationauthor` WHERE `PID`='.$row["PID"].';';
+                            $query1='SELECT `name` from `faculty` NATURAL JOIN `pubicationauthor` WHERE `PID`='.$row["PID"].';';
                             $str="";
                             $result1 = mysqli_query($conn, $query1);
                             while($row1= mysqli_fetch_assoc($result1)){
-                                $str=$str.$row1["ENAME"].",";
+                                $str=$str.$row1["name"].",";
                             }
                             array_push($mainarr,($row["PID"]));
                             echo '<div class="row after"><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["Title"].'</p></div><div class="col-lg-4"><p class="mb-2 mt-2 text-center">'.substr($str,0,strlen($str)-1).'</p></div></div>'; 
@@ -780,14 +825,14 @@ background: rgba(52,57,87,0.9);
                     if(!$res1) echo "<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>";
                     else{
                         while($row=mysqli_fetch_assoc($res1)){
-                            $pi='SELECT `ENAME` from `users` where `EID`='.$row["PIid"].';'; 
+                            $pi='SELECT `name` from `faculty` where `EID`='.$row["PIid"].';'; 
                             $name=mysqli_query($conn, $pi);
                             $piname= mysqli_fetch_assoc($name);
-                            $query1='SELECT `ENAME` from `users` INNER JOIN `patentcopi` ON `patentcopi`.COPI=`users`.EID WHERE `PaId`='.$row["PaId"].';';
-                            $str=$piname['ENAME'].',';
+                            $query1='SELECT `name` from `faculty` INNER JOIN `patentcopi` ON `patentcopi`.COPI=`faculty`.EID WHERE `PaId`='.$row["PaId"].';';
+                            $str=$piname['name'].',';
                             $result1 = mysqli_query($conn, $query1);
                             while($row1= mysqli_fetch_assoc($result1)){
-                                $str=$str.$row1["ENAME"].",";
+                                $str=$str.$row1["name"].",";
                             }
                             echo '<div class="row after"><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["PTitle"].'</p></div><div class="col-lg-4"><p class="mb-2 mt-2 text-center">'.substr($str,0,strlen($str)-1).'</p></div></div>'; 
                         }   
@@ -803,33 +848,179 @@ background: rgba(52,57,87,0.9);
                 if(!$conn) die();
                 else{
                     echo "<script>$('#notfullcontainer').attr('id','fullcontainer');$('h3').text('From Year ".$_GET["searchyrA"]." to ".$_GET["searchyrB"]."');$('hr').css('display','block');</script>";
+                    echo "<script>$('h3').css('display','block');$('hr').css('display','block');</script>";
+                    echo "<div class='puyearview'>";
                     echo '<div class="row">';
                     echo '<div class="para col-lg-8">';
                     echo '<p class="mb-2 mt-2 text-center text-white">Publication Title</p>';
                     echo '</div>';
                     echo '<div class="para col-lg-3"><p class="mb-2 mt-2 text-center text-white">Contributed with</p></div><div class=" para col-lg-1"><p class="mb-2 mt-2 text-center text-white">Year</p></div></div>';
-                    $query="SELECT PID,Title,Year from `publications` where Year>=".$_GET['searchyrA']." and Year<=".$_GET['searchyrB']." ORDER by Year desc;";
+                    $max=max((int)$_GET['searchyrA'],(int)$_GET["searchyrB"]);
+                    $min=min((int)$_GET['searchyrA'],(int)$_GET["searchyrB"]);
+                    $query="SELECT PID,Title,Year from `publications` where Year>=".$min." and Year<=".$max." ORDER by Year desc;";
                     $res=mysqli_query($conn,$query);
                     if(!$res) echo "<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>";
                     else{
                         $mainarr=array();
                         while($row=mysqli_fetch_assoc($res)){
-                            $query1='SELECT `ENAME` from `users` NATURAL JOIN `pubicationauthor` WHERE `PID`='.$row["PID"].';';
+                            $query1='SELECT `name` from `faculty` NATURAL JOIN `pubicationauthor` WHERE `PID`='.$row["PID"].';';
                             $str="";
                             $result1 = mysqli_query($conn, $query1);
                             while($row1= mysqli_fetch_assoc($result1)){
-                                $str=$str.$row1["ENAME"].",";
+                                $str=$str.$row1["name"].",";
                             }
                             array_push($mainarr,($row["PID"]));
                             echo '<div class="row after"><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["Title"].'</p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">'.substr($str,0,strlen($str)-1).'</p></div><div class="col-lg-1"><p class="mb-2 mt-2 text-center">'.$row["Year"].'</p></div></div>'; 
                         }   
                     }
+                    echo "</div>";
+                    echo "<div class='payearview' style='display : none;'>";
+                    echo '<div class="row">';
+                    echo '<div class="para col-lg-8">';
+                    echo '<p class="mb-2 mt-2 text-center text-white">Patent Title</p>';
+                    echo '</div>';
+                    echo '<div class="para col-lg-3"><p class="mb-2 mt-2 text-center text-white">Principal Investigator</p></div><div class=" para col-lg-1"><p class="mb-2 mt-2 text-center text-white">Year</p></div></div>';
+                    $max=max((int)$_GET['searchyrA'],(int)$_GET["searchyrB"]);
+                    $min=min((int)$_GET['searchyrA'],(int)$_GET["searchyrB"]);
+                    $query="SELECT PaId,PIid,PTitle,Year from `patents` where Year>=".$min." and Year<=".$max." ORDER by Year desc;";
+                    $res=mysqli_query($conn,$query);
+                    if(!$res) echo "<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>";
+                    else{
+                        while($row=mysqli_fetch_assoc($res)){
+                            $query1='SELECT `name` from `faculty` WHERE `EID`='.$row["PIid"].';';
+                            $result1 = mysqli_query($conn, $query1);
+                            $principalname=mysqli_fetch_array($result1);
+                            echo '<div class="row after"><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["PTitle"].'</p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">'.$principalname["name"].'</p></div><div class="col-lg-1"><p class="mb-2 mt-2 text-center">'.$row["Year"].'</p></div></div>'; 
+                        }   
+                    }
+                    echo "</div>";
+
                 }
             }
         if(isset($_GET["dept"])){
-
+                $servername = 'localhost';
+                $username = 'root';
+                $dbname = 'internship';
+                $conn = mysqli_connect($servername, $username,'', $dbname);
+                if(!$conn) die();
+                else{
+                    echo "<script>$('#notfullcontainer').attr('id','fullcontainer');$('h3').text('".$_GET["dept"]."');$('hr').css('display','block');</script>";
+                    echo "<script>$('h3').css('display','block');$('hr').css('display','block');</script>";
+                    echo "<div class='puyearview'>";
+                    echo '<div class="row">';
+                    echo '<div class="para col-lg-8">';
+                    echo '<p class="mb-2 mt-2 text-center text-white">Publication Title</p>';
+                    echo '</div>';
+                    echo '<div class="para col-lg-3"><p class="mb-2 mt-2 text-center text-white">Type</p></div><div class=" para col-lg-1"><p class="mb-2 mt-2 text-center text-white">Year</p></div></div>';
+                    $query="SELECT distinct(JID) from `journalauthor` NATURAL JOIN `faculty` where `dept`='".$_GET["dept"]."';";
+                    $res=mysqli_query($conn,$query);
+                    if(!$res) echo "<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>";
+                    else{
+                        $mainarr=array();
+                        while($row=mysqli_fetch_assoc($res)){
+                            $query1='SELECT JID,Paper_Title,Year from `journals` where JID='.$row["JID"].';';
+                            $result1 = mysqli_query($conn, $query1);
+                            $pubarray=mysqli_fetch_array($result1);
+                            echo '<div class="row after"><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$pubarray["Paper_Title"].'</p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">'.'Journal'.'</p></div><div class="col-lg-1"><p class="mb-2 mt-2 text-center">'.$pubarray["Year"].'</p></div></div>'; 
+                        }   
+                    }
+                    $query="SELECT distinct(PID) from `pubicationauthor` NATURAL JOIN `faculty` where `dept`='".$_GET["dept"]."';";
+                    $res=mysqli_query($conn,$query);
+                    if(!$res) echo "<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>";
+                    else{
+                        $mainarr=array();
+                        while($row=mysqli_fetch_assoc($res)){
+                            $query1='SELECT PID,Title,Year from `publications` where PID='.$row["PID"].';';
+                            $result1 = mysqli_query($conn, $query1);
+                            $pubarray=mysqli_fetch_array($result1);
+                            echo '<div class="row after"><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$pubarray["Title"].'</p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">'.'Conference'.'</p></div><div class="col-lg-1"><p class="mb-2 mt-2 text-center">'.$pubarray["Year"].'</p></div></div>'; 
+                        }   
+                    }
+                    echo "</div>";
+                    echo "<div class='payearview' style='display : none;'>";
+                    echo '<div class="row">';
+                    echo '<div class="para col-lg-8">';
+                    echo '<p class="mb-2 mt-2 text-center text-white">Patent Title</p>';
+                    echo '</div>';
+                    echo '<div class="para col-lg-3"><p class="mb-2 mt-2 text-center text-white">Principal Investigator</p></div><div class=" para col-lg-1"><p class="mb-2 mt-2 text-center text-white">Year</p></div></div>';
+                    $query="SELECT PaId,PIid,PTitle,name,Year from `patents` inner join `faculty` on faculty.EID=patents.PIid where dept='".$_GET['dept']."' ORDER BY PaId desc;";
+                    $res=mysqli_query($conn,$query);
+                    if(!$res) echo "<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>";
+                    else{
+                        while($row=mysqli_fetch_assoc($res)){
+                            echo '<div class="row after"><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["PTitle"].'</p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">'.$row["name"].'</p></div><div class="col-lg-1"><p class="mb-2 mt-2 text-center">'.$row["Year"].'</p></div></div>'; 
+                        }   
+                    }
+                    echo "</div>";
+                    
+                }
         }
-
+        if(isset($_GET["facname"])&& isset($_GET["searchyrB"])){
+            echo "<script>alert('".$_GET["facname"]."');</script>";
+            echo '<div id="publicationvi">';
+                echo "<script>$('h3').css('display','block');$('hr').css('display','block');</script>";
+                $servername = 'localhost';
+                $username = 'root';
+                $dbname = 'internship';
+                $conn = mysqli_connect($servername, $username,'', $dbname);
+                if(!$conn) die();
+                else{
+                    $query ="SELECT EID,name from `faculty` where name like '%".$_GET["facname"]."%'";
+                    $res=mysqli_query($conn,$query);
+                    echo "<div class='row'>";
+                    if(mysqli_num_rows($res)==0) echo "No results found";
+                    while($row=mysqli_fetch_array($res)){
+                        $query1="SELECT PID from `pubicationauthor` where EID=".$row['EID'].";";
+                        $res1=mysqli_query($conn,$query1);
+                        $rows=mysqli_num_rows($res1);
+                        if(($rows) >=1){
+                        echo "<div class='col-lg-12'>";
+                        echo "<a href='".("./searchpublications.php?searchfac=".$_GET["facname"]."&id=".$row["EID"])."&year=".$_GET["searchyrB"]."'>".$row["name"]."(".$rows.")"."</a>";
+                        echo "</div>";
+                        }
+                        else{
+                            echo "<div class='col-lg-12'>";
+                            echo "No results found";
+                            echo "</div>";
+                        }
+                    }
+                    echo "</div>";
+                }
+                echo '</div>';
+                echo '<div id="patentvi" style="display : none;">';
+                echo "<script>$('h3').css('display','block');$('hr').css('display','block');</script>";
+                $servername = 'localhost';
+                $username = 'root';
+                $dbname = 'internship';
+                $conn = mysqli_connect($servername, $username,'', $dbname);
+                if(!$conn) die();
+                else{
+                    $query ="SELECT EID,`name` from `faculty` where `name` like '%".$_GET["facname"]."%'";
+                    $res=mysqli_query($conn,$query);
+                    echo "<div class='row'>";
+                    if(mysqli_num_rows($res)==0) echo "No results found";
+                    while($row=mysqli_fetch_array($res)){
+                        $query1="SELECT PaId from `patents` where PIid=".$row['EID'].";";
+                        $res1=mysqli_query($conn,$query1);
+                        $rows=mysqli_num_rows($res1);
+                        $query2="SELECT PaId from `patentcopi` where COPI=".$row['EID'].";";
+                        $res2=mysqli_query($conn,$query2);
+                        $rows1=mysqli_num_rows($res2);
+                        if(($rows+$rows1) >=1){
+                            echo "<div class='col-lg-12'>";
+                            echo "<a href='".("./searchpublications.php?searchfac=".$_GET["facname"]."&id=".$row["EID"])."&year=".$_GET["searchyrB"]."'>".$row["name"]."(".($rows+$rows1).")"."</a>";
+                            echo "</div>";
+                        }
+                        else{
+                            echo "<div class='col-lg-12'>";
+                            echo "No results found";
+                            echo "</div>";
+                        }
+                    }
+                    echo "</div>";
+                }
+                echo '</div>';
+        }
         ?>
         </div>
     </div></div>

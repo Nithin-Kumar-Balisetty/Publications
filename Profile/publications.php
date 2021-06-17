@@ -10,7 +10,7 @@
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>IIITDM Dashboard</title>
+        <title>Publications</title>
 
         <!-- Styles -->                        
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -541,12 +541,6 @@ background: rgba(52,57,87,0.9);
     function EDITbutton(element){
         console.log(element);
     }
-    /*function DELETEbutton(element){
-        //$("body").children().attr('z-index',-1000);
-        //$('<div id="deleteclick"><div class="centreblock">mass mrnfkeefkfe</div></div>').appendTo("body");
-        $("body").children().hide();
-        $("#massmass").show();
-    }*/
     function clickingchec(element){
         if(element.checked){
             $(".check").attr("disabled",true);
@@ -567,22 +561,22 @@ background: rgba(52,57,87,0.9);
         }
     }
     function expandjo(ele){
-        $($('.excelform')[0].parentElement).hide();
+        $('.excelform').parent().hide();
         $("#expandpu").hide();
         $("#expandjo").show();
 
     }
     function expandpu(ele){
-       // $(ele.nextElementSibling).toggle(); 
        $("#expandjo").hide();
-       if($($('.excelform')[0].parentElement).css("display")!="none") $($('.excelform')[0].parentElement).css("display","none");
+       $('.excelform').parent().hide();
         $("#expandpu").toggle();
     }
-    function excel(ele){
+    function excel(ele,str){
         $("#expandjo").hide();
-        //$(ele.previousElementSibling).toggle();
         if($("#expandpu").css("display")!="none") $("#expandpu").css("display","none");
-        $($('.excelform')[0].parentElement).toggle();
+        $('.excelform').parent().hide();
+        if(str=="Journal")  $($('.excelform')[0].parentElement).show();
+        else  $($('.excelform')[1].parentElement).show();  
     }
 
     ///////
@@ -659,7 +653,7 @@ background: rgba(52,57,87,0.9);
                     $noofauth++;
                     $i++;
                 }
-                $quer='INSERT INTO `publications`(Title,ConferenceName,Vol,Pages,Year,Indexing,No_of_Auth,Source_Title,ISSN,Proceedings) values("'.$_POST["Title"].'","'.$_POST["ConferenceName"].'",'.$_POST["Vol"].','.$_POST["Pages"].','.$_POST["Year"].',"'.$indexing[(int)$_POST["indexing"]].'",'.$noofauth.',"'.$_POST["Source_Title"].'","'.(($_POST["ISSN1"].$_POST["ISSN2"])).'","'.$_POST["Proceedings"].'");';
+                $quer='INSERT INTO `publications`(Title,ConferenceName,Vol,Pages,Year,Indexing,No_of_Auth,ISSN,Proceedings) values("'.$_POST["Title"].'","'.$_POST["ConferenceName"].'",'.$_POST["Vol"].','.$_POST["Pages"].','.$_POST["Year"].',"'.$indexing[(int)$_POST["indexing"]].'",'.$noofauth.',"'.(($_POST["ISSN1"].$_POST["ISSN2"])).'","'.$_POST["Proceedings"].'");';
                 if(mysqli_query($conn,$quer)){
                     $rowcount=mysqli_fetch_array(mysqli_query($conn,'SELECT MAX(PID) as max FROM `publications`;'));
                     $j=1;
@@ -725,76 +719,85 @@ background: rgba(52,57,87,0.9);
             }
         }
     }
-    if(isset($_POST["uploadexcel"]) && $_POST["randcheck1"]==$_SESSION['rand1']){
+    if(isset($_POST["uploadexcelJ"]) && $_POST["randcheck3"]==$_SESSION['rand3']){
         $target_dir = 'uploads/';
-        $target_file = $target_dir . basename($_FILES["csvfile"]["name"]);
-        $imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
-        $arr = array("xlsx","xlsm","csv");
-        if(!in_array($imageFileType,$arr)){
-            echo "<script>alert('Not in xlsx or xlsm or csv format');</script>";
-        }
-        else{
-        move_uploaded_file($_FILES["csvfile"]["tmp_name"], $target_file);
-        require_once dirname(__FILE__) . '/Classes/PHPExcel/IOFactory.php';
-        $inputFileType = PHPExcel_IOFactory::identify($target_file);
-        $objReader = PHPExcel_IOFactory::createReader($inputFileType);
-        $objPHPExcel = $objReader->load($target_file);
-        $i=2;
-        $count=0;
-        $strname="";
-        $servername = 'localhost';
-        $username = 'root';
-        $dbname = 'internship';
-        $conn=mysqli_connect($servername, $username,'', $dbname);
-        if(!$conn) die();
-        else{
-            $query = 'SELECT COUNT(*) from `publications`;';
-            $res=mysqli_query($conn,$query);
-            $rows=0;
-            while($row=mysqli_fetch_assoc($res)){ $rows=$row["COUNT(*)"]; }
-        while($objPHPExcel->getActiveSheet()->getCell('A'.$i)->getValue()!=''){
-            $count++;
-            //echo $objPHPExcel->getActiveSheet()->getCell('B'.$i)->getValue();
-            $id=$rows+$count;
-            $title=$objPHPExcel->getActiveSheet()->getCell('A'.$i)->getValue();
-            $confn=$objPHPExcel->getActiveSheet()->getCell('B'.$i)->getValue();
-            $sourcet=$objPHPExcel->getActiveSheet()->getCell('C'.$i)->getValue();
-            $vol=$objPHPExcel->getActiveSheet()->getCell('D'.$i)->getValue();
-            $pages=$objPHPExcel->getActiveSheet()->getCell('E'.$i)->getValue();
-            $year=$objPHPExcel->getActiveSheet()->getCell('F'.$i)->getValue();
-            $webname=$objPHPExcel->getActiveSheet()->getCell('G'.$i)->getValue();
-            $url=$objPHPExcel->getActiveSheet()->getCell('H'.$i)->getValue();
-            $str=''.$id.',"'.$title.'","'.$confn.'","'.$sourcet.'",'.$vol.','.$pages.','.$year.',"'.$webname.'","'.$url.'","../uploads/Publications/'.$id.'"';
-            $query1="INSERT INTO publications (PID,Title,ConferenceName,Source_Title,Vol,Pages,Year,Website,Link,Filename) values(".$str.")";
-            if(mysqli_query($conn,$query1)){
-                //successfully inserted
-                $col='I';
-                $countt=0;
-                while($objPHPExcel->getActiveSheet()->getCell($col.$i)->getValue()!=''){
-                    $query3 = 'SELECT EID from `users` where EMAIL="'.$objPHPExcel->getActiveSheet()->getCell($col.$i)->getValue().'";';
-                    $res=mysqli_query($conn,$query3);
-                    $temp=0;
-                    while($row=mysqli_fetch_assoc($res)){ $temp=$row["EID"]; }
-                    $query2= "INSERT INTO pubicationauthor (PID,EID,Noofauth) values(".($id).",".$temp.",0)";
-                    if(mysqli_query($conn,$query2)){
-                        // succesfully inserted in publicationauthor table
-                    }
-                    else{
-                        echo "<script>alert('Error in posting data.Please Try again');</script>";
-                    }
-                    $col++;
-                    $countt++;
-                }
-                $upd=mysqli_query($conn,"UPDATE `pubicationauthor` SET Noofauth=$countt WHERE PID=$id;");
-            }
-            else{
-                echo "<script>alert('Error in inserting data.Please Try again');</script>";
-            }
-            $i++;
-                }
-            }
-        }
-    }
+         $target_file = $target_dir . basename($_FILES["csvfile"]["name"]);
+         $imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
+         $arr = array("xlsx","xlsm","csv");
+         if(!in_array($imageFileType,$arr)){
+             echo "<script>alert('Not in xlsx or xlsm or csv format');</script>";
+         }
+         else{
+         move_uploaded_file($_FILES["csvfile"]["tmp_name"], $target_file);
+         require_once dirname(__FILE__) . '/Classes/PHPExcel/IOFactory.php';
+         $inputFileType = PHPExcel_IOFactory::identify($target_file);
+         $objReader = PHPExcel_IOFactory::createReader($inputFileType);
+         $objPHPExcel = $objReader->load($target_file);
+         $i=2;
+         $count=0;
+         $strname="";
+         $servername = 'localhost';
+         $username = 'root';
+         $dbname = 'internship';
+         $conn=mysqli_connect($servername, $username,'', $dbname);
+         if(!$conn) die();
+         else{
+             $query = 'SELECT COUNT(*) from `publications`;';
+             $res=mysqli_query($conn,$query);
+             $rows=0;
+             while($row=mysqli_fetch_assoc($res)){ $rows=$row["COUNT(*)"]; }
+         while($objPHPExcel->getActiveSheet()->getCell('A'.$i)->getValue()!=''){
+             $count++;
+             //echo $objPHPExcel->getActiveSheet()->getCell('B'.$i)->getValue();
+             $id=$rows+$count;
+             $title=$objPHPExcel->getActiveSheet()->getCell('A'.$i)->getValue();
+             $journalname=$objPHPExcel->getActiveSheet()->getCell('B'.$i)->getValue();
+             $ISSN=$objPHPExcel->getActiveSheet()->getCell('C'.$i)->getValue();
+             $vol=$objPHPExcel->getActiveSheet()->getCell('D'.$i)->getValue();
+             $issue=$objPHPExcel->getActiveSheet()->getCell('E'.$i)->getValue();
+             $pages=$objPHPExcel->getActiveSheet()->getCell('F'.$i)->getValue();
+             $year=$objPHPExcel->getActiveSheet()->getCell('G'.$i)->getValue();
+             $publisher=$objPHPExcel->getActiveSheet()->getCell('H'.$i)->getValue();
+             $indexing=$objPHPExcel->getActiveSheet()->getCell('I'.$i)->getValue();
+             $weburl=$objPHPExcel->getActiveSheet()->getCell('J'.$i)->getValue();
+             $email=$objPHPExcel->getActiveSheet()->getCell('K'.$i)->getValue();
+             $new_str = str_replace(' ', '', $email);
+             $marray=explode(",",$new_str);
+             $str=''.$id.',"'.$title.'","'.$confn.'","'.$sourcet.'",'.$vol.','.$pages.','.$year.',"'.$webname.'","'.$url.'","../uploads/Publications/'.$id.'"';
+             $query1="INSERT INTO publications (PID,Title,ConferenceName,Source_Title,Vol,Pages,Year,Website,Link,Filename) values(".$str.")";
+             if(mysqli_query($conn,$query1)){
+                 //successfully inserted
+                 $col='I';
+                 $countt=0;
+                 while($objPHPExcel->getActiveSheet()->getCell($col.$i)->getValue()!=''){
+                     $query3 = 'SELECT EID from `users` where EMAIL="'.$objPHPExcel->getActiveSheet()->getCell($col.$i)->getValue().'";';
+                     $res=mysqli_query($conn,$query3);
+                     $temp=0;
+                     while($row=mysqli_fetch_assoc($res)){ $temp=$row["EID"]; }
+                     $query2= "INSERT INTO pubicationauthor (PID,EID,Noofauth) values(".($id).",".$temp.",0)";
+                     if(mysqli_query($conn,$query2)){
+                         // succesfully inserted in publicationauthor table
+                     }
+                     else{
+                         echo "<script>alert('Error in posting data.Please Try again');</script>";
+                     }
+                     $col++;
+                     $countt++;
+                 }
+                 $upd=mysqli_query($conn,"UPDATE `pubicationauthor` SET Noofauth=$countt WHERE PID=$id;");
+             }
+             else{
+                 echo "<script>alert('Error in inserting data.Please Try again');</script>";
+             }
+             $i++;
+                 }
+             }
+         }
+         echo "<script>alert('mass')</script>";
+     }
+     if(isset($_POST["uploadexcelC"]) && $_POST["randcheck4"]==$_SESSION['rand4']){
+         echo "<script>alert('mass')</script>";
+     }
 
     if(isset($_GET["q"])){
         $servername = 'localhost';
@@ -944,20 +947,20 @@ background: rgba(52,57,87,0.9);
             if(!$conn) die("<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>");
             else{
                 $mainarr=array();
-                $quer = "SELECT Paper_Title,JID FROM journals WHERE JID in (SELECT JID from journalauthor where EID in (SELECT EID from faculty where email='sample1@gmail.com'))";
+                $quer = "SELECT Paper_Title,JID FROM journals WHERE JID in (SELECT JID from journalauthor where EID in (SELECT EID from faculty where email='sadagopan@iiitdm.ac.in'))";
                 $result = $obj->query($quer);
                 if(!$result) echo "<div class='row after publication journal data'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No recorrds found.Post your first entry</p></div></div>";
                 else{
                     while($row = mysqli_fetch_assoc($result)) {
-                        $subq = 'SELECT `name` from `faculty` NATURAL JOIN `journalauthor` WHERE `JID`='.$row["JID"].' and `email`!="sample1@gmail.com"';
+                        $subq = 'SELECT `name` from `faculty` NATURAL JOIN `journalauthor` WHERE `JID`='.$row["JID"].' and `email`!="sadagopan@iiitdm.ac.in"';
                         $str="";
                         $result1 = mysqli_query($conn, $subq);
                         while($row1= mysqli_fetch_assoc($result1)){
                             $str=$str.$row1["name"].",";
                         }
-                        array_push($mainarr,($row["PID"]));
-                        if($str=="") echo '<div class="row after publication journal data"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this)" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["Title"].'</p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">Fully Contibuted by you</p></div></div>';  
-                        else  echo '<div class="row after publication journal data"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this)" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["Title"].'</p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">'.substr($str,0,strlen($str)-1).'</p></div></div>'; 
+                        array_push($mainarr,($row["JID"]));
+                        if($str=="") echo '<div class="row after publication journal data"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this)" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["Paper_Title"].'</p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">Fully Contibuted by you</p></div></div>';  
+                        else  echo '<div class="row after publication journal data"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this)" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["Paper_Title"].'</p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">'.substr($str,0,strlen($str)-1).'</p></div></div>'; 
                     }
                 }
             }
@@ -994,7 +997,8 @@ background: rgba(52,57,87,0.9);
             <li class="dropdown-item" onclick="expandjo(this)">Journal Publication</li>
             <li class="dropdown-item" onclick="expandpu(this)">Conference Publication</li>
             <hr class="my-2">
-            <li class="dropdown-item" onclick="excel(this)">Upload Excel File</li>
+            <li class="dropdown-item" onclick="excel(this,'Journal')">Upload Journal Excel</li>
+            <li class="dropdown-item" onclick="excel(this,'Conference')">Upload Conference Excel</li>
         </div>
     </div>
         <!--<button class="btn btn-success mr-4" style="font-size:16px;" >Insert</button>-->
@@ -1026,15 +1030,7 @@ background: rgba(52,57,87,0.9);
             </div>
             <div class="row">
                 <div class="col-lg-3">
-                <label for="SourceTi">Source Title :</label>
-                </div>
-                <div class="col-lg-4">
-                <input type="text" name="Source_Title" >
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-3">
-                <label for="ConName">Conference :</label>
+                <label for="ConName">Conference Name :</label>
                 </div>
                 <div class="col-lg-4">
                 <input type="text" name="ConferenceName" >
@@ -1098,14 +1094,6 @@ background: rgba(52,57,87,0.9);
             </div>
             <div class="row">
                 <div class="col-lg-3">
-                <label for="Website">Website Source :</label>
-                </div>
-                <div class="col-lg-4">
-                <input type="text" name="Website" >
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-3">
                 <label for="Link">Publication website URL :</label>
                 </div>
                 <div class="col-lg-4">
@@ -1143,6 +1131,11 @@ background: rgba(52,57,87,0.9);
         <button type="button" class="close mt-5 closebutton" aria-label="Close">
             <span aria-hidden="true">&times;</span>
         </button>
+        <script>
+            $(".closebutton").click(function(){
+                $("#expandjo").hide();
+            });
+        </script>
         <hr class="mt-2">
         <form action="./publications.php" method="POST">
             <?php
@@ -1160,15 +1153,7 @@ background: rgba(52,57,87,0.9);
             </div>
             <div class="row">
                 <div class="col-lg-3">
-                <label for="SourceTi">Source Title :</label>
-                </div>
-                <div class="col-lg-4">
-                <input type="text" name="Source_Title" >
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-3">
-                <label for="ConName">Journal :</label>
+                <label for="ConName">Journal Name :</label>
                 </div>
                 <div class="col-lg-4">
                 <input type="text" name="ConferenceName" >
@@ -1244,15 +1229,6 @@ background: rgba(52,57,87,0.9);
                     </select>
                 </div>
             </div>
-            
-            <div class="row">
-                <div class="col-lg-3">
-                <label for="Website">Website Source :</label>
-                </div>
-                <div class="col-lg-4">
-                <input type="text" name="Website" >
-                </div>
-            </div>
             <div class="row">
                 <div class="col-lg-3">
                 <label for="Link">Publication website URL :</label>
@@ -1290,24 +1266,59 @@ background: rgba(52,57,87,0.9);
     <div class="text-center" style="display: none;">
         <form action="../Profile/publications.php" method="post" enctype="multipart/form-data" class="excelform mt-5">
             <?php
-                $rand1=rand();
-                $_SESSION['rand1']=$rand1;
+                $rand3=rand();
+                $_SESSION['rand3']=$rand3;
             ?>
-            <input type="hidden" value="<?php echo $rand1; ?>" name="randcheck1" />
-            <div class="row text-center">
-                <div class="mt-2">
-                    <input type="file" name="csvfile" required>
-                </div>
-                <div>
-                    <button type="submit" name="uploadexcel" class="btn btn-info">Upload CSV</button>
+            <div class='text-center mx-auto'>
+                <a href="Journal.xlsx" download class="btn btn-primary">Journal Template Download</a>
+            </div>
+            <div class='mt-5'>
+                <input type="hidden" value="<?php echo $rand3; ?>" name="randcheck3" />
+                <div class="row text-center">
+                    <div class="mt-2">
+                        <input type="file" name="csvfile" required>
+                    </div>
+                    <div>
+                        <button type="submit" name="uploadexcelJ" class="btn btn-info">Upload CSV</button>
+                    </div>
                 </div>
             </div>
         </form>
         <div class="text-center" style="color:red;">
-            *Table columns must be in the order (Publication Title,Conference Name,Source Title,Volume,Pages,Year,Website name,URL of publication)
+             *Make use you try to use the same template as provided in Journal Template.
         </div>
     </div>
+    <div class="text-center" style="display: none;">
+        <form action="../Profile/publications.php" method="post" enctype="multipart/form-data" class="excelform mt-5">
+            <?php
+                $rand4=rand();
+                $_SESSION['rand4']=$rand4;
+            ?>
+            <div class='text-center mx-auto'>
+                <a href="Conference.xlsx" download class="btn btn-primary">Conference Template Download</a>
+            </div>
+            <div class='mt-5'>
+                <input type="hidden" value="<?php echo $rand4; ?>" name="randcheck4" />
+                <div class="row text-center">
+                    <div class="mt-2">
+                        <input type="file" name="csvfile" required>
+                    </div>
+                    <div>
+                        <button type="submit" name="uploadexcelC" class="btn btn-info">Upload CSV</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="text-center" style="color:red;">
+             *Make use you try to use the same template as provided in Conference Template.
+        </div>
+    </div>
+
 </div>
+
+<?php 
+
+?>
 <!-- code end -->                        
 <div class="content-wrap">
             <div class="main">
