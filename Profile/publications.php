@@ -1,5 +1,4 @@
 <?php
-        session_start();
         require "./testingpdf.php";
 ?>
 <!DOCTYPE html>
@@ -12,8 +11,7 @@
 
         <title>Publications</title>
 
-        <!-- Styles -->                        
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <!-- Styles -->    	                    
         <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">         
         <link href="https://www.iiitdm.ac.in/Profile/assets/css/lib/menubar/sidebar.css" rel="stylesheet">
         <link href="https://www.iiitdm.ac.in/Profile/assets/css/lib/bootstrap.min.css" rel="stylesheet"> 
@@ -71,7 +69,9 @@ background: rgba(52,57,87,0.9);
 		
 		
     </head>
-
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <body oncontextmenu="return false" >
   
         <div class="sidebar sidebar-hide-to-small sidebar-shrink sidebar-gestures">
@@ -415,9 +415,7 @@ background: rgba(52,57,87,0.9);
    
 				
 				
-			  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
- 
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>	
+			  
   
 				
 				 		
@@ -479,7 +477,7 @@ background: rgba(52,57,87,0.9);
         dlg.style.left = (winWidth/2) - 480/2 + "px";
         dlg.style.top = "150px";
         $("#dlg-header").text(strheader);
-        $("#dlg-body").text(strbody);
+        $("#dlg-body").html(strbody);
         $("#dlgLogin").hide();
         $("#dlgLogout").text("Go Back");
         $("#dlgLogout").click(function (){
@@ -575,8 +573,8 @@ background: rgba(52,57,87,0.9);
         $("#expandjo").hide();
         if($("#expandpu").css("display")!="none") $("#expandpu").css("display","none");
         $('.excelform').parent().hide();
-        if(str=="Journal")  $($('.excelform')[0].parentElement).show();
-        else  $($('.excelform')[1].parentElement).show();  
+        if(str=="Journal")  $('#exceljournal').show();
+        else $('#excelconference').show();  
     }
 
     ///////
@@ -626,200 +624,6 @@ background: rgba(52,57,87,0.9);
 ////
 
 </script>
-
-<?php
-    if(isset($_POST["ConferencePOST"]) && $_POST["randcheck2"]==$_SESSION['rand2']){
-        $obj=new SQL();
-        $conn=$obj->SQLi();
-        if(!$conn)  echo '<script>popupform("Your Conference Publication is not posted","There an internal issue in the server.Sorry for the inconvinience!");</script>';
-        else{
-            $check=0;
-            $str=strtolower($_POST["Title"]);
-            $quer='SELECT PID,Title from `publications`;';
-            $res=mysqli_query($conn,$quer);
-            while($row=mysqli_fetch_assoc($res)){
-                $title=strtolower($row["Title"]);
-                similar_text($title,$str,$per);
-                if($per<=100 && $per>=90){
-                    $check=1;
-                    echo "<script>popupform('Your Conference publication is not posted','There is already a Conference publication under this TITLE')</script>";
-                    break;
-                }
-            }
-            if($check==0){
-                $i=1;
-                $noofauth=0;
-                while(isset($_POST["Author".$i])){
-                    $noofauth++;
-                    $i++;
-                }
-                $quer='INSERT INTO `publications`(Title,ConferenceName,Vol,Pages,Year,Indexing,No_of_Auth,ISSN,Proceedings) values("'.$_POST["Title"].'","'.$_POST["ConferenceName"].'",'.$_POST["Vol"].','.$_POST["Pages"].','.$_POST["Year"].',"'.$indexing[(int)$_POST["indexing"]].'",'.$noofauth.',"'.(($_POST["ISSN1"].$_POST["ISSN2"])).'","'.$_POST["Proceedings"].'");';
-                if(mysqli_query($conn,$quer)){
-                    $rowcount=mysqli_fetch_array(mysqli_query($conn,'SELECT MAX(PID) as max FROM `publications`;'));
-                    $j=1;
-                    while(isset($_POST["AuthorID".$j])){
-                        if(mysqli_query($conn,'INSERT into `pubicationauthor`(PID,EID) values('.$rowcount["max"].','.$_POST["AuthorID".$j].')')){
-                            $j++;
-                        }
-                        else{
-                            break;
-                        }
-                    }
-                    if($j-1==$noofauth)  echo "<script>popupform('Success','Your Conference Publication has been posted')</script>"; 
-                    else echo "<script>popupform('Publication not posted','Server Error.Sorry for the inconvinience!')</script>"; 
-                }
-                else{
-                     echo "<script>popupform('Insert Publication not posted','Server Error.Sorry for the inconvinience!');console.log('".mysqli_error($conn)."');</script>"; 
-                }
-            }
-        }
-    }
-    if(isset($_POST["JournalPOST"]) && $_POST["randcheck"]==$_SESSION['rand']){
-        $obj=new SQL();
-        $conn=$obj->SQLi();
-        if(!$conn)  echo '<script>popupform("Your Publication is not posted","There an internal issue in the server.Sorry for the inconvinience!");</script>';
-        else{
-            $check=0;
-            $str=strtolower($_POST["Title"]);
-            $quer='SELECT JID,Paper_Title from `journals`;';
-            $res=mysqli_query($conn,$quer);
-            while($row=mysqli_fetch_assoc($res)){
-                $title=strtolower($row["Paper_Title"]);
-                similar_text($title,$str,$per);
-                if($per<=100 && $per>=90){
-                    $check=1;
-                    echo "<script>popupform('Your Publication is not posted','There is already a publication under this TITLE')</script>";
-                    break;
-                }
-            }
-            if($check==0){
-                $i=1;
-                $noofauth=0;
-                while(isset($_POST["Author".$i])){
-                    $noofauth++;
-                    $i++;
-                }
-                $quer='INSERT INTO `journals`(Paper_Title,Journal,VolNo,Issue,Pages,Year,Publisher,Indexing,No_of_Auth,source_title,ISSN) values("'.$_POST["Title"].'","'.$_POST["ConferenceName"].'",'.$_POST["Vol"].','.$_POST["Issue"].','.$_POST["Pages"].','.$_POST["Year"].',"'.$journalpublisher[(int)$_POST["publisher"]].'","'.$indexing[(int)$_POST["indexing"]].'",'.$noofauth.',"'.$_POST["Source_Title"].'","'.(($_POST["ISSN1"].$_POST["ISSN2"])).'");';
-                if(mysqli_query($conn,$quer)){
-                    $rowcount=mysqli_fetch_array(mysqli_query($conn,'SELECT MAX(JID) as max FROM `journals`;'));                    $j=1;
-                    while(isset($_POST["AuthorID".$j])){
-                        if(mysqli_query($conn,'INSERT into `journalauthor`(JID,EID) values('.$rowcount["max"].','.$_POST["AuthorID".$j].')')){
-                            $j++;
-                        }
-                        else{
-                            break;
-                        }
-                    }
-                    if($j-1==$noofauth)  echo "<script>popupform('Success','Your Journal Publication has been posted')</script>"; 
-                    else echo "<script>popupform('Publication not posted','Server Error.Sorry for the inconvinience!')</script>"; 
-                }
-                else{
-                     echo "<script>popupform('Insert Publication not posted','Server Error.Sorry for the inconvinience!');console.log('".mysqli_error($conn)."');</script>"; 
-                }
-            }
-        }
-    }
-    if(isset($_POST["uploadexcelJ"]) && $_POST["randcheck3"]==$_SESSION['rand3']){
-        $target_dir = 'uploads/';
-         $target_file = $target_dir . basename($_FILES["csvfile"]["name"]);
-         $imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
-         $arr = array("xlsx","xlsm","csv");
-         if(!in_array($imageFileType,$arr)){
-             echo "<script>alert('Not in xlsx or xlsm or csv format');</script>";
-         }
-         else{
-         move_uploaded_file($_FILES["csvfile"]["tmp_name"], $target_file);
-         require_once dirname(__FILE__) . '/Classes/PHPExcel/IOFactory.php';
-         $inputFileType = PHPExcel_IOFactory::identify($target_file);
-         $objReader = PHPExcel_IOFactory::createReader($inputFileType);
-         $objPHPExcel = $objReader->load($target_file);
-         $i=2;
-         $count=0;
-         $strname="";
-         $servername = 'localhost';
-         $username = 'root';
-         $dbname = 'internship';
-         $conn=mysqli_connect($servername, $username,'', $dbname);
-         if(!$conn) die();
-         else{
-             $query = 'SELECT COUNT(*) from `publications`;';
-             $res=mysqli_query($conn,$query);
-             $rows=0;
-             while($row=mysqli_fetch_assoc($res)){ $rows=$row["COUNT(*)"]; }
-         while($objPHPExcel->getActiveSheet()->getCell('A'.$i)->getValue()!=''){
-             $count++;
-             //echo $objPHPExcel->getActiveSheet()->getCell('B'.$i)->getValue();
-             $id=$rows+$count;
-             $title=$objPHPExcel->getActiveSheet()->getCell('A'.$i)->getValue();
-             $journalname=$objPHPExcel->getActiveSheet()->getCell('B'.$i)->getValue();
-             $ISSN=$objPHPExcel->getActiveSheet()->getCell('C'.$i)->getValue();
-             $vol=$objPHPExcel->getActiveSheet()->getCell('D'.$i)->getValue();
-             $issue=$objPHPExcel->getActiveSheet()->getCell('E'.$i)->getValue();
-             $pages=$objPHPExcel->getActiveSheet()->getCell('F'.$i)->getValue();
-             $year=$objPHPExcel->getActiveSheet()->getCell('G'.$i)->getValue();
-             $publisher=$objPHPExcel->getActiveSheet()->getCell('H'.$i)->getValue();
-             $indexing=$objPHPExcel->getActiveSheet()->getCell('I'.$i)->getValue();
-             $weburl=$objPHPExcel->getActiveSheet()->getCell('J'.$i)->getValue();
-             $email=$objPHPExcel->getActiveSheet()->getCell('K'.$i)->getValue();
-             $new_str = str_replace(' ', '', $email);
-             $marray=explode(",",$new_str);
-             $str=''.$id.',"'.$title.'","'.$confn.'","'.$sourcet.'",'.$vol.','.$pages.','.$year.',"'.$webname.'","'.$url.'","../uploads/Publications/'.$id.'"';
-             $query1="INSERT INTO publications (PID,Title,ConferenceName,Source_Title,Vol,Pages,Year,Website,Link,Filename) values(".$str.")";
-             if(mysqli_query($conn,$query1)){
-                 //successfully inserted
-                 $col='I';
-                 $countt=0;
-                 while($objPHPExcel->getActiveSheet()->getCell($col.$i)->getValue()!=''){
-                     $query3 = 'SELECT EID from `users` where EMAIL="'.$objPHPExcel->getActiveSheet()->getCell($col.$i)->getValue().'";';
-                     $res=mysqli_query($conn,$query3);
-                     $temp=0;
-                     while($row=mysqli_fetch_assoc($res)){ $temp=$row["EID"]; }
-                     $query2= "INSERT INTO pubicationauthor (PID,EID,Noofauth) values(".($id).",".$temp.",0)";
-                     if(mysqli_query($conn,$query2)){
-                         // succesfully inserted in publicationauthor table
-                     }
-                     else{
-                         echo "<script>alert('Error in posting data.Please Try again');</script>";
-                     }
-                     $col++;
-                     $countt++;
-                 }
-                 $upd=mysqli_query($conn,"UPDATE `pubicationauthor` SET Noofauth=$countt WHERE PID=$id;");
-             }
-             else{
-                 echo "<script>alert('Error in inserting data.Please Try again');</script>";
-             }
-             $i++;
-                 }
-             }
-         }
-         echo "<script>alert('mass')</script>";
-     }
-     if(isset($_POST["uploadexcelC"]) && $_POST["randcheck4"]==$_SESSION['rand4']){
-         echo "<script>alert('mass')</script>";
-     }
-
-    if(isset($_GET["q"])){
-        $servername = 'localhost';
-        $username = 'root';
-        $dbname = 'internship';
-        $conn=mysqli_connect($servername, $username,'', $dbname);
-        if(!$conn) die();
-        else{
-            $query="DELETE FROM `pubicationauthor` where PID=".$_GET["q"].";";
-            if(mysqli_query($conn,$query)){
-                $queryy="DELETE FROM `publications` WHERE PID=".$_GET["q"].";";
-                if(mysqli_query($conn,$queryy)){
-                    //deleted query
-                    echo "<script>window.location.href='./publications.php';</script>";
-                }
-            }
-        }
-    }
-
-
-?>
-
 
 <style>
 /* template start*/ 
@@ -925,12 +729,12 @@ background: rgba(52,57,87,0.9);
             if(!$conn) die("<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>");
             else{
                 $mainarr=array();
-                $quer = "SELECT Title,PID FROM publications WHERE PID in (SELECT PID from pubicationauthor where EID in (SELECT EID from faculty where email='sample1@gmail.com'))";
+                $quer = "SELECT Title,PID FROM publications WHERE PID in (SELECT PID from pubicationauthor where EID in (SELECT EID from faculty where email='sadagopan@iiitdm.ac.in'))";
                 $result = $obj->query($quer);
                 if(!$result) echo "<div class='row after publication conference data'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>";
                 else{
                     while($row = mysqli_fetch_assoc($result)) {
-                        $subq = 'SELECT `name` from `faculty` NATURAL JOIN `pubicationauthor` WHERE `PID`='.$row["PID"].' and `email`!="sample1@gmail.com"';
+                        $subq = 'SELECT `name` from `faculty` INNER JOIN `pubicationauthor` on faculty.EID=pubicationauthor.EID WHERE `PID`='.$row["PID"].' and `email`!="sadagopan@iiitdm.ac.in"';
                         $str="";
                         $result1 = mysqli_query($conn, $subq);
                         while($row1= mysqli_fetch_assoc($result1)){
@@ -952,7 +756,7 @@ background: rgba(52,57,87,0.9);
                 if(!$result) echo "<div class='row after publication journal data'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No recorrds found.Post your first entry</p></div></div>";
                 else{
                     while($row = mysqli_fetch_assoc($result)) {
-                        $subq = 'SELECT `name` from `faculty` NATURAL JOIN `journalauthor` WHERE `JID`='.$row["JID"].' and `email`!="sadagopan@iiitdm.ac.in"';
+                        $subq = 'SELECT `name` from `faculty` INNER JOIN `journalauthor` on faculty.EID=journalauthor.EID WHERE `JID`='.$row["JID"].' and `email`!="sadagopan@iiitdm.ac.in"';
                         $str="";
                         $result1 = mysqli_query($conn, $subq);
                         while($row1= mysqli_fetch_assoc($result1)){
@@ -1015,11 +819,6 @@ background: rgba(52,57,87,0.9);
         </script>
         <hr class="mt-2">
         <form action="./publications.php" method="POST">
-            <?php
-                $rand2=rand();
-                $_SESSION['rand2']=$rand2;
-            ?>
-            <input type="hidden" value="<?php echo $rand2; ?>" name="randcheck2" />
             <div class="row">
                 <div class="col-lg-3">
                 <label for="PName">Paper Title : <span style="color : red;">*</span></label>
@@ -1138,11 +937,6 @@ background: rgba(52,57,87,0.9);
         </script>
         <hr class="mt-2">
         <form action="./publications.php" method="POST">
-            <?php
-                $rand=rand();
-                $_SESSION['rand']=$rand;
-            ?>
-            <input type="hidden" value="<?php echo $rand; ?>" name="randcheck" />
             <div class="row">
                 <div class="col-lg-3">
                 <label for="PName">Paper Title : <span style="color : red;">*</span></label>
@@ -1263,17 +1057,13 @@ background: rgba(52,57,87,0.9);
     </div>
 
 
-    <div class="text-center" style="display: none;">
+    <div class="text-center" id="exceljournal" style="display: none;">
         <form action="../Profile/publications.php" method="post" enctype="multipart/form-data" class="excelform mt-5">
-            <?php
-                $rand3=rand();
-                $_SESSION['rand3']=$rand3;
-            ?>
+        
             <div class='text-center mx-auto'>
                 <a href="Journal.xlsx" download class="btn btn-primary">Journal Template Download</a>
             </div>
             <div class='mt-5'>
-                <input type="hidden" value="<?php echo $rand3; ?>" name="randcheck3" />
                 <div class="row text-center">
                     <div class="mt-2">
                         <input type="file" name="csvfile" required>
@@ -1288,17 +1078,12 @@ background: rgba(52,57,87,0.9);
              *Make use you try to use the same template as provided in Journal Template.
         </div>
     </div>
-    <div class="text-center" style="display: none;">
+    <div class="text-center" id="excelconference" style="display: none;">
         <form action="../Profile/publications.php" method="post" enctype="multipart/form-data" class="excelform mt-5">
-            <?php
-                $rand4=rand();
-                $_SESSION['rand4']=$rand4;
-            ?>
             <div class='text-center mx-auto'>
                 <a href="Conference.xlsx" download class="btn btn-primary">Conference Template Download</a>
             </div>
             <div class='mt-5'>
-                <input type="hidden" value="<?php echo $rand4; ?>" name="randcheck4" />
                 <div class="row text-center">
                     <div class="mt-2">
                         <input type="file" name="csvfile" required>
@@ -1316,7 +1101,319 @@ background: rgba(52,57,87,0.9);
 
 </div>
 
-<?php 
+<?php
+    if(isset($_POST["ConferencePOST"])){
+        $obj=new SQL();
+        $conn=$obj->SQLi();
+        if(!$conn)  echo '<script>popupform("Your Conference Publication is not posted","There an internal issue in the server.Sorry for the inconvinience!");</script>';
+        else{
+            $check=0;
+            $str=strtolower($_POST["Title"]);
+            $quer='SELECT PID,Title from `publications`;';
+            $res=mysqli_query($conn,$quer);
+            while($row=mysqli_fetch_assoc($res)){
+                $title=strtolower($row["Title"]);
+                similar_text($title,$str,$per);
+                if($per<=100 && $per>=95){
+                    $check=1;
+                    echo "<script>popupform('Your Conference publication is not posted','There is already a Conference publication under this TITLE')</script>";
+                    break;
+                }
+            }
+            if($check==0){
+                $i=1;
+                $noofauth=0;
+                while(isset($_POST["Author".$i])){
+                    $noofauth++;
+                    $i++;
+                }
+                $quer='INSERT INTO `publications`(Title,ConferenceName,Vol,Pages,Year,Indexing,No_of_Auth,ISSN,Proceedings) values("'.$_POST["Title"].'","'.$_POST["ConferenceName"].'",'.$_POST["Vol"].','.$_POST["Pages"].','.$_POST["Year"].',"'.$indexing[(int)$_POST["indexing"]].'",'.$noofauth.',"'.(($_POST["ISSN1"].$_POST["ISSN2"])).'","'.$_POST["Proceedings"].'");';
+                if(mysqli_query($conn,$quer)){
+                    $rowcount=mysqli_fetch_array(mysqli_query($conn,'SELECT MAX(PID) as max FROM `publications`;'));
+                    $j=1;
+                    while(isset($_POST["AuthorID".$j])){
+                        if(mysqli_query($conn,'INSERT into `pubicationauthor`(PID,EID) values('.$rowcount["max"].','.$_POST["AuthorID".$j].')')){
+                            $j++;
+                        }
+                        else{
+                            break;
+                        }
+                    }
+                    if($j-1==$noofauth)  echo "<script>popupform('Success','Your Conference Publication has been posted')</script>"; 
+                    else echo "<script>popupform('Publication not posted','Server Error.Sorry for the inconvinience!')</script>"; 
+                }
+                else{
+                     echo "<script>popupform('Insert Publication not posted','Server Error.Sorry for the inconvinience!');console.log('".mysqli_error($conn)."');</script>"; 
+                }
+            }
+        }
+    }
+    if(isset($_POST["JournalPOST"])){
+        $obj=new SQL();
+        $conn=$obj->SQLi();
+        if(!$conn)  echo '<script>popupform("Your Publication is not posted","There an internal issue in the server.Sorry for the inconvinience!");</script>';
+        else{
+            $check=0;
+            $str=strtolower($_POST["Title"]);
+            $quer='SELECT JID,Paper_Title from `journals`;';
+            $res=mysqli_query($conn,$quer);
+            while($row=mysqli_fetch_assoc($res)){
+                $title=strtolower($row["Paper_Title"]);
+                similar_text($title,$str,$per);
+                if($per<=100 && $per>=90){
+                    $check=1;
+                    echo "<script>popupform('Your Publication is not posted','There is already a publication under this TITLE')</script>";
+                    break;
+                }
+            }
+            if($check==0){
+                $i=1;
+                $noofauth=0;
+                while(isset($_POST["Author".$i])){
+                    $noofauth++;
+                    $i++;
+                }
+                $quer='INSERT INTO `journals`(Paper_Title,Journal,VolNo,Issue,Pages,Year,Publisher,Indexing,No_of_Auth,ISSN,Website_URL) values("'.$_POST["Title"].'","'.$_POST["ConferenceName"].'",'.$_POST["Vol"].','.$_POST["Issue"].','.$_POST["Pages"].','.$_POST["Year"].',"'.$journalpublisher[(int)$_POST["publisher"]].'","'.$indexing[(int)$_POST["indexing"]].'",'.$noofauth.',"'.(($_POST["ISSN1"].$_POST["ISSN2"])).'","'.$_POST["Link"].'");';
+                if(mysqli_query($conn,$quer)){
+                    $rowcount=mysqli_fetch_array(mysqli_query($conn,'SELECT MAX(JID) as max FROM `journals`;'));                    $j=1;
+                    while(isset($_POST["AuthorID".$j])){
+                        if(mysqli_query($conn,'INSERT into `journalauthor`(JID,EID) values('.$rowcount["max"].','.$_POST["AuthorID".$j].')')){
+                            $j++;
+                        }
+                        else{
+                            break;
+                        }
+                    }
+                    if($j-1==$noofauth)  echo "<script>popupform('Success','Your Journal Publication has been posted')</script>"; 
+                    else echo "<script>popupform('Publication not posted','Server Error.Sorry for the inconvinience!')</script>"; 
+                }
+                else{
+                     echo "<script>popupform('Insert Publication not posted','Server Error.Sorry for the inconvinience!');</script>"; 
+                }
+            }
+        }
+    }
+    if(isset($_POST["uploadexcelJ"])){
+        $target_dir = 'uploads/';
+         $target_file = $target_dir . basename($_FILES["csvfile"]["name"]);
+         $imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
+         $arr = array("xlsx","xlsm","csv");
+         if(!in_array($imageFileType,$arr)){
+             echo "<script>alert('Not in xlsx or xlsm or csv format');</script>";
+         }
+         else{
+         move_uploaded_file($_FILES["csvfile"]["tmp_name"], $target_file);
+         require_once dirname(__FILE__) . '/Classes/PHPExcel/IOFactory.php';
+         $inputFileType = PHPExcel_IOFactory::identify($target_file);
+         $objReader = PHPExcel_IOFactory::createReader($inputFileType);
+         $objPHPExcel = $objReader->load($target_file);
+         $i=2;
+         $strname="";
+         $servername = 'localhost';
+         $username = 'root';
+         $dbname = 'internship';
+         $errorlog="";
+         $conn=mysqli_connect($servername, $username,'', $dbname);
+         if(!$conn) die();
+         else{
+        $attr=array("Title","Journal Name","ISSN","Volume","Issue","Pages","Year","Publisher","Indexing","Website URL","Author's email(Seperated by comma)");
+        $char='A';
+        for($k=0;$k<sizeof($attr);$k++){
+            if($attr[$k]!=$objPHPExcel->getActiveSheet()->getCell($char.(int)1)->getValue()){
+                echo "<script>popupform('File not in desired format','Make sure the the file follow the journal template');</script>";
+                die();
+            }
+            $char++;
+        }
+        while($objPHPExcel->getActiveSheet()->getCell('A'.$i)->getValue()!=''){
+             $title=$objPHPExcel->getActiveSheet()->getCell('A'.$i)->getValue();
+             $journalname=$objPHPExcel->getActiveSheet()->getCell('B'.$i)->getValue();
+             $ISSN=$objPHPExcel->getActiveSheet()->getCell('C'.$i)->getValue();
+             $vol=$objPHPExcel->getActiveSheet()->getCell('D'.$i)->getValue();
+             $issue=$objPHPExcel->getActiveSheet()->getCell('E'.$i)->getValue();
+             $pages=$objPHPExcel->getActiveSheet()->getCell('F'.$i)->getValue();
+             $year=$objPHPExcel->getActiveSheet()->getCell('G'.$i)->getValue();
+             $publisher=$objPHPExcel->getActiveSheet()->getCell('H'.$i)->getValue();
+             $indexing=$objPHPExcel->getActiveSheet()->getCell('I'.$i)->getValue();
+             $weburl=$objPHPExcel->getActiveSheet()->getCell('J'.$i)->getValue();
+             $email=$objPHPExcel->getActiveSheet()->getCell('K'.$i)->getValue();
+             $new_str = str_replace(' ', '', $email);
+             $marray=explode(",",$new_str);
+
+             $check=0;
+             $str=strtolower($title);
+             $quer='SELECT JID,Paper_Title from `journals`;';
+             $res=mysqli_query($conn,$quer);
+             while($row=mysqli_fetch_assoc($res)){
+                 $comp=strtolower($row["Paper_Title"]);
+                 similar_text($comp,$str,$per);
+                 if($per<=100 && $per>=95){
+                     $check=1;
+                     $errorlog="At row ".(string)($i)." of the excel identical journal is present.<br>";
+                     break;
+                 }
+             }
+             if($check==0){
+                    $str='"'.$title.'","'.$journalname.'","'.$ISSN.'",'.$vol.','.$issue.','.$pages.','.$year.',"'.$publisher.'","'.$indexing.'","'.$weburl.'",'.sizeof($marray);
+                    
+                    $query1="INSERT INTO journals (Paper_Title,Journal,ISSN,VolNo,Issue,Pages,Year,Publisher,Indexing,Website_URL,No_of_Auth) values(".$str.")";
+                    if(mysqli_query($conn,$query1)){
+                        //successfully inserted
+                        $querr='SELECT MAX(JID) as jid from journals;';
+                        $res=mysqli_query($conn,$querr);
+                        $jid=0;
+                        while($row=mysqli_fetch_assoc($res)){ $jid=$row["jid"]; }
+                        for($j=0;$j<sizeof($marray);$j++){
+                            $query3 = 'SELECT EID from `faculty` where email="'.$marray[$j].'";';
+                            $res=mysqli_query($conn,$query3);
+                            $temp=0;
+                            while($row=mysqli_fetch_assoc($res)){ $temp=$row["EID"]; }
+                            $query2= "INSERT INTO journalauthor (JID,EID) values(".$jid.",".$temp.")";
+                            if(mysqli_query($conn,$query2)){
+                                // succesfully inserted in publicationauthor table
+                            }
+                            else{
+                                echo "<script>alert('Error in posting data.Please Try again');</script>";
+                            }
+                        }
+                    }
+                    else{
+                        echo "<script>alert('Error in inserting data.Please Try again');</script>";
+                    }
+                }
+                  $i++;  
+                }
+                if($errorlog==""){
+                    echo "<script>window.location.href+='?reload=true';</script>";
+                }
+                else{
+                    echo "<script>popupform('Upload logs','".$errorlog." Remaining all rows are posted.');</script>";
+                }
+             }
+         }
+     }
+     if(isset($_GET["reload"])){
+         if($_GET["reload"]=='true'){
+             echo "<script>window.location.href='./publications.php';</script>";
+         }
+     }
+     if(isset($_POST["uploadexcelC"])){
+        $target_dir = 'uploads/';
+        $target_file = $target_dir . basename($_FILES["csvfile"]["name"]);
+        $imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
+        $arr = array("xlsx","xlsm","csv");
+        if(!in_array($imageFileType,$arr)){
+            echo "<script>alert('Not in xlsx or xlsm or csv format');</script>";
+        }
+        else{
+        move_uploaded_file($_FILES["csvfile"]["tmp_name"], $target_file);
+        require_once dirname(__FILE__) . '/Classes/PHPExcel/IOFactory.php';
+        $inputFileType = PHPExcel_IOFactory::identify($target_file);
+        $objReader = PHPExcel_IOFactory::createReader($inputFileType);
+        $objPHPExcel = $objReader->load($target_file);
+        $i=2;
+        $strname="";
+        $servername = 'localhost';
+        $username = 'root';
+        $dbname = 'internship';
+        $errorlog="";
+        $conn=mysqli_connect($servername, $username,'', $dbname);
+        if(!$conn) die();
+        else{
+       $attr=array("Title","Conference Name","ISSN","Volume","Pages","Year","Proceedings","Indexing","Website URL","Author's email(Seperated by comma)");
+       $char='A';
+       for($k=0;$k<sizeof($attr);$k++){
+           if($attr[$k]!=$objPHPExcel->getActiveSheet()->getCell($char.(int)1)->getValue()){
+               echo "<script>popupform('File not in desired format','Make sure the file follow the Conference template');</script>";
+               die();
+           }
+           $char++;
+       }
+       while($objPHPExcel->getActiveSheet()->getCell('A'.$i)->getValue()!=''){
+            $title=$objPHPExcel->getActiveSheet()->getCell('A'.$i)->getValue();
+            $confname=$objPHPExcel->getActiveSheet()->getCell('B'.$i)->getValue();
+            $ISSN=$objPHPExcel->getActiveSheet()->getCell('C'.$i)->getValue();
+            $vol=$objPHPExcel->getActiveSheet()->getCell('D'.$i)->getValue();
+            $pages=$objPHPExcel->getActiveSheet()->getCell('E'.$i)->getValue();
+            $year=$objPHPExcel->getActiveSheet()->getCell('F'.$i)->getValue();
+            $proceedings=$objPHPExcel->getActiveSheet()->getCell('G'.$i)->getValue();
+            $indexing=$objPHPExcel->getActiveSheet()->getCell('H'.$i)->getValue();
+            $weburl=$objPHPExcel->getActiveSheet()->getCell('I'.$i)->getValue();
+            $email=$objPHPExcel->getActiveSheet()->getCell('J'.$i)->getValue();
+            $new_str = str_replace(' ', '', $email);
+            $marray=explode(",",$new_str);
+
+            $check=0;
+            $str=strtolower($title);
+            $quer='SELECT PID,Title from `publications`;';
+            $res=mysqli_query($conn,$quer);
+            while($row=mysqli_fetch_assoc($res)){
+                $comp=strtolower($row["Title"]);
+                similar_text($comp,$str,$per);
+                if($per<=100 && $per>=95){
+                    $check=1;
+                    $errorlog="At row ".(string)($i)." of the excel identical conference is present.<br>";
+                    break;
+                }
+            }
+            if($check==0){
+                   $str='"'.$title.'","'.$confname.'","'.$ISSN.'",'.$vol.','.$pages.','.$year.',"'.$proceedings.'","'.$indexing.'","'.$weburl.'",'.sizeof($marray);
+                   
+                   $query1="INSERT INTO publications (Title,ConferenceName,ISSN,Vol,Pages,Year,Proceedings,Indexing,Website_URL,No_of_Auth) values(".$str.")";
+                   if(mysqli_query($conn,$query1)){
+                       //successfully inserted
+                       $querr='SELECT MAX(PID) as pid from publications;';
+                       $res=mysqli_query($conn,$querr);
+                       $pid=0;
+                       while($row=mysqli_fetch_assoc($res)){ $pid=$row["pid"]; }
+                       for($j=0;$j<sizeof($marray);$j++){
+                           $query3 = 'SELECT EID from `faculty` where email="'.$marray[$j].'";';
+                           $res=mysqli_query($conn,$query3);
+                           $temp=0;
+                           while($row=mysqli_fetch_assoc($res)){ $temp=$row["EID"]; }
+                           $query2= "INSERT INTO pubicationauthor (PID,EID) values(".$pid.",".$temp.")";
+                           if(mysqli_query($conn,$query2)){
+                               // succesfully inserted in publicationauthor table
+                           }
+                           else{
+                               echo "<script>alert('Error in posting data.Please Try again');</script>";
+                           }
+                       }
+                   }
+                   else{
+                       echo "<script>alert('Error in inserting data.Please Try again');</script>";
+                   }
+               }
+                 $i++;  
+               }
+               if($errorlog==""){
+                   echo "<script>window.location.href+='?reload=true';</script>";
+               }
+               else{
+                   echo "<script>popupform('Upload logs','".$errorlog." Remaining all rows are posted.');</script>";
+               }
+            }
+        }
+     }
+
+    if(isset($_GET["q"])){
+        $servername = 'localhost';
+        $username = 'root';
+        $dbname = 'internship';
+        $conn=mysqli_connect($servername, $username,'', $dbname);
+        if(!$conn) die();
+        else{
+            $query="DELETE FROM `pubicationauthor` where PID=".$_GET["q"].";";
+            if(mysqli_query($conn,$query)){
+                $queryy="DELETE FROM `publications` WHERE PID=".$_GET["q"].";";
+                if(mysqli_query($conn,$queryy)){
+                    //deleted query
+                    echo "<script>window.location.href='./publications.php';</script>";
+                }
+            }
+        }
+    }
+
 
 ?>
 <!-- code end -->                        
