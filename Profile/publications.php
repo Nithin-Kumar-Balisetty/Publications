@@ -745,8 +745,29 @@ background: rgba(52,57,87,0.9);
                         else  echo '<div class="row after publication conference data"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this)" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["Title"].'</p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">'.substr($str,0,strlen($str)-1).'</p></div></div>'; 
                     }
                 }
-            }
-            $obj=new SQL();
+            }?>
+            <div class="publication conference data mt-5">
+                <div class='text-center mx-auto mb-5'>
+                    <a class="btn btn-success" onclick="printAll('C')">Print all Conference Publications</a>
+                    <?php 
+                    $obj=new SQL();
+                    $conn=$obj->SQLi();
+                    if(!$conn)  echo '<script>popupform("An error occured","Please try next time.Sorry for the inconvinience!");</script>';
+                    else{
+                        $query="SELECT EID from faculty where email='sadagopan@iiitdm.ac.in';";
+                        $res=mysqli_query($conn,$query);
+                        if(mysqli_num_rows($res)==1){
+                        $id=mysqli_fetch_assoc($res)['EID'];?>
+                            <a class="btn btn-success" onclick="print('C',<?php echo $id?>)">Print your Conference Publications</a>
+                        <?php   }
+                        else{
+                            $id=0;
+                        }
+                    }
+                    ?>
+                </div>
+            </div>
+            <?php $obj=new SQL();
             $conn=$obj->SQLi();
             if(!$conn) die("<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>");
             else{
@@ -769,6 +790,17 @@ background: rgba(52,57,87,0.9);
                 }
             }
         ?>
+        <div class="publication journal data mt-5">
+                <div class='text-center mx-auto mb-5'>
+                    <a class="btn btn-success" onclick="printAll('J')">Print all Journal Publications</a>
+                    <?php 
+                    if($id!=0){ ?>
+                        <a class="btn btn-success" onclick="print('J',<?php echo $id?>)">Print your Journal Publications</a>
+                      <?php  }
+                    ?>
+                    
+                </div>
+            </div>
         <script>
             $(".publication.conference").hide();
             $(".publi").css('border-bottom','3px solid green');
@@ -790,6 +822,29 @@ background: rgba(52,57,87,0.9);
                 $(".publication.type").text("Conference Publication Title");
                 $(".publication.journal").hide();
                 $(".publication.conference").show();
+            }
+            function printAll(type){
+                var url=window.location.href;
+                if(type=='J')    var printWindow=window.open(url.slice(0,27)+"/printem.php?type=journal",'Print','left=200, top=200, width=950, height=500, toolbar=0, resizable=0');
+                else var printWindow=window.open(url.slice(0,27)+"/printem.php?type=conference",'Print','left=200, top=200, width=950, height=500, toolbar=0, resizable=0');
+                printWindow.addEventListener('load', function(){
+                    printWindow.print();
+                    setTimeout(function(){
+                        printWindow.close();
+                    }, 500);
+                }, true);
+
+            }
+            function print(type,id){
+                var url=window.location.href;
+                if(type=='J')    var printWindow=window.open(url.slice(0,27)+"/printem.php?type=journal&id="+id,'Print','left=200, top=200, width=950, height=500, toolbar=0, resizable=0');
+                else var printWindow=window.open(url.slice(0,27)+"/printem.php?type=conference&id="+id,'Print','left=200, top=200, width=950, height=500, toolbar=0, resizable=0');
+                printWindow.addEventListener('load', function(){
+                    printWindow.print();
+                    setTimeout(function(){
+                        printWindow.close();
+                    }, 500);
+                }, true);
             }
         </script>
     </div>
@@ -1059,7 +1114,6 @@ background: rgba(52,57,87,0.9);
 
     <div class="text-center" id="exceljournal" style="display: none;">
         <form action="../Profile/publications.php" method="post" enctype="multipart/form-data" class="excelform mt-5">
-        
             <div class='text-center mx-auto'>
                 <a href="Journal.xlsx" download class="btn btn-primary">Journal Template Download</a>
             </div>
@@ -1195,9 +1249,9 @@ background: rgba(52,57,87,0.9);
     }
     if(isset($_POST["uploadexcelJ"])){
         $target_dir = 'uploads/';
-         $target_file = $target_dir . basename($_FILES["csvfile"]["name"]);
-         $imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
-         $arr = array("xlsx","xlsm","csv");
+        $imageFileType = pathinfo(basename($_FILES["csvfile"]["name"]),PATHINFO_EXTENSION);
+        $target_file = $target_dir ."sadagopan@iiitdm.ac.in-".date("Y-m-d").".".$imageFileType;
+        $arr = array("xlsx","xlsm","csv");
          if(!in_array($imageFileType,$arr)){
              echo "<script>alert('Not in xlsx or xlsm or csv format');</script>";
          }
@@ -1207,6 +1261,12 @@ background: rgba(52,57,87,0.9);
          $inputFileType = PHPExcel_IOFactory::identify($target_file);
          $objReader = PHPExcel_IOFactory::createReader($inputFileType);
          $objPHPExcel = $objReader->load($target_file);
+
+         $fileselect = PHPExcel_IOFactory::identify("Journal.xlsx");
+         $excelreader = PHPExcel_IOFactory::createReader($fileselect);
+         $excel = $excelreader->load("Journal.xlsx");
+
+
          $i=2;
          $strname="";
          $servername = 'localhost';
@@ -1254,8 +1314,21 @@ background: rgba(52,57,87,0.9);
                  }
              }
              if($check==0){
+                    $norows=$excel->setActiveSheetIndex(0)->getHighestRow()+1;
+                    $excel->getActiveSheet()->setCellValue('A'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('A'.$i)->getValue());
+                    $excel->getActiveSheet()->setCellValue('B'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('B'.$i)->getValue());
+                    $excel->getActiveSheet()->setCellValue('C'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('C'.$i)->getValue());
+                    $excel->getActiveSheet()->setCellValue('D'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('D'.$i)->getValue());
+                    $excel->getActiveSheet()->setCellValue('E'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('E'.$i)->getValue());
+                    $excel->getActiveSheet()->setCellValue('F'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('F'.$i)->getValue());
+                    $excel->getActiveSheet()->setCellValue('G'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('G'.$i)->getValue());
+                    $excel->getActiveSheet()->setCellValue('H'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('H'.$i)->getValue());
+                    $excel->getActiveSheet()->setCellValue('I'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('I'.$i)->getValue());
+                    $excel->getActiveSheet()->setCellValue('J'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('J'.$i)->getValue());
+                    $excel->getActiveSheet()->setCellValue('K'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('K'.$i)->getValue());
+                    $objWriter = PHPExcel_IOFactory::createWriter($excel,'Excel5');
+                    $objWriter->save("Journal.xlsx");
                     $str='"'.$title.'","'.$journalname.'","'.$ISSN.'",'.$vol.','.$issue.','.$pages.','.$year.',"'.$publisher.'","'.$indexing.'","'.$weburl.'",'.sizeof($marray);
-                    
                     $query1="INSERT INTO journals (Paper_Title,Journal,ISSN,VolNo,Issue,Pages,Year,Publisher,Indexing,Website_URL,No_of_Auth) values(".$str.")";
                     if(mysqli_query($conn,$query1)){
                         //successfully inserted
@@ -1299,18 +1372,23 @@ background: rgba(52,57,87,0.9);
      }
      if(isset($_POST["uploadexcelC"])){
         $target_dir = 'uploads/';
-        $target_file = $target_dir . basename($_FILES["csvfile"]["name"]);
-        $imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
+        $imageFileType = pathinfo(basename($_FILES["csvfile"]["name"]),PATHINFO_EXTENSION);
+        $target_file = $target_dir ."sadagopan@iiitdm.ac.in-".date("Y-m-d").".".$imageFileType;
         $arr = array("xlsx","xlsm","csv");
-        if(!in_array($imageFileType,$arr)){
-            echo "<script>alert('Not in xlsx or xlsm or csv format');</script>";
-        }
+         if(!in_array($imageFileType,$arr)){
+             echo "<script>alert('Not in xlsx or xlsm or csv format');</script>";
+         }
         else{
         move_uploaded_file($_FILES["csvfile"]["tmp_name"], $target_file);
         require_once dirname(__FILE__) . '/Classes/PHPExcel/IOFactory.php';
         $inputFileType = PHPExcel_IOFactory::identify($target_file);
         $objReader = PHPExcel_IOFactory::createReader($inputFileType);
         $objPHPExcel = $objReader->load($target_file);
+
+        $fileselect = PHPExcel_IOFactory::identify("Conference.xlsx");
+        $excelreader = PHPExcel_IOFactory::createReader($fileselect);
+        $excel = $excelreader->load("Conference.xlsx");
+
         $i=2;
         $strname="";
         $servername = 'localhost';
@@ -1357,6 +1435,20 @@ background: rgba(52,57,87,0.9);
                 }
             }
             if($check==0){
+                    $norows=$excel->setActiveSheetIndex(0)->getHighestRow()+1;
+                    $excel->getActiveSheet()->setCellValue('A'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('A'.$i)->getValue());
+                    $excel->getActiveSheet()->setCellValue('B'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('B'.$i)->getValue());
+                    $excel->getActiveSheet()->setCellValue('C'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('C'.$i)->getValue());
+                    $excel->getActiveSheet()->setCellValue('D'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('D'.$i)->getValue());
+                    $excel->getActiveSheet()->setCellValue('E'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('E'.$i)->getValue());
+                    $excel->getActiveSheet()->setCellValue('F'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('F'.$i)->getValue());
+                    $excel->getActiveSheet()->setCellValue('G'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('G'.$i)->getValue());
+                    $excel->getActiveSheet()->setCellValue('H'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('H'.$i)->getValue());
+                    $excel->getActiveSheet()->setCellValue('I'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('I'.$i)->getValue());
+                    $excel->getActiveSheet()->setCellValue('J'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('J'.$i)->getValue());
+                    $excel->getActiveSheet()->setCellValue('K'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('K'.$i)->getValue());
+                    $objWriter = PHPExcel_IOFactory::createWriter($excel,'Excel5');
+                    $objWriter->save("Conference.xlsx");
                    $str='"'.$title.'","'.$confname.'","'.$ISSN.'",'.$vol.','.$pages.','.$year.',"'.$proceedings.'","'.$indexing.'","'.$weburl.'",'.sizeof($marray);
                    
                    $query1="INSERT INTO publications (Title,ConferenceName,ISSN,Vol,Pages,Year,Proceedings,Indexing,Website_URL,No_of_Auth) values(".$str.")";
