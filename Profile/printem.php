@@ -122,7 +122,7 @@
                                 <th>Year</th>
                                 <th>Authors</th>
                             <tr>
-                            <?php $query="SELECT PID,Title,ConferenceName,Year from publications;";
+                            <?php $query="SELECT PID,Title,ConferenceName,Year,Othernames from publications;";
                             $res=mysqli_query($conn,$query);
                             if($res){
                                 while($row=mysqli_fetch_assoc($res)){
@@ -132,11 +132,7 @@
                                     while($row1=mysqli_fetch_assoc($res1)){
                                         $names=$names.$row1['name'].",";
                                     }
-                                    $query2="SELECT Othernames from pubicationauthor where PID=".$row["PID"]." and EID is null;";
-                                    $res2=mysqli_query($conn,$query2);
-                                    while($row2=mysqli_fetch_assoc($res2)){
-                                        $names=$names.$row2["Othernames"];
-                                    }
+                                    $names=$names.$row["Othernames"];
                                     echo "<tr>";
                                     echo "<th>".$row["Title"]."</th>";
                                     echo "<th>".$row["ConferenceName"]."</th>";
@@ -156,7 +152,7 @@
                                 <th>Year</th>
                                 <th>Authors</th>
                             <tr>
-                        <?php $query="SELECT JID,Paper_Title,Journal,Year from journals;";
+                        <?php $query="SELECT JID,Paper_Title,Journal,Year,Othernames from journals;";
                             $res=mysqli_query($conn,$query);
                             if($res){
                                 while($row=mysqli_fetch_assoc($res)){
@@ -166,11 +162,7 @@
                                     while($row1=mysqli_fetch_assoc($res1)){
                                         $names=$names.$row1['name'].",";
                                     }
-                                    $query2="SELECT Othernames from journalauthor where JID=".$row["JID"]." and EID is null;";
-                                    $res2=mysqli_query($conn,$query2);
-                                    while($row2=mysqli_fetch_assoc($res2)){
-                                        $names=$names.$row2["Othernames"];
-                                    }
+                                    $names=$names.$row["Othernames"];
                                     echo "<tr>";
                                     echo "<th>".$row["Paper_Title"]."</th>";
                                     echo "<th>".$row["Journal"]."</th>";
@@ -192,7 +184,7 @@
                                 <th>Year</th>
                                 <th>Authors</th>
                             <tr>
-                            <?php $query="SELECT PID,Title,ConferenceName,Year from publications natural join pubicationauthor where EID=".$_GET['id'].";";
+                            <?php $query="SELECT PID,Title,ConferenceName,Year,Othernames from publications natural join pubicationauthor where EID=".$_GET['id'].";";
                             $res=mysqli_query($conn,$query);
                             if($res){
                                 while($row=mysqli_fetch_assoc($res)){
@@ -202,11 +194,7 @@
                                     while($row1=mysqli_fetch_assoc($res1)){
                                         $names=$names.$row1['name'].",";
                                     }
-                                    $query2="SELECT Othernames from pubicationauthor where PID=".$row["PID"]." and EID is null;";
-                                    $res2=mysqli_query($conn,$query2);
-                                    while($row2=mysqli_fetch_assoc($res2)){
-                                        $names=$names.$row2["Othernames"];
-                                    }
+                                    $names=$names.$row["Othernames"];
                                     echo "<tr>";
                                     echo "<th>".$row["Title"]."</th>";
                                     echo "<th>".$row["ConferenceName"]."</th>";
@@ -226,7 +214,7 @@
                                 <th>Year</th>
                                 <th>Authors</th>
                             <tr>
-                        <?php $query="SELECT JID,Paper_Title,Journal,Year from journals natural join journalauthor where EID=".$_GET['id'].";";
+                        <?php $query="SELECT JID,Paper_Title,Journal,Year,Othernames from journals natural join journalauthor where EID=".$_GET['id'].";";
                             $res=mysqli_query($conn,$query);
                             if($res){
                                 while($row=mysqli_fetch_assoc($res)){
@@ -236,11 +224,7 @@
                                     while($row1=mysqli_fetch_assoc($res1)){
                                         $names=$names.$row1['name'].",";
                                     }
-                                    $query2="SELECT Othernames from journalauthor where JID=".$row["JID"]." and EID is null;";
-                                    $res2=mysqli_query($conn,$query2);
-                                    while($row2=mysqli_fetch_assoc($res2)){
-                                        $names=$names.$row2["Othernames"];
-                                    }
+                                    $names=$names.$row["Othernames"];
                                     echo "<tr>";
                                     echo "<th>".$row["Paper_Title"]."</th>";
                                     echo "<th>".$row["Journal"]."</th>";
@@ -253,6 +237,462 @@
 
                             }
                          }
+                    }
+                    if(isset($_GET["searchfac"])&&isset($_GET["id"])){
+                        if($_GET["type"]=='publications'){?>
+                            <tr>
+                                <th>Publication Title</th>
+                                <th>Type</th>
+                                <th>Year</th>
+                                <th>Contributed with</th>
+                            <tr>
+                        <?php
+                             
+                            $query1="SELECT name from `faculty` where EID=".$_GET['id'].";";
+                            $name1 = mysqli_query($conn, $query1);
+                            $name = mysqli_fetch_array($name1); 
+                            $mainarr=array();
+                            $quer = "SELECT Title,PID,Year FROM publications WHERE PID in (SELECT PID from pubicationauthor where EID=".$_GET["id"].");";
+                            $result = mysqli_query($conn, $quer);
+                            if(!$result) echo "";
+                            else{
+                                while($row = mysqli_fetch_assoc($result)) {
+                                    $subq = 'SELECT `name` from `faculty` NATURAL JOIN `pubicationauthor` WHERE `PID`='.$row["PID"].' and EID!='.$_GET["id"].';';
+                                    $str="";
+                                    $result1 = mysqli_query($conn, $subq);
+                                    while($row1= mysqli_fetch_assoc($result1)){
+                                        $str=$str.$row1["name"].",";
+                                    }
+                                    array_push($mainarr,($row["PID"]));
+                                    if($str=="") { ?>
+                                    <tr>
+                                        <th><?php echo $row["Title"]?></th>
+                                        <th>Conference</th>
+                                        <th><?php echo $row["Year"]?></th>
+                                        <th>Fully Contributed by you</th>
+                                    </tr>
+                            <?php } 
+                                    else {?>
+                                        <tr>
+                                            <th><?php echo $row["Title"]?></th>
+                                            <th>Conference</th>
+                                            <th><?php echo $row["Year"]?></th>
+                                            <th><?php echo substr($str,0,strlen($str)-1) ?></th>
+                                        </tr>
+                                    <?php }
+                                }
+                            }
+                        
+                            $quer = "SELECT Paper_Title,JID,Year FROM journals WHERE JID in (SELECT JID from journalauthor where EID=".$_GET["id"].");";
+                            $result = mysqli_query($conn, $quer);
+                            if(!$result) echo "";
+                            else{
+                                while($row = mysqli_fetch_assoc($result)) {
+                                    $subq = 'SELECT `name` from `faculty` NATURAL JOIN `journalauthor` WHERE `JID`='.$row["JID"].' and EID!='.$_GET["id"].';';
+                                    $str="";
+                                    $result1 = mysqli_query($conn, $subq);
+                                    while($row1= mysqli_fetch_assoc($result1)){
+                                        $str=$str.$row1["name"].",";
+                                    }
+                                    if($str=="") { ?>
+                                    <tr>
+                                        <th><?php echo $row["Paper_Title"]?></th>
+                                        <th>Journal</th>
+                                        <th><?php echo $row["Year"]?></th>
+                                        <th>Fully Contributed by you</th>
+                                    </tr>
+                                    <?php } 
+                                    else {?>
+                                        <tr>
+                                            <th><?php echo $row["Paper_Title"]?></th>
+                                            <th>Journal</th>
+                                            <th><?php echo $row["Year"]?></th>
+                                            <th><?php echo substr($str,0,strlen($str)-1) ?></th>
+                                        </tr>
+                                    <?php }
+                                }
+                            }
+                        }
+                        if($_GET['type']=='patents'){?>
+                                    <tr>
+                                        <th>Patent Title</th>
+                                        <th>Year</th>
+                                        <th>Role</th>
+                                    </tr>
+
+                            <?php $query1="SELECT name from `faculty` where EID=".$_GET['id'].";";
+                            $name1 = mysqli_query($conn, $query1);
+                            $name = mysqli_fetch_array($name1);
+                            $quer = "SELECT PTitle,PaId,Year FROM patents WHERE PIid=".$_GET["id"].";";
+                            $result = mysqli_query($conn, $quer);
+                            if(!$result) echo "";
+                            else{
+                                while($row = mysqli_fetch_assoc($result)) {?>
+                                    <tr>
+                                        <th><?php echo $row["PTitle"];?></th>
+                                        <th><?php echo $row['Year'];?></th>
+                                        <th>Principal Investigator</th>
+                                    </tr>
+                               <?php }
+                            }
+                            $quer1 = "SELECT PTitle,PaId,Year FROM patents WHERE PaId in (Select PaId from `patentcopi` where COPI=".$_GET["id"].");";
+                            $result1 = mysqli_query($conn, $quer1);
+                            if(!$result1) die();
+                            else{
+                                while($row = mysqli_fetch_assoc($result1)) { ?>
+                                    <tr>
+                                        <th><?php echo $row["PTitle"];?></th>
+                                        <th><?php echo $row['Year'];?></th>
+                                        <th>Co-Principal Investigator</th>
+                                    </tr>
+                                <?php }
+                            }
+                        }
+                    }
+                    if(isset($_GET["searchyr"])){
+                        if($_GET["type"]=='publications'){ ?>
+                            <tr>
+                                <th>Publication Title</th>
+                                <th>Type</th>
+                                <th>Contributed with</th>
+                            </tr>
+                        <?php  
+                            $query="SELECT PID,Title from `publications` where Year=".$_GET["searchyr"].";";
+                            $res=mysqli_query($conn,$query);
+                            if(!$res) echo "";
+                            else{
+                                $mainarr=array();
+                                while($row=mysqli_fetch_assoc($res)){
+                                    $query1='SELECT `name` from `faculty` NATURAL JOIN `pubicationauthor` WHERE `PID`='.$row["PID"].';';
+                                    $str="";
+                                    $result1 = mysqli_query($conn, $query1);
+                                    while($row1= mysqli_fetch_assoc($result1)){
+                                        $str=$str.$row1["name"].",";
+                                    }
+                                    array_push($mainarr,($row["PID"])); ?>
+                                        <tr>
+                                            <th><?php echo $row["Title"];?></th>
+                                            <th>Conference</th>
+                                            <th><?php echo substr($str,0,strlen($str)-1);?></th>
+                                        </tr>
+                                    <?php 
+                                }   
+                            }
+                            $query="SELECT JID,Paper_Title from `journals` where Year=".$_GET["searchyr"].";";
+                            $res=mysqli_query($conn,$query);
+                            if(!$res) echo "";
+                            else{
+                                while($row=mysqli_fetch_assoc($res)){
+                                    $query1='SELECT `name` from `faculty` NATURAL JOIN `journalauthor` WHERE `JID`='.$row["JID"].';';
+                                    $str="";
+                                    $result1 = mysqli_query($conn, $query1);
+                                    while($row1= mysqli_fetch_assoc($result1)){
+                                        $str=$str.$row1["name"].",";
+                                    } ?>
+                                        <tr>
+                                            <th><?php echo $row["Paper_Title"];?></th>
+                                            <th>Journal</th>
+                                            <th><?php echo substr($str,0,strlen($str)-1);?></th>
+                                        </tr>
+                                    <?php 
+                                }   
+                            }
+                        }
+                        if($_GET["type"]=='patents'){?>
+                            <tr>
+                                <th>Patent Title</th>
+                                <th>Patent Members</th>
+                            </tr>
+                         <?php   $query1="SELECT PaId,PTitle,PIid from `patents` where Year=".$_GET["searchyr"].";";
+                            $res1=mysqli_query($conn,$query1);
+                            if(!$res1) echo "";
+                            else{
+                                while($row=mysqli_fetch_assoc($res1)){
+                                    $pi='SELECT `name` from `faculty` where `EID`='.$row["PIid"].';'; 
+                                    $name=mysqli_query($conn, $pi);
+                                    $piname= mysqli_fetch_assoc($name);
+                                    $query1='SELECT `name` from `faculty` INNER JOIN `patentcopi` ON `patentcopi`.COPI=`faculty`.EID WHERE `PaId`='.$row["PaId"].';';
+                                    $str=$piname['name'].',';
+                                    $result1 = mysqli_query($conn, $query1);
+                                    while($row1= mysqli_fetch_assoc($result1)){
+                                        $str=$str.$row1["name"].",";
+                                    } ?>
+                                    <tr>
+                                        <th><?php echo $row["PTitle"];?></th>
+                                        <th><?php echo substr($str,0,strlen($str)-1);?></th>
+                                    </tr>
+                                    <?php 
+                                }   
+                            }
+                        }
+                    }
+                    if(isset($_GET["searchyrA"])&&isset($_GET["searchyrB"])){
+                        if($_GET["type"]=='publications'){ ?>
+                        <tr>
+                            <th>Publication Title</th>
+                            <th>Type</th>
+                            <th>Contributed with</th>
+                            <th>Year</th>
+                        </tr>
+                       <?php 
+                        $max=max((int)$_GET['searchyrA'],(int)$_GET["searchyrB"]);
+                        $min=min((int)$_GET['searchyrA'],(int)$_GET["searchyrB"]);
+                        $query="SELECT PID,Title,Year from `publications` where Year>=".$min." and Year<=".$max." ORDER by Year desc;";
+                        $res=mysqli_query($conn,$query);
+                        if(!$res) echo "";
+                        else{
+                            $mainarr=array();
+                            while($row=mysqli_fetch_assoc($res)){
+                                $query1='SELECT `name` from `faculty` NATURAL JOIN `pubicationauthor` WHERE `PID`='.$row["PID"].';';
+                                $str="";
+                                $result1 = mysqli_query($conn, $query1);
+                                while($row1= mysqli_fetch_assoc($result1)){
+                                    $str=$str.$row1["name"].",";
+                                }
+                                array_push($mainarr,($row["PID"]));?>
+                                    <tr>
+                                        <th><?php echo $row["Title"];?></th>
+                                        <th>Conference</th>
+                                        <th><?php echo substr($str,0,strlen($str)-1);?></th>
+                                        <th><?php echo $row["Year"];?></th>
+                                    </tr>
+                                <?php 
+                            }   
+                        }
+                        $query="SELECT JID,Paper_Title,Year from `journals` where Year>=".$min." and Year<=".$max." ORDER by Year desc;";
+                        $res=mysqli_query($conn,$query);
+                        if(!$res) echo "<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>";
+                        else{
+                            $mainarr=array();
+                            while($row=mysqli_fetch_assoc($res)){
+                                $query1='SELECT `name` from `faculty` NATURAL JOIN `journalauthor` WHERE `JID`='.$row["JID"].';';
+                                $str="";
+                                $result1 = mysqli_query($conn, $query1);
+                                while($row1= mysqli_fetch_assoc($result1)){
+                                    $str=$str.$row1["name"].",";
+                                }
+                                array_push($mainarr,($row["JID"]));?>
+                                <tr>
+                                        <th><?php echo $row["Paper_Title"];?></th>
+                                        <th>Journal</th>
+                                        <th><?php echo substr($str,0,strlen($str)-1);?></th>
+                                        <th><?php echo $row["Year"];?></th>
+                                </tr>
+                                <?php 
+                            }   
+                        }    
+                     }
+                        if($_GET["type"]=='patents'){?>
+                                <tr>
+                                    <th>Patent Title</th>
+                                    <th>Princiapl Investigator</th>
+                                    <th>Year</th>
+                                </tr>
+                        <?php
+                            $max=max((int)$_GET['searchyrA'],(int)$_GET["searchyrB"]);
+                            $min=min((int)$_GET['searchyrA'],(int)$_GET["searchyrB"]);
+                            $query="SELECT PaId,PIid,PTitle,Year from `patents` where Year>=".$min." and Year<=".$max." ORDER by Year desc;";
+                            $res=mysqli_query($conn,$query);
+                            if(!$res) echo "";
+                            else{
+                                while($row=mysqli_fetch_assoc($res)){
+                                    $query1='SELECT `name` from `faculty` WHERE `EID`='.$row["PIid"].';';
+                                    $result1 = mysqli_query($conn, $query1);
+                                    $principalname=mysqli_fetch_array($result1);?>
+                                        <tr>
+                                            <th><?php echo $row["PTitle"];?></th>
+                                            <th><?php echo $principalname["name"];?></th>
+                                            <th><?php echo $row["Year"];?></th>
+                                        </tr>
+                                    <?php  
+                                }   
+                            }
+                        }
+                    }
+                    if(isset($_GET["dept"])){
+                        if($_GET["type"]=='publications'){?>
+                            <tr>
+                                <th>Publication Title</th>
+                                <th>Type</th>
+                                <th>Year</th>
+                            </tr>
+                        <?php
+                            $query="SELECT distinct(JID) from `journalauthor` NATURAL JOIN `faculty` where `dept`='".$_GET["dept"]."';";
+                            $res=mysqli_query($conn,$query);
+                            if(!$res) echo "";
+                            else{
+                                $mainarr=array();
+                                while($row=mysqli_fetch_assoc($res)){
+                                    $query1='SELECT JID,Paper_Title,Year from `journals` where JID='.$row["JID"].';';
+                                    $result1 = mysqli_query($conn, $query1);
+                                    $pubarray=mysqli_fetch_array($result1);?>
+                                        <tr>
+                                            <th><?php echo $pubarray["Paper_Title"];?></th>
+                                            <th>Journal</th>
+                                            <th><?php echo $pubarray["Year"];?></th>
+                                        </tr>
+                                    <?php
+                                }   
+                            }
+                            $query="SELECT distinct(PID) from `pubicationauthor` NATURAL JOIN `faculty` where `dept`='".$_GET["dept"]."';";
+                            $res=mysqli_query($conn,$query);
+                            if(!$res) echo "";
+                            else{
+                                $mainarr=array();
+                                while($row=mysqli_fetch_assoc($res)){
+                                    $query1='SELECT PID,Title,Year from `publications` where PID='.$row["PID"].';';
+                                    $result1 = mysqli_query($conn, $query1);
+                                    $pubarray=mysqli_fetch_array($result1);?>
+                                        <tr>
+                                            <th><?php echo $pubarray["Title"];?></th>
+                                            <th>Conference</th>
+                                            <th><?php echo $pubarray["Year"];?></th>
+                                        </tr>
+                                    <?php
+                                }   
+                            }
+                        }
+                        if($_GET["type"]=='patents'){?>
+                            <tr>
+                                <th>Patent Title</th>
+                                <th>Principal Investigator</th>
+                                <th>Year</th>   
+                            </tr>
+                        <?php
+                            $query="SELECT PaId,PIid,PTitle,name,Year from `patents` inner join `faculty` on faculty.EID=patents.PIid where dept='".$_GET['dept']."' ORDER BY PaId desc;";
+                            $res=mysqli_query($conn,$query);
+                            if(!$res) echo "";
+                            else{
+                                while($row=mysqli_fetch_assoc($res)){?>
+                                    <tr>
+                                        <th><?php echo $row["PTitle"];?></th>
+                                        <th><?php echo $row["name"];?></th>
+                                        <th><?php echo $row['Year'];?></th>
+                                    </tr>
+                                    <?php
+                                }   
+                            }
+                        }
+                    }
+                    if(isset($_GET["year"]) && isset($_GET["id"])){
+                        if($_GET["type"]=='publications'){?>
+                                <tr>
+                                    <th>Publication Title</th>
+                                    <th>Type</th>
+                                    <th>Contributed with</th>
+                                </tr>
+                          <?php  
+                          $quer = "SELECT Title,PID FROM publications WHERE PID in (SELECT PID from pubicationauthor where EID=".$_GET["id"].") and Year=".$_GET["year"].";";
+                          $result = mysqli_query($conn, $quer);
+                          if(!$result) echo "";
+                          else{
+                              while($row = mysqli_fetch_assoc($result)) {
+                                  $subq = 'SELECT `name` from `faculty` NATURAL JOIN `pubicationauthor` WHERE `PID`='.$row["PID"].' and EID!='.$_GET["id"].';';
+                                  $str="";
+                                  $result1 = mysqli_query($conn, $subq);
+                                  while($row1= mysqli_fetch_assoc($result1)){
+                                      $str=$str.$row1["name"].",";
+                                  }
+                                  array_push($mainarr,($row["PID"]));
+                                  if($str=="") { ?>
+                                            <tr>
+                                                <th><?php echo $row["Title"]?></th>
+                                                <th>Conference</th>
+                                                <th>Fully Contributed by you</th>
+                                            </tr>
+                                  <?php } 
+                                  else {?>
+                                            <tr>
+                                                <th><?php echo $row["Title"]?></th>
+                                                <th>Conference</th>
+                                                <th><?php echo substr($str,0,strlen($str)-1) ?></th>
+                                            </tr>
+                                  <?php }
+                              }
+                          }
+                          $quer = "SELECT Paper_Title,JID FROM journals WHERE JID in (SELECT JID from journalauthor where EID=".$_GET["id"].") and Year=".$_GET["year"].";";
+                          $result = mysqli_query($conn, $quer);
+                          if(!$result) echo "";
+                          else{
+                              while($row = mysqli_fetch_assoc($result)) {
+                                  $subq = 'SELECT `name` from `faculty` NATURAL JOIN `journalauthor` WHERE `JID`='.$row["JID"].' and EID!='.$_GET["id"].';';
+                                  $str="";
+                                  $result1 = mysqli_query($conn, $subq);
+                                  while($row1= mysqli_fetch_assoc($result1)){
+                                      $str=$str.$row1["name"].",";
+                                  }
+                                  if($str=="") { ?>
+                                         <tr>
+                                                <th><?php echo $row["Paper_Title"]?></th>
+                                                <th>Journal</th>
+                                                <th>Fully Contributed by you</th>
+                                            </tr>
+                                          
+                                  <?php } 
+                                  else {?>
+                                            <tr>
+                                                <th><?php echo $row["Paper_Title"]?></th>
+                                                <th>Journal</th>
+                                                <th><?php echo substr($str,0,strlen($str)-1) ?></th>
+                                            </tr>
+                                  <?php }
+                              }
+                          }
+                        }
+                        if($_GET["type"]=='patents'){?>
+                            <tr>
+                                <th>Patent title</th>
+                                <th>Patent Members</th>
+                            </tr>
+                       <?php  
+                            $query1="SELECT PaId,PTitle,PIid from `patents` where Year=".$_GET["year"].";";
+                            $res1=mysqli_query($conn,$query1);
+                            if(!$res1) echo "";
+                            else{
+                                while($row=mysqli_fetch_assoc($res1)){
+                                    if($row["PIid"]==$_GET["id"]){
+                                        $pi='SELECT `name` from `faculty` where `EID`='.$row["PIid"].';'; 
+                                        $name=mysqli_query($conn, $pi);
+                                        $piname= mysqli_fetch_assoc($name);
+                                        $query1='SELECT `name` from `faculty` INNER JOIN `patentcopi` ON `patentcopi`.COPI=`faculty`.EID WHERE `PaId`='.$row["PaId"].';';
+                                        $str=$piname['name'].',';
+                                        $result1 = mysqli_query($conn, $query1);
+                                        while($row1= mysqli_fetch_assoc($result1)){
+                                            $str=$str.$row1["name"].",";
+                                        }?>
+                                        <tr>
+                                            <th><?php echo $row['PTitle'];?></th>
+                                            <th><?php echo substr($str,0,strlen($str)-1);?></th>
+                                        </tr>
+                                        <?php
+                                    }
+                                    else{
+                                        $query="SELECT COPI,PaId from patentcopi where PaId=".$row["PaId"]." and COPI=".$_GET["id"].";";
+                                        $res=mysqli_query($conn,$query);
+                                        $id=mysqli_fetch_assoc($res);
+                                        if(mysqli_num_rows($res)==1){
+                                            $pi='SELECT `name` from `faculty` where `EID`='.$row["PIid"].';'; 
+                                            $name=mysqli_query($conn, $pi);
+                                            $piname= mysqli_fetch_assoc($name);
+                                            $names=$piname['name'].',';
+                                            $query1="SELECT name from faculty inner join patentcopi on faculty.EID=patentcopi.COPI where PaId=".$id["PaId"].";";
+                                            $res1=mysqli_query($conn,$query1);
+                                            while($row1=mysqli_fetch_assoc($res1)){
+                                                $names=$names.$row1['name'].",";
+                                            }?>
+                                                <tr>
+                                                    <th><?php echo $row['PTitle'];?></th>
+                                                    <th><?php echo substr($names,0,strlen($names)-1);?></th>
+                                                </tr>
+                                            <?php
+                                        }
+                                    }
+                                }   
+                            }
+                        }
+                    }
+                    if(false){
+
                     }
                 }
                 ?>

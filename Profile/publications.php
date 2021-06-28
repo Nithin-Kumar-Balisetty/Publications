@@ -602,24 +602,33 @@ background: rgba(52,57,87,0.9);
         })
     }
     function insertC(ele){
-        var beforeclone=document.getElementsByClassName("firstblock")[0];
-        var element = beforeclone.cloneNode(true);
-        $(element.children[1].children[0].children[1].children[0]).remove();
-        $(element.children[1].children[0].children[0]).val("");
+        var beforeclone=document.createElement("div");
+        $(beforeclone).addClass("row firstblock");
+        <?php 
+        $content="";
+        $obj=new SQL();
+        if($obj->SQLi()){
+        $res=$obj->query('SELECT `name`,`EID` from faculty');
+        while($row=mysqli_fetch_assoc($res)){
+            $content=$content.'<option value="'.$row["EID"].'">'.$row["name"].'</option>';
+         } 
+        }   ?>
+        $(beforeclone).html('<div class="col-lg-3"><label for="Link">Author 1 :</label><span style="color:red;"></span></div><div class="col-lg-auto" style="display: inline-block;"><div style="margin-top: 7.5px;"><select name="Author1"><?php echo $content ?></select></div></div><div style="display : inline-block;"><div style="margin-top: 10px;"><i class="fa fa-plus-circle" style="color : green; font-size : 20px;" onclick="insertC(this)"></i></div></div>');
+        var element = beforeclone;
+        //$(element.children[1].children[0].children[1].children[0]).remove();
+        //$(element.children[1].children[0].children[0]).val("");
         $(ele.nextElementSibling).remove();
         element.children[2].children[0].innerHTML=element.children[2].children[0].innerHTML+'<i class="fa fa-minus-circle"style="color : red; font-size : 20px;" onclick="deleteC(this)"></i>';
         var str=ele.parentElement.parentElement.previousElementSibling.previousElementSibling.children[0].innerHTML;
         $(element.children[1].children[0].children[0]).attr("name","Author"+(parseInt(str.slice(7,str.length-2))+1));
-        $(element.children[1].children[0].children[2]).attr("name","AuthorID"+$(element.children[1].children[0].children[0]).attr("name").slice(6));
-        element.children[0].children[0].innerHTML="Author "+(parseInt(str.slice(7,str.length-2))+1)+" :";
-        ele
         $(element).insertAfter($(ele.parentElement.parentElement.parentElement));
+        $(ele).remove();
     }
     function deleteC(ele){
         if($(ele.parentElement.parentElement.parentElement.previousElementSibling.children[1].children[0].children[0]).attr('name')!='Author1')
             ele.parentElement.parentElement.parentElement.previousElementSibling.children[2].children[0].innerHTML=ele.parentElement.parentElement.parentElement.previousElementSibling.children[2].children[0].innerHTML+'<i class="fa fa-minus-circle"style="color : red; font-size : 20px;" onclick="deleteC(this)"></i>';
+        ele.parentElement.parentElement.parentElement.previousElementSibling.children[2].children[0].innerHTML=('<i class="fa fa-plus-circle"style="color : green; font-size : 20px;" onclick="insertC(this)"></i>')+ele.parentElement.parentElement.parentElement.previousElementSibling.children[2].children[0].innerHTML;
         $(ele.parentElement.parentElement.parentElement).remove();
-    
     }
 ////
 
@@ -748,8 +757,9 @@ background: rgba(52,57,87,0.9);
             }?>
             <div class="publication conference data mt-5">
                 <div class='text-center mx-auto mb-5'>
-                    <a class="btn btn-success" onclick="printAll('C')">Print all Conference Publications</a>
-                    <?php 
+                <iframe src="printem.php?type=conference" style="display:none;" name="conf"></iframe>
+                <button class="btn btn-success" onclick="frames['conf'].print()">Print Confernce Publications</button>
+                <?php 
                     $obj=new SQL();
                     $conn=$obj->SQLi();
                     if(!$conn)  echo '<script>popupform("An error occured","Please try next time.Sorry for the inconvinience!");</script>';
@@ -758,7 +768,8 @@ background: rgba(52,57,87,0.9);
                         $res=mysqli_query($conn,$query);
                         if(mysqli_num_rows($res)==1){
                         $id=mysqli_fetch_assoc($res)['EID'];?>
-                            <a class="btn btn-success" onclick="print('C',<?php echo $id?>)">Print your Conference Publications</a>
+                        <iframe src="printem.php?type=conference&id=<?php echo $id?>" style="display:none;" name="confA"></iframe>
+                        <button class="btn btn-success" onclick="frames['confA'].print()">Print your Confernce Publications</button>
                         <?php   }
                         else{
                             $id=0;
@@ -792,11 +803,11 @@ background: rgba(52,57,87,0.9);
         ?>
         <div class="publication journal data mt-5">
                 <div class='text-center mx-auto mb-5'>
-                    <a class="btn btn-success" onclick="printAll('J')">Print all Journal Publications</a>
-                    <?php 
+                        <iframe src="printem.php?type=journal" style="display:none;" name="jour"></iframe>
+                        <button class="btn btn-success" onclick="frames['jour'].print()">Print Journal Publications</button>                    <?php 
                     if($id!=0){ ?>
-                        <a class="btn btn-success" onclick="print('J',<?php echo $id?>)">Print your Journal Publications</a>
-                      <?php  }
+                        <iframe src="printem.php?type=journal&id=<?php echo $id?>" style="display:none;" name="jourA"></iframe>
+                        <button class="btn btn-success" onclick="frames['jourA'].print()">Print your Journal Publications</button>                      <?php  }
                     ?>
                     
                 </div>
@@ -848,7 +859,7 @@ background: rgba(52,57,87,0.9);
             }
         </script>
     </div>
-    <div class="btn-group dropdown mt-5" style="margin-left : 50%;">
+    <div class="btn-group dropdown mt-5" style="margin-left:50%;">
         <button type="button" class="btn btn-success dropdown-toggle insertb" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Insert
         </button>
@@ -957,13 +968,21 @@ background: rgba(52,57,87,0.9);
             <div class="row firstblock">
                 <div class="col-lg-3">
                 <label for="Link">Author 1 :</label>
-                <span style="color:red;">(Enter email id)</span>
+                <span style="color:red;"></span>
                 </div>
                 <div class="col-lg-auto" style="display: inline-block;">
                     <div style="margin-top: 7.5px;">
-                        <input type="text" name="Author1" oninput="searchname(this)" autocomplete="off" value="" >
-                        <div class="appearfac"></div>
-                        <input type="hidden" name="AuthorID1" value="null">
+                        <select name="Author1" id="">
+                            <?php 
+                              $obj=new SQL();
+                              if($obj->SQLi()){
+                                $res=$obj->query('SELECT `name`,`EID` from faculty');
+                                while($row=mysqli_fetch_assoc($res)){?>
+                                    <option value="<?php echo $row["EID"] ?>"><?php echo $row["name"] ?></option>
+                                <?php   }  
+                              }  
+                            ?>
+                        </select>
                     </div>
                 </div>
                 <div style="display : inline-block;">
@@ -972,7 +991,18 @@ background: rgba(52,57,87,0.9);
                         </div>
                 </div>
             </div>
-
+            <div class="row">
+                <div class="col-lg-3">
+                        <label for="Link">Other Names:</label>
+                        <br>
+                        <span style="color:red">(If the respective name is not present in the pull down menu.Add it here where multiple names sholud be seperated by a comma)</span>
+                        <br>
+                        <span style="color:red">(Example : Dr. Ram,Dr. John)</span>                
+                </div>
+                <div class="col-lg-4">
+                <input type="text" name="Othernames" value="">
+                </div>
+            </div>
             <div class="text-center mt-4" id="appendbefore">
                 <button type="submit" name="ConferencePOST" class="btn btn-success">POST THE DETAILS</button>
             </div>
@@ -1089,13 +1119,21 @@ background: rgba(52,57,87,0.9);
             <div class="row firstblock">
                 <div class="col-lg-3">
                 <label for="Link">Author 1 :</label>
-                <span style="color:red;">(Enter email id)</span>
+                <span style="color:red;"></span>
                 </div>
                 <div class="col-lg-auto" style="display: inline-block;">
                     <div style="margin-top: 7.5px;">
-                        <input type="text" name="Author1" oninput="searchname(this)" autocomplete="off" value="" >
-                        <div class="appearfac"></div>
-                        <input type="hidden" name="AuthorID1" value="null">
+                        <select name="Author1" id="">
+                                <?php 
+                                $obj=new SQL();
+                                if($obj->SQLi()){
+                                    $res=$obj->query('SELECT `name`,`EID` from faculty');
+                                    while($row=mysqli_fetch_assoc($res)){?>
+                                        <option value="<?php echo $row["EID"] ?>"><?php echo $row["name"] ?></option>
+                                    <?php   }  
+                                }  
+                                ?>
+                            </select>
                     </div>
                 </div>
                 <div style="display : inline-block;">
@@ -1104,7 +1142,18 @@ background: rgba(52,57,87,0.9);
                         </div>
                 </div>
             </div>
-
+            <div class="row">
+                <div class="col-lg-3">
+                        <label for="Link">Other Names:</label>
+                        <br>
+                        <span style="color:red">(If the respective name is not present in the pull down menu.Add it here where multiple names sholud be seperated by a comma)</span>
+                        <br>
+                        <span style="color:red">(Example : Dr. Ram,Dr. John)</span>                
+                </div>
+                <div class="col-lg-4">
+                <input type="text" name="Othernames" value="">
+                </div>
+            </div>
             <div class="text-center mt-4" id="appendbefore">
                 <button type="submit" name="JournalPOST" class="btn btn-success">POST THE DETAILS</button>
             </div>
@@ -1181,12 +1230,13 @@ background: rgba(52,57,87,0.9);
                     $noofauth++;
                     $i++;
                 }
-                $quer='INSERT INTO `publications`(Title,ConferenceName,Vol,Pages,Year,Indexing,No_of_Auth,ISSN,Proceedings) values("'.$_POST["Title"].'","'.$_POST["ConferenceName"].'",'.$_POST["Vol"].','.$_POST["Pages"].','.$_POST["Year"].',"'.$indexing[(int)$_POST["indexing"]].'",'.$noofauth.',"'.(($_POST["ISSN1"].$_POST["ISSN2"])).'","'.$_POST["Proceedings"].'");';
+                $new_str = str_replace(' ', '',$_POST["Othernames"]);
+                $quer='INSERT INTO `publications`(Title,ConferenceName,Vol,Pages,Year,Indexing,No_of_Auth,ISSN,Proceedings,Othernames) values("'.$_POST["Title"].'","'.$_POST["ConferenceName"].'",'.$_POST["Vol"].','.$_POST["Pages"].','.$_POST["Year"].',"'.$indexing[(int)$_POST["indexing"]].'",'.$noofauth.',"'.(($_POST["ISSN1"].$_POST["ISSN2"])).'","'.$_POST["Proceedings"].'","'.$new_str.'");';
                 if(mysqli_query($conn,$quer)){
                     $rowcount=mysqli_fetch_array(mysqli_query($conn,'SELECT MAX(PID) as max FROM `publications`;'));
                     $j=1;
-                    while(isset($_POST["AuthorID".$j])){
-                        if(mysqli_query($conn,'INSERT into `pubicationauthor`(PID,EID) values('.$rowcount["max"].','.$_POST["AuthorID".$j].')')){
+                    while(isset($_POST["Author".$j])){
+                        if(mysqli_query($conn,'INSERT into `pubicationauthor`(PID,EID) values('.$rowcount["max"].','.$_POST["Author".$j].')')){
                             $j++;
                         }
                         else{
@@ -1227,11 +1277,12 @@ background: rgba(52,57,87,0.9);
                     $noofauth++;
                     $i++;
                 }
-                $quer='INSERT INTO `journals`(Paper_Title,Journal,VolNo,Issue,Pages,Year,Publisher,Indexing,No_of_Auth,ISSN,Website_URL) values("'.$_POST["Title"].'","'.$_POST["ConferenceName"].'",'.$_POST["Vol"].','.$_POST["Issue"].','.$_POST["Pages"].','.$_POST["Year"].',"'.$journalpublisher[(int)$_POST["publisher"]].'","'.$indexing[(int)$_POST["indexing"]].'",'.$noofauth.',"'.(($_POST["ISSN1"].$_POST["ISSN2"])).'","'.$_POST["Link"].'");';
+                $new_str = str_replace(' ', '',$_POST["Othernames"]);
+                $quer='INSERT INTO `journals`(Paper_Title,Journal,VolNo,Issue,Pages,Year,Publisher,Indexing,No_of_Auth,ISSN,Website_URL,Othernames) values("'.$_POST["Title"].'","'.$_POST["ConferenceName"].'",'.$_POST["Vol"].','.$_POST["Issue"].','.$_POST["Pages"].','.$_POST["Year"].',"'.$journalpublisher[(int)$_POST["publisher"]].'","'.$indexing[(int)$_POST["indexing"]].'",'.$noofauth.',"'.(($_POST["ISSN1"].$_POST["ISSN2"])).'","'.$_POST["Link"].'","'.$new_str.'");';
                 if(mysqli_query($conn,$quer)){
                     $rowcount=mysqli_fetch_array(mysqli_query($conn,'SELECT MAX(JID) as max FROM `journals`;'));                    $j=1;
-                    while(isset($_POST["AuthorID".$j])){
-                        if(mysqli_query($conn,'INSERT into `journalauthor`(JID,EID) values('.$rowcount["max"].','.$_POST["AuthorID".$j].')')){
+                    while(isset($_POST["Author".$j])){
+                        if(mysqli_query($conn,'INSERT into `journalauthor`(JID,EID) values('.$rowcount["max"].','.$_POST["Author".$j].')')){
                             $j++;
                         }
                         else{
@@ -1276,12 +1327,11 @@ background: rgba(52,57,87,0.9);
          $conn=mysqli_connect($servername, $username,'', $dbname);
          if(!$conn) die();
          else{
-        $attr=array("Title","Journal Name","ISSN","Volume","Issue","Pages","Year","Publisher","Indexing","Website URL","Author's email(Seperated by comma)");
+        $attr=array("Title","Journal Name","ISSN","Volume","Issue","Pages","Year","Publisher","Indexing","Website URL","Author's email(Seperated by comma)","Othernames");
         $char='A';
         for($k=0;$k<sizeof($attr);$k++){
             if($attr[$k]!=$objPHPExcel->getActiveSheet()->getCell($char.(int)1)->getValue()){
                 echo "<script>popupform('File not in desired format','Make sure the the file follow the journal template');</script>";
-                die();
             }
             $char++;
         }
@@ -1297,6 +1347,8 @@ background: rgba(52,57,87,0.9);
              $indexing=$objPHPExcel->getActiveSheet()->getCell('I'.$i)->getValue();
              $weburl=$objPHPExcel->getActiveSheet()->getCell('J'.$i)->getValue();
              $email=$objPHPExcel->getActiveSheet()->getCell('K'.$i)->getValue();
+             $othernames=$objPHPExcel->getActiveSheet()->getCell('L'.$i)->getValue();
+             $contents = str_replace(' ', '', $othernames);
              $new_str = str_replace(' ', '', $email);
              $marray=explode(",",$new_str);
 
@@ -1326,10 +1378,13 @@ background: rgba(52,57,87,0.9);
                     $excel->getActiveSheet()->setCellValue('I'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('I'.$i)->getValue());
                     $excel->getActiveSheet()->setCellValue('J'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('J'.$i)->getValue());
                     $excel->getActiveSheet()->setCellValue('K'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('K'.$i)->getValue());
+                    $excel->getActiveSheet()->setCellValue('L'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('L'.$i)->getValue());
+
+
                     $objWriter = PHPExcel_IOFactory::createWriter($excel,'Excel5');
                     $objWriter->save("Journal.xlsx");
-                    $str='"'.$title.'","'.$journalname.'","'.$ISSN.'",'.$vol.','.$issue.','.$pages.','.$year.',"'.$publisher.'","'.$indexing.'","'.$weburl.'",'.sizeof($marray);
-                    $query1="INSERT INTO journals (Paper_Title,Journal,ISSN,VolNo,Issue,Pages,Year,Publisher,Indexing,Website_URL,No_of_Auth) values(".$str.")";
+                    $str='"'.$title.'","'.$journalname.'","'.$ISSN.'",'.$vol.','.$issue.','.$pages.','.$year.',"'.$publisher.'","'.$indexing.'","'.$weburl.'",'.sizeof($marray).',"'.$contents.'"';
+                    $query1="INSERT INTO journals (Paper_Title,Journal,ISSN,VolNo,Issue,Pages,Year,Publisher,Indexing,Website_URL,No_of_Auth,Othernames) values(".$str.")";
                     if(mysqli_query($conn,$query1)){
                         //successfully inserted
                         $querr='SELECT MAX(JID) as jid from journals;';
@@ -1418,6 +1473,8 @@ background: rgba(52,57,87,0.9);
             $indexing=$objPHPExcel->getActiveSheet()->getCell('H'.$i)->getValue();
             $weburl=$objPHPExcel->getActiveSheet()->getCell('I'.$i)->getValue();
             $email=$objPHPExcel->getActiveSheet()->getCell('J'.$i)->getValue();
+            $othernames=$objPHPExcel->getActiveSheet()->getCell('K'.$i)->getValue();
+            $contents = str_replace(' ', '', $othernames);
             $new_str = str_replace(' ', '', $email);
             $marray=explode(",",$new_str);
 
@@ -1447,11 +1504,12 @@ background: rgba(52,57,87,0.9);
                     $excel->getActiveSheet()->setCellValue('I'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('I'.$i)->getValue());
                     $excel->getActiveSheet()->setCellValue('J'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('J'.$i)->getValue());
                     $excel->getActiveSheet()->setCellValue('K'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('K'.$i)->getValue());
+
                     $objWriter = PHPExcel_IOFactory::createWriter($excel,'Excel5');
                     $objWriter->save("Conference.xlsx");
-                   $str='"'.$title.'","'.$confname.'","'.$ISSN.'",'.$vol.','.$pages.','.$year.',"'.$proceedings.'","'.$indexing.'","'.$weburl.'",'.sizeof($marray);
+                   $str='"'.$title.'","'.$confname.'","'.$ISSN.'",'.$vol.','.$pages.','.$year.',"'.$proceedings.'","'.$indexing.'","'.$weburl.'",'.sizeof($marray).',"'.$contents.'"';
                    
-                   $query1="INSERT INTO publications (Title,ConferenceName,ISSN,Vol,Pages,Year,Proceedings,Indexing,Website_URL,No_of_Auth) values(".$str.")";
+                   $query1="INSERT INTO publications (Title,ConferenceName,ISSN,Vol,Pages,Year,Proceedings,Indexing,Website_URL,No_of_Auth,Othernames) values(".$str.")";
                    if(mysqli_query($conn,$query1)){
                        //successfully inserted
                        $querr='SELECT MAX(PID) as pid from publications;';
@@ -1547,6 +1605,7 @@ td{
         <script src="https://www.iiitdm.ac.in/Profile/assets/js/lib/owl-carousel/owl.carousel-init.js"></script>
         
         <!-- scripit init-->
+        
 
     </body>
 
