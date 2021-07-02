@@ -93,7 +93,7 @@ background: rgba(52,57,87,0.9);
 
 
 							
-                                <li><a href="http://www.iiitdm.ac.in/Profile/automation/PayRoll/EmployeeDetails.php"  ><i class='fa fa-user'></i>Employee Profile</a></li>							
+                            <li><a href="http://www.iiitdm.ac.in/Profile/automation/PayRoll/EmployeeDetails.php"  ><i class='fa fa-user'></i>Employee Profile</a></li>							
 								<!-- <li><a href="demography.php" >Edit Demography</a></li>
 								<li><a href="funded.php" >Edit Funded Projects</a></li>
 								<li><a href="publication.php" >Edit Publication</a></li>
@@ -124,6 +124,11 @@ background: rgba(52,57,87,0.9);
 								<input type="text" style="float: left; height: 35px;" id="sea" name="sea" placeholder="Want to search someone you know?"  value="" /><button class="btn btn-warning" >Edit</button></form>
 								</div> </li>
 								-->
+
+                                <!-- code start-->
+                                <li><a href="./publications.php"> <i class="fa fa-user"></i>Publications </a></li>
+                                <li><a href="./patents.php"><i class="fa fa-user"></i>Patents</a></li>			
+								<li><a href="./searchpublications.php"><i class="fa fa-user"></i>Search Publications and Patents</a></li>
 											
 							</ul>
 						</li> 
@@ -580,6 +585,12 @@ background: rgba(52,57,87,0.9);
             $($('.excelform')[0].parentElement).toggle();
         }
     </script>
+    <div class='text-center mt-5'>
+        <iframe src="printem.php?patentall=true" style="display:none;" name="conf1"></iframe>
+        <button class="btn btn-success" onclick="frames['conf1'].print()">Print All Patent</button>
+        <iframe src="printem.php?patent=14" style="display:none;" name="conf2"></iframe>
+        <button class="btn btn-success" onclick="frames['conf2'].print()">Print your Patent</button>
+    </div>
     <div class="insertbutton text-center mt-5">
         <button class="btn btn-success mr-4" style="font-size:16px;" onclick="expand(this)">Insert</button>
         <button class="btn btn-success ml-4" onclick='excel(this)' style="font-size : 16px;">Excel</button>
@@ -811,7 +822,7 @@ background: rgba(52,57,87,0.9);
             </div>
         </form>
         <div class="text-center" style="color:red;">
-            *Table columns must be in the order (Publication Title,Conference Name,Source Title,Volume,Pages,Year,Website name,URL of publication)
+            *Table columns must be in the order (Patent Title,Patent Number,Year,Filing Type,Status,Details,Principal Investigator(email),CO Principal Investigator(Email))
         </div>
     </div>
 

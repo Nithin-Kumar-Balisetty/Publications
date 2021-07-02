@@ -691,8 +691,65 @@
                             }
                         }
                     }
-                    if(false){
-
+                    if(isset($_GET['patentall'])){
+                        if($_GET["patentall"]=='true'){?>
+                                <tr>
+                                <th>Patent Title</th>
+                                <th>Year</th>
+                                <th>Patent Members</th>
+                            </tr>
+                         <?php   $query1="SELECT PaId,PTitle,PIid,Year from `patents`;";
+                            $res1=mysqli_query($conn,$query1);
+                            if(!$res1) echo "";
+                            else{
+                                while($row=mysqli_fetch_assoc($res1)){
+                                    $pi='SELECT `name` from `faculty` where `EID`='.$row["PIid"].';'; 
+                                    $name=mysqli_query($conn, $pi);
+                                    $piname= mysqli_fetch_assoc($name);
+                                    $query1='SELECT `name` from `faculty` INNER JOIN `patentcopi` ON `patentcopi`.COPI=`faculty`.EID WHERE `PaId`='.$row["PaId"].';';
+                                    $str=$piname['name'].',';
+                                    $result1 = mysqli_query($conn, $query1);
+                                    while($row1= mysqli_fetch_assoc($result1)){
+                                        $str=$str.$row1["name"].",";
+                                    } ?>
+                                    <tr>
+                                        <th><?php echo $row["PTitle"];?></th>
+                                        <th><?php echo $row["Year"];?></th>
+                                        <th><?php echo substr($str,0,strlen($str)-1);?></th>
+                                    </tr>
+                                    <?php 
+                                }   
+                            }
+                        }
+                    }
+                    if(isset($_GET['patent'])){?>
+                            <tr>
+                                <th>Patent Title</th>
+                                <th>Year</th>
+                                <th>Patent Members</th>
+                            </tr>
+                         <?php   $query1="SELECT PaId,PTitle,PIid,Year from `patents`;";
+                            $res1=mysqli_query($conn,$query1);
+                            if(!$res1) echo "";
+                            else{
+                                while($row=mysqli_fetch_assoc($res1)){
+                                    $pi='SELECT `name` from `faculty` where `EID`='.$row["PIid"].';'; 
+                                    $name=mysqli_query($conn, $pi);
+                                    $piname= mysqli_fetch_assoc($name);
+                                    $query1='SELECT `name` from `faculty` INNER JOIN `patentcopi` ON `patentcopi`.COPI=`faculty`.EID WHERE `PaId`='.$row["PaId"].';';
+                                    $str=$piname['name'].',';
+                                    $result1 = mysqli_query($conn, $query1);
+                                    while($row1= mysqli_fetch_assoc($result1)){
+                                        $str=$str.$row1["name"].",";
+                                    } ?>
+                                    <tr>
+                                        <th><?php echo $row["PTitle"];?></th>
+                                        <th><?php echo $row['Year'];?></th>
+                                        <th><?php echo substr($str,0,strlen($str)-1);?></th>
+                                    </tr>
+                                    <?php 
+                                }   
+                            }
                     }
                 }
                 ?>

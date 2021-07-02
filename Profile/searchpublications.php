@@ -1,4 +1,6 @@
-
+<?php 
+    include "./testingpdf.php";
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -82,7 +84,7 @@ background: rgba(52,57,87,0.9);
 						<li><a class="sidebar-sub-toggle"><i class="fa fa-home"	 aria-hidden="true"></i>
   Dashboard  <span class="sidebar-collapse-icon ti-angle-down"></span></a>
   
-                            <ul>   
+                            <ul> 
 
 
 
@@ -90,7 +92,7 @@ background: rgba(52,57,87,0.9);
 
 
 							
-                                <li><a href="http://www.iiitdm.ac.in/Profile/automation/PayRoll/EmployeeDetails.php"  ><i class='fa fa-user'></i>Employee Profile</a></li>							
+                            <li><a href="http://www.iiitdm.ac.in/Profile/automation/PayRoll/EmployeeDetails.php"  ><i class='fa fa-user'></i>Employee Profile</a></li>							
 								<!-- <li><a href="demography.php" >Edit Demography</a></li>
 								<li><a href="funded.php" >Edit Funded Projects</a></li>
 								<li><a href="publication.php" >Edit Publication</a></li>
@@ -121,8 +123,11 @@ background: rgba(52,57,87,0.9);
 								<input type="text" style="float: left; height: 35px;" id="sea" name="sea" placeholder="Want to search someone you know?"  value="" /><button class="btn btn-warning" >Edit</button></form>
 								</div> </li>
 								-->
-								<li><a href="../Profile/publications.php"> <i class="fa fa-user"></i>Publications</a></li>
-								<li><a href="./searchpublications.php"><i class="fa fa-user">Search Publications</i></a></li>				
+
+                                <!-- code start-->
+                                <li><a href="./publications.php"> <i class="fa fa-user"></i>Publications </a></li>
+                                <li><a href="./patents.php"><i class="fa fa-user"></i>Patents</a></li>			
+								<li><a href="./searchpublications.php"><i class="fa fa-user"></i>Search Publications and Patents</a></li>			
 							</ul>
 						</li> 
 						 
@@ -565,6 +570,14 @@ background: rgba(52,57,87,0.9);
             $("#searchp").attr("placeholder","Faculty Name");
             $('<input type="number" name="searchyrB" id="searchp1" placeholder="Enter the Year" required>').insertBefore("form>button");
         }
+        if($(ele).val()=="6"){
+            $("#searchp1").remove();
+            $("#searchp").val("");
+            $("#searchp").attr("name","IF");
+            $("#searchp").attr("type","number");
+            $('#searchp').attr('step','any');
+            $("#searchp").attr("placeholder","Impact Factor greater than equal to");
+        }
     }
 </script>
 
@@ -579,6 +592,7 @@ background: rgba(52,57,87,0.9);
                     <option value="3">Search by year</option>
                     <option value="4">Search by between year A and B</option>
                     <option value="5">Search by faculty and year</option>
+                    <option value="6">Search by IF(Impact Factor)</option>
             </select>
         </div>
         <div class="text-left formdiv" style="display : inline-block;">
@@ -637,10 +651,10 @@ background: rgba(52,57,87,0.9);
                 $conn = mysqli_connect($servername, $username,'', $dbname);
                 if(!$conn) die();
                 else{
-                    $name1="";
+                    $name1=$_GET["searchfac"];
                     for($i=0;$i<strlen($_GET["searchfac"]);$i++){
                         if($_GET["searchfac"][$i]=='(' && $i>=2){
-                            $name1=$name1.(substr($_GET["searchfac"],0,$i-1));
+                            $name1=(substr($_GET["searchfac"],0,$i-1));
                             break;
                         }
                     }
@@ -682,10 +696,10 @@ background: rgba(52,57,87,0.9);
                 $conn = mysqli_connect($servername, $username,'', $dbname);
                 if(!$conn) die();
                 else{
-                    $name1="";
+                    $name1=$_GET["searchfac"];
                     for($i=0;$i<strlen($_GET["searchfac"]);$i++){
                         if($_GET["searchfac"][$i]=='(' && $i>=2){
-                            $name1=$name1.(substr($_GET["searchfac"],0,$i-1));
+                            $name1=(substr($_GET["searchfac"],0,$i-1));
                             break;
                         }
                     }
@@ -1269,6 +1283,63 @@ background: rgba(52,57,87,0.9);
                             </div>
                         <?php echo "</div>";
                     }            
+        }
+        if(isset($_GET['IF'])){
+            $obj=new SQL();
+            $conn=$obj->SQLi();
+            if(!$conn)  die();
+            else{ ?>
+                    <script>
+                        $('.paten').hide();$('.publi').hide();
+                        function searchfaculty(){
+
+                        }
+                        function searchyear(){
+
+                        }
+                        function facyear(){
+                            
+                        }
+                    </script>
+                    <div class='pagedropdown' style="display:flex;justify-content:center;">
+                        <div class="dropdown">
+                        <button class="btn btn-white dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Search Filters
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style='z-index:1000;'>
+                            <a class="dropdown-item" onclick='searchfaculty()'>Search by faculty name</a>
+                            <a class="dropdown-item" onclick="searchyear()">Search by Year</a>
+                            <a class="dropdown-item" onclick="facyear()">Search by faculty and year</a>
+                        </div>
+                        </div>
+                    </div>
+                
+                <?php
+                    echo "<script>$('#notfullcontainer').attr('id','fullcontainer');$('h3').text('Impact factor above ".$_GET["IF"]."')</script>";
+                    echo "<script>$('h3').css('display','block');$('hr').css('display','block');</script>";
+                    echo "<div class='puyearview mt-5'>";
+                    echo '<div class="row">';
+                    echo '<div class="para col-lg-6">'; 
+                    echo '<p class="mb-2 mt-2 text-center text-white">Journal Title</p>';
+                    echo '</div>';
+                    echo '<div class="para col-lg-1"><p class="mb-2 mt-2 text-center text-white">IF</p></div>';
+                    echo '<div class="para col-lg-1"><p class="mb-2 mt-2 text-center text-white">Year</p></div>';
+                    echo '<div class="para col-lg-4"><p class="mb-2 mt-2 text-center text-white">Authors</p></div></div>';
+                    $query="SELECT JID,Paper_Title,Year,IFactor from `journals` where IFactor>=".$_GET["IF"].";";
+                    $res=mysqli_query($conn,$query);
+                    if(!$res) echo "<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>";
+                    else{
+                        while($row=mysqli_fetch_assoc($res)){
+                            $query1='SELECT `name` from `faculty` NATURAL JOIN `journalauthor` WHERE `JID`='.$row["JID"].';';
+                            $str="";
+                            $result1 = mysqli_query($conn, $query1);
+                            while($row1= mysqli_fetch_assoc($result1)){
+                                $str=$str.$row1["name"].",";
+                            }
+                            echo '<div class="row after"><div class="col-lg-6"><p class="mb-2 mt-2 text-center">'.$row["Paper_Title"].'</p></div><div class="col-lg-1"><p class="mb-2 mt-2 text-center">'.$row['IFactor'].'</p></div><div class="col-lg-1"><p class="mb-2 mt-2 text-center">'.$row['Year'].'</p></div><div class="col-lg-4"><p class="mb-2 mt-2 text-center">'.substr($str,0,strlen($str)-1).'</p></div></div>'; 
+                        }   
+                    }
+            }
         }
         ?>
         </div>

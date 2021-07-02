@@ -613,13 +613,14 @@ background: rgba(52,57,87,0.9);
             $content=$content.'<option value="'.$row["EID"].'">'.$row["name"].'</option>';
          } 
         }   ?>
-        $(beforeclone).html('<div class="col-lg-3"><label for="Link">Author 1 :</label><span style="color:red;"></span></div><div class="col-lg-auto" style="display: inline-block;"><div style="margin-top: 7.5px;"><select name="Author1"><?php echo $content ?></select></div></div><div style="display : inline-block;"><div style="margin-top: 10px;"><i class="fa fa-plus-circle" style="color : green; font-size : 20px;" onclick="insertC(this)"></i></div></div>');
+        $(beforeclone).html('<div class="col-lg-3"><label for="Link">Author 1 :</label><span style="color:red;">*</span></div><div class="col-lg-auto" style="display: inline-block;"><div style="margin-top: 7.5px;"><select name="Author1"><?php echo $content ?></select></div></div><div style="display : inline-block;"><div style="margin-top: 10px;"><i class="fa fa-plus-circle" style="color : green; font-size : 20px;" onclick="insertC(this)"></i></div></div>');
         var element = beforeclone;
         //$(element.children[1].children[0].children[1].children[0]).remove();
         //$(element.children[1].children[0].children[0]).val("");
         $(ele.nextElementSibling).remove();
         element.children[2].children[0].innerHTML=element.children[2].children[0].innerHTML+'<i class="fa fa-minus-circle"style="color : red; font-size : 20px;" onclick="deleteC(this)"></i>';
         var str=ele.parentElement.parentElement.previousElementSibling.previousElementSibling.children[0].innerHTML;
+        $(element.children[0].children[0]).text("Author "+(parseInt(str.slice(7,str.length-2))+1)+" :");
         $(element.children[1].children[0].children[0]).attr("name","Author"+(parseInt(str.slice(7,str.length-2))+1));
         $(element).insertAfter($(ele.parentElement.parentElement.parentElement));
         $(ele).remove();
@@ -753,12 +754,12 @@ background: rgba(52,57,87,0.9);
                         if($str=="") echo '<div class="row after publication conference data"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this)" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["Title"].'</p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">Fully Contibuted by you</p></div></div>';  
                         else  echo '<div class="row after publication conference data"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this)" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["Title"].'</p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">'.substr($str,0,strlen($str)-1).'</p></div></div>'; 
                     }
-                }
+                }   
             }?>
             <div class="publication conference data mt-5">
                 <div class='text-center mx-auto mb-5'>
                 <iframe src="printem.php?type=conference" style="display:none;" name="conf"></iframe>
-                <button class="btn btn-success" onclick="frames['conf'].print()">Print Confernce Publications</button>
+                <button class="btn btn-success" onclick="frames['conf'].print()">Print Confernce Publications</button>           
                 <?php 
                     $obj=new SQL();
                     $conn=$obj->SQLi();
@@ -889,8 +890,8 @@ background: rgba(52,57,87,0.9);
                 <div class="col-lg-3">
                 <label for="PName">Paper Title : <span style="color : red;">*</span></label>
                 </div>
-                <div class="col-lg-4">
-                <input type="text" name="Title">
+                <div class="col-lg-9">
+                <input type="text" name="Title" size='75'>
                 </div>
             </div>
             <div class="row">
@@ -921,6 +922,29 @@ background: rgba(52,57,87,0.9);
             </div>
             <div class="row">
                 <div class="col-lg-3">
+                <label for="Listnames">Author's List :</label>
+                <br>
+                <span style='color:red;'>Enter names seperated by comma</span>
+                </div>
+                <div class="col-lg-9">
+                <input type="text" name="Listnames" size='50'>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-lg-3">
+                <label for="Ctype">Conference Type :</label>
+                </div>
+                <div class="col-lg-2">
+                <input type="radio" name="Ctype" value='International'>
+                <label for="Ctype">International</label>
+                </div>
+                <div class='col-lg-2'>
+                <input type="radio" name='Ctype' value='National'>
+                <label for="Ctype">National</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3">
                 <label for="VolumeNo">Volume No :</label>
                 </div>
                 <div class="col-lg-4">
@@ -937,29 +961,43 @@ background: rgba(52,57,87,0.9);
             </div>
             <div class="row">
                 <div class="col-lg-3">
-                <label for="Year">Year :</label>
+                <label for="Month">Month and Year :</label>
+                <span style="color:red;">*</span>
                 </div>
                 <div class="col-lg-4">
-                <input type="number" name="Year" >
+                <input type="month" name="Month" >
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3">
+                <label for="Year">Open Access :</label>
+                </div>
+                <div class='col-lg-1'>
+                    <input type="radio" name='OA' value='1'>
+                    <label for='OA'>Yes</label>
+                </div>
+                <div class='col-lg-1'>
+                    <input type="radio" name='OA' value='0'>
+                    <label for="OA">No</label>
                 </div>
             </div>
             <div class="row">
                 <div class="col-lg-3">
                 <label for="Year">Indexing :</label>
                 </div>
-                <div class="col-lg-9">
-                    <select name="indexing" id="indexing">
-                    <?php 
-                    for($i=0;$i<sizeof($indexing);$i++){
-                        echo '<option value="'.$i.'">'.$indexing[$i].'</option>';  
-                    }
-                    ?>
-                    </select>
-                </div>
+                <?php
+                    for($i=0;$i<sizeof($indexing);$i++){?>
+                    <div class="col-lg-2">
+                        <input type="checkbox" name="<?php echo $indexing[$i];?>" value='1'> 
+                       <label for="<?php echo $indexing[$i];?>"><?php echo $indexing[$i];?></label>
+                       </div>
+                   <?php } 
+                ?>
             </div>
             <div class="row">
                 <div class="col-lg-3">
-                <label for="Link">Publication website URL :</label>
+                <label for="Link">DOI :</label>
+                <span style="color:red;">*</span>
                 </div>
                 <div class="col-lg-4">
                 <input type="text" name="Link" >
@@ -968,7 +1006,7 @@ background: rgba(52,57,87,0.9);
             <div class="row firstblock">
                 <div class="col-lg-3">
                 <label for="Link">Author 1 :</label>
-                <span style="color:red;"></span>
+                <span style="color:red;">*</span>
                 </div>
                 <div class="col-lg-auto" style="display: inline-block;">
                     <div style="margin-top: 7.5px;">
@@ -989,18 +1027,6 @@ background: rgba(52,57,87,0.9);
                         <div style="margin-top: 10px;">
                             <i class="fa fa-plus-circle" style="color : green; font-size : 20px;" onclick="insertC(this)"></i>
                         </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-3">
-                        <label for="Link">Other Names:</label>
-                        <br>
-                        <span style="color:red">(If the respective name is not present in the pull down menu.Add it here where multiple names sholud be seperated by a comma)</span>
-                        <br>
-                        <span style="color:red">(Example : Dr. Ram,Dr. John)</span>                
-                </div>
-                <div class="col-lg-4">
-                <input type="text" name="Othernames" value="">
                 </div>
             </div>
             <div class="text-center mt-4" id="appendbefore">
@@ -1026,8 +1052,8 @@ background: rgba(52,57,87,0.9);
                 <div class="col-lg-3">
                 <label for="PName">Paper Title : <span style="color : red;">*</span></label>
                 </div>
-                <div class="col-lg-4">
-                <input type="text" name="Title">
+                <div class="col-lg-9">
+                <input type="text" name="Title" size="75">
                 </div>
             </div>
             <div class="row">
@@ -1041,6 +1067,7 @@ background: rgba(52,57,87,0.9);
             <div class="row">
                 <div class="col-lg-3">
                 <label for="ISSN">ISSN :</label>
+                <span style="color:red;">*</span>
                 </div>
                 <div class="col-lg-9">
                 <input type="number" name="ISSN1"  style="display : inline-block;" min="1000" max="9999">
@@ -1049,6 +1076,16 @@ background: rgba(52,57,87,0.9);
                 </div>
             </div>
             <div class="row">
+                <div class="col-lg-3">
+                <label for="Listnames">Author's List :</label>
+                <br>
+                <span style='color:red;'>Enter names seperated by comma</span>
+                </div>
+                <div class="col-lg-9">
+                <input type="text" name="Listnames" size='50'>
+                </div>
+            </div>
+            <div class="row mt-2">
                 <div class="col-lg-3">
                 <label for="VolumeNo">Volume No :</label>
                 </div>
@@ -1074,10 +1111,20 @@ background: rgba(52,57,87,0.9);
             </div>
             <div class="row">
                 <div class="col-lg-3">
-                <label for="Year">Year :</label>
+                <label for="Year">Month and Year :</label>
+                <span style='color:red;'>*</span>
                 </div>
                 <div class="col-lg-4">
-                <input type="number" name="Year" >
+                <input type="month" name="Month" >
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3">
+                <label for="Year">Impact factor :</label>
+                <span style='color:red;'>*</span>
+                </div>
+                <div class="col-lg-4">
+                <input type="number" step='any' name="IF" >
                 </div>
             </div>
             <div class="row">
@@ -1094,32 +1141,59 @@ background: rgba(52,57,87,0.9);
                     </select>
                 </div>
             </div>
-            <div class="row">
+           <!-- <div class="row">
                 <div class="col-lg-3">
                 <label for="Year">Indexing :</label>
                 </div>
                 <div class="col-lg-9">
                     <select name="indexing" id="indexing">
                     <?php 
-                    for($i=0;$i<sizeof($indexing);$i++){
+                    /*for($i=0;$i<sizeof($indexing);$i++){
                         echo '<option value="'.$i.'">'.$indexing[$i].'</option>';
-                    }
+                    }*/
                     ?>
                     </select>
+                </div>
+            </div>-->
+            <div class="row">
+                <div class="col-lg-3">
+                <label for="Year">Open Access :</label>
+                </div>
+                <div class='col-lg-1'>
+                    <input type="radio" name='OA' value='1'>
+                    <label for='OA'>Yes</label>
+                </div>
+                <div class='col-lg-1'>
+                    <input type="radio" name='OA' value='0'>
+                    <label for="OA">No</label>
                 </div>
             </div>
             <div class="row">
                 <div class="col-lg-3">
-                <label for="Link">Publication website URL :</label>
+                <label for="Year">Indexing :</label>
+                </div>
+                <?php
+                    for($i=0;$i<sizeof($indexing);$i++){?>
+                    <div class="col-lg-2">
+                        <input type="checkbox" name="<?php echo $indexing[$i];?>" value='1'> 
+                       <label for="<?php echo $indexing[$i];?>"><?php echo $indexing[$i];?></label>
+                       </div>
+                   <?php } 
+                ?>
+            </div>
+            <div class="row">
+                <div class="col-lg-3">
+                <label for="Link">DOI   :</label>
+                <span style="color:red;">*</span>
                 </div>
                 <div class="col-lg-4">
-                <input type="text" name="Link" >
+                <input type="text" name="Link" required>
                 </div>
             </div>
             <div class="row firstblock">
                 <div class="col-lg-3">
                 <label for="Link">Author 1 :</label>
-                <span style="color:red;"></span>
+                <span style="color:red;">*</span>
                 </div>
                 <div class="col-lg-auto" style="display: inline-block;">
                     <div style="margin-top: 7.5px;">
@@ -1142,7 +1216,7 @@ background: rgba(52,57,87,0.9);
                         </div>
                 </div>
             </div>
-            <div class="row">
+            <!--<div class="row">
                 <div class="col-lg-3">
                         <label for="Link">Other Names:</label>
                         <br>
@@ -1153,7 +1227,7 @@ background: rgba(52,57,87,0.9);
                 <div class="col-lg-4">
                 <input type="text" name="Othernames" value="">
                 </div>
-            </div>
+            </div>-->
             <div class="text-center mt-4" id="appendbefore">
                 <button type="submit" name="JournalPOST" class="btn btn-success">POST THE DETAILS</button>
             </div>
@@ -1212,12 +1286,12 @@ background: rgba(52,57,87,0.9);
         else{
             $check=0;
             $str=strtolower($_POST["Title"]);
-            $quer='SELECT PID,Title from `publications`;';
+            $quer='SELECT PID,Title,ISSN from `publications`;';
             $res=mysqli_query($conn,$quer);
             while($row=mysqli_fetch_assoc($res)){
                 $title=strtolower($row["Title"]);
                 similar_text($title,$str,$per);
-                if($per<=100 && $per>=95){
+                if(($per<=100 && $per>=95)||(($_POST["ISSN1"].$_POST["ISSN2"])==$row['ISSN'])){
                     $check=1;
                     echo "<script>popupform('Your Conference publication is not posted','There is already a Conference publication under this TITLE')</script>";
                     break;
@@ -1230,8 +1304,20 @@ background: rgba(52,57,87,0.9);
                     $noofauth++;
                     $i++;
                 }
-                $new_str = str_replace(' ', '',$_POST["Othernames"]);
-                $quer='INSERT INTO `publications`(Title,ConferenceName,Vol,Pages,Year,Indexing,No_of_Auth,ISSN,Proceedings,Othernames) values("'.$_POST["Title"].'","'.$_POST["ConferenceName"].'",'.$_POST["Vol"].','.$_POST["Pages"].','.$_POST["Year"].',"'.$indexing[(int)$_POST["indexing"]].'",'.$noofauth.',"'.(($_POST["ISSN1"].$_POST["ISSN2"])).'","'.$_POST["Proceedings"].'","'.$new_str.'");';
+                $new_str = str_replace(' ', '',$_POST["Listnames"]);
+                $my=explode('-',$_POST["Month"]);
+                $index=$_POST["OA"];
+                $indexstr="OpenAccess";
+                for($j=0;$j<sizeof($indexing);$j++){
+                    $indexstr=$indexstr.",".str_replace(" ","_",str_replace("-",'_',$indexing[$j]));
+                    if(isset($_POST[str_replace(" ",'_',$indexing[$j])])){
+                        $index=$index.",1";
+                    }
+                    else{
+                        $index=$index.",0";
+                    }
+                }
+                $quer='INSERT INTO `publications`(Title,ConferenceName,Vol,Pages,type,Year,month,'.$indexstr.',No_of_Auth,ISSN,Proceedings,AuthorList,DOI) values("'.$_POST["Title"].'","'.$_POST["ConferenceName"].'",'.$_POST["Vol"].','.$_POST["Pages"].',"'.$_POST["Ctype"].'",'.$my[0].','.$my[1].','.$index.','.$noofauth.',"'.(($_POST["ISSN1"].$_POST["ISSN2"])).'","'.$_POST["Proceedings"].'","'.$new_str.'","'.$_POST['Link'].'");';
                 if(mysqli_query($conn,$quer)){
                     $rowcount=mysqli_fetch_array(mysqli_query($conn,'SELECT MAX(PID) as max FROM `publications`;'));
                     $j=1;
@@ -1253,20 +1339,20 @@ background: rgba(52,57,87,0.9);
         }
     }
     if(isset($_POST["JournalPOST"])){
-        $obj=new SQL();
+       $obj=new SQL();
         $conn=$obj->SQLi();
         if(!$conn)  echo '<script>popupform("Your Publication is not posted","There an internal issue in the server.Sorry for the inconvinience!");</script>';
         else{
             $check=0;
             $str=strtolower($_POST["Title"]);
-            $quer='SELECT JID,Paper_Title from `journals`;';
+            $quer='SELECT JID,Paper_Title,ISSN from `journals`;';
             $res=mysqli_query($conn,$quer);
             while($row=mysqli_fetch_assoc($res)){
                 $title=strtolower($row["Paper_Title"]);
                 similar_text($title,$str,$per);
-                if($per<=100 && $per>=90){
+                if(($per<=100 && $per>=95)||(($_POST["ISSN1"].$_POST["ISSN2"])==$row['ISSN'])){
                     $check=1;
-                    echo "<script>popupform('Your Publication is not posted','There is already a publication under this TITLE')</script>";
+                    echo "<script>popupform('Your Publication is not posted','There is already a publication under this TITLE or ISSN')</script>";
                     break;
                 }
             }
@@ -1277,8 +1363,20 @@ background: rgba(52,57,87,0.9);
                     $noofauth++;
                     $i++;
                 }
-                $new_str = str_replace(' ', '',$_POST["Othernames"]);
-                $quer='INSERT INTO `journals`(Paper_Title,Journal,VolNo,Issue,Pages,Year,Publisher,Indexing,No_of_Auth,ISSN,Website_URL,Othernames) values("'.$_POST["Title"].'","'.$_POST["ConferenceName"].'",'.$_POST["Vol"].','.$_POST["Issue"].','.$_POST["Pages"].','.$_POST["Year"].',"'.$journalpublisher[(int)$_POST["publisher"]].'","'.$indexing[(int)$_POST["indexing"]].'",'.$noofauth.',"'.(($_POST["ISSN1"].$_POST["ISSN2"])).'","'.$_POST["Link"].'","'.$new_str.'");';
+                $new_str = str_replace(' ', '',$_POST["Listnames"]);
+                $my=explode('-',$_POST["Month"]);
+                $index=$_POST["OA"];
+                $indexstr="OpenAccess";
+                for($j=0;$j<sizeof($indexing);$j++){
+                    $indexstr=$indexstr.",".str_replace(" ","_",str_replace("-",'_',$indexing[$j]));
+                    if(isset($_POST[str_replace(" ",'_',$indexing[$j])])){
+                        $index=$index.",1";
+                    }
+                    else{
+                        $index=$index.",0";
+                    }
+                }
+                $quer='INSERT INTO `journals`(Paper_Title,Journal,VolNo,Issue,Pages,Year,month,Publisher,'.$indexstr.',No_of_Auth,ISSN,DOI,AuthorList,IFactor) values("'.$_POST["Title"].'","'.$_POST["ConferenceName"].'",'.$_POST["Vol"].','.$_POST["Issue"].','.$_POST["Pages"].','.$my[0].','.$my[1].',"'.$journalpublisher[(int)$_POST["publisher"]].'",'.$index.','.$noofauth.',"'.(($_POST["ISSN1"].$_POST["ISSN2"])).'","'.$_POST["Link"].'","'.$new_str.'",'.$_POST['IF'].');';
                 if(mysqli_query($conn,$quer)){
                     $rowcount=mysqli_fetch_array(mysqli_query($conn,'SELECT MAX(JID) as max FROM `journals`;'));                    $j=1;
                     while(isset($_POST["Author".$j])){
@@ -1297,6 +1395,19 @@ background: rgba(52,57,87,0.9);
                 }
             }
         }
+        /*$index=$_POST["OA"];
+                $indexstr="OpenAccess";
+                for($j=0;$j<sizeof($indexing);$j++){
+                    $indexstr=$indexstr.",".str_replace(" ","_",str_replace("-",'_',$indexing[$j]));
+                    if(isset($_POST[str_replace(" ",'_',$indexing[$j])])){
+                        $index=$index.",1";
+                    }
+                    else{
+                        $index=$index.",0";
+                    }
+                }
+                echo $index."<br>".$indexstr."<br>";
+        var_dump($_POST);*/
     }
     if(isset($_POST["uploadexcelJ"])){
         $target_dir = 'uploads/';
