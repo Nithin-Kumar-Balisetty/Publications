@@ -64,3 +64,6 @@ var_dump($samp->author);
 curl_close($curl);*/
 
 ?>
+<?php 
+    
+?>
