@@ -127,7 +127,8 @@ background: rgba(52,57,87,0.9);
                                 <!-- code start-->
                                 <li><a href="./publications.php"> <i class="fa fa-user"></i>Publications </a></li>
                                 <li><a href="./patents.php"><i class="fa fa-user"></i>Patents</a></li>			
-								<li><a href="./searchpublications.php"><i class="fa fa-user"></i>Search Publications and Patents</a></li>			
+								<li><a href="./searchpublications.php"><i class="fa fa-user"></i>Search Publications and Patents</a></li>	
+                                <li><a href="./sportevent.php"><i class='fa fa-user'></i>Sport Events Info</a></li>		
 							</ul>
 						</li> 
 						 
@@ -452,17 +453,6 @@ background: rgba(52,57,87,0.9);
 
 <!-- code start -->
 
-<!-- dialog box --> 
-<div id="white-background"></div>
-<div id="dlgbox">
-    <div id="dlg-header">You are deleting an entry.</div>
-    <div id="dlg-body">Are you sure?</div>
-    <div id="dlg-footer">
-        <button class="btn btn-danger" id="dlgLogin">Yes</button>
-        <button class="btn btn-primary" id="dlgLogout" onclick="dlgout()">No</button>
-    </div>
-</div>
-<!-- dialog box -->
 
 <script type="text/javascript">
     function popupform(strheader,strbody){
@@ -476,12 +466,66 @@ background: rgba(52,57,87,0.9);
         
         dlg.style.left = (winWidth/2) - 480/2 + "px";
         dlg.style.top = "150px";
-        $("#dlg-header").text(strheader);
+        $("#hidebox").hide();
+        $("#dlg-header-text").text(strheader);
         $("#dlg-body").html(strbody);
         $("#dlgLogin").hide();
         $("#dlgLogout").text("Go Back");
         $("#dlgLogout").click(function (){
             window.location.href="./publications.php";
+        });
+    }
+    function deletetem(element,type){
+        var whitebg = document.getElementById("white-background");
+        var dlg = document.getElementById("dlgbox");
+        whitebg.style.display = "block";
+        dlg.style.display = "block";
+
+        var winWidth = window.innerWidth;
+        var winHeight = window.innerHeight;
+        
+        dlg.style.left = (winWidth/2) - 480/2 + "px";
+        dlg.style.top = "150px";
+        $("#hidebox").hide();
+        $("#dlg-header-text").text("Deleting a publication");
+        $("#dlg-body").html("Are you sure?<br>Press No to cancel the operation !!");
+        $("#dlgLogin").text("Yes");
+        $("#dlgLogout").text("No");
+        $("#dlgLogin").click(function (){
+            console.log($(".publication."+type).index($(element.parentElement.parentElement)));
+            var id=$(".publication."+type).index($(element.parentElement.parentElement));
+            window.location.href=window.location.href+"?deletepublication="+id+"&type="+type;
+        });
+        $("#dlgLogout").click(function (){
+            window.location.href="./publications.php";
+        });
+    }
+    function popedit(strheader,strbody,elementhide,type){
+        $("#hidebox").click(function(){
+            $("#white-background").hide();
+            $("#dlgbox").hide();
+            elementhide.checked=false;
+        });
+        var whitebg = document.getElementById("white-background");
+        var dlg = document.getElementById("dlgbox");
+        whitebg.style.display = "block";
+        dlg.style.display = "block";
+
+        var winWidth = window.innerWidth;
+        var winHeight = window.innerHeight;
+        
+        dlg.style.left = (winWidth/2) - 480/2 + "px";
+        dlg.style.top = "150px";
+        $("#dlg-header-text").text(strheader);
+        $("#dlg-body").html(strbody);
+        $("#dlgLogin").text("EDIT");
+        $("#dlgLogin").click(function(){
+            var id=$(".publication."+type).index($(elementhide.parentElement.parentElement));
+            window.location.href="./publications.php?editpublication="+id+"&type="+type;
+        });
+        $("#dlgLogout").text("DELETE");
+        $("#dlgLogout").click(function (){
+            deletetem(elementhide,type);
         });
     }
         function searchname(ele){   
@@ -539,18 +583,12 @@ background: rgba(52,57,87,0.9);
     function EDITbutton(element){
         console.log(element);
     }
-    function clickingchec(element){
+    function clickingchec(element,type){
         if(element.checked){
             $(".check").attr("disabled",true);
             $(element).removeAttr("disabled");
-            $(".insertbutton").toggle();
-            $('<div class="EDbuttons d-flex justify-content-between mt-5"><button class="btn btn-primary mr-2" id="EDIT">EDIT</button><button class="btn btn-danger ml-2" id="DELETE">DELETE</button></div>').insertAfter("#fullcontainer");
-            $("#EDIT").click(function(){
-                EDITbutton(element);
-            });
-            $("#DELETE").click(function(){
-                DELETEbutton(element);
-            });
+          //  $(".insertbutton").toggle();
+                popedit("Edit or Delete the publication",'Press EDIT button to edit the publications and press DELETE button to delete the publication',element,type);
         }
         else{
             $(".check").removeAttr("disabled");
@@ -582,11 +620,11 @@ background: rgba(52,57,87,0.9);
         $("#white-background").css("display","none");
         $("#dlgbox").css("display","none");
     }
-    function dlgLogin(ele){
+   /* function dlgLogin(ele){
         console.log($("#fullcontainer>div").index($(ele.parentElement.parentElement)));
-        window.location.href=window.location.href+"?q="+($("#fullcontainer>div").index($(ele.parentElement.parentElement))-1);
-    }        
-    function DELETEbutton(ele){
+        window.location.href=window.location.href+"?qc="+($("#fullcontainer>div").index($(ele.parentElement.parentElement))-1);
+    }  */      
+    /*function DELETEbutton(ele){
         var whitebg = document.getElementById("white-background");
         var dlg = document.getElementById("dlgbox");
         whitebg.style.display = "block";
@@ -600,7 +638,7 @@ background: rgba(52,57,87,0.9);
         $("#dlgLogin").click(function(){
             dlgLogin(ele);
         })
-    }
+    }*/
     function insertC(ele){
         var beforeclone=document.createElement("div");
         $(beforeclone).addClass("row firstblock");
@@ -712,6 +750,22 @@ background: rgba(52,57,87,0.9);
 }
 </style>
  
+<!-- dialog box --> 
+<div id="white-background"></div>
+<div id="dlgbox">
+    <div id="dlg-header">
+        <div id='dlg-header-text' style="display: inline-block;">You are deleting an entry.</div>
+        <div id='hidebox' style='float:right;'><i class="fa fa-times" aria-hidden="true"></i>
+</div>
+    </div>
+    <div id="dlg-body">Are you sure?</div>
+    <div id="dlg-footer">
+        <button class="btn btn-danger" id="dlgLogin">Yes</button>
+        <button class="btn btn-primary" id="dlgLogout" onclick="dlgout()">No</button>
+    </div>
+</div>
+<!-- dialog box -->
+
 <div class="container">
     <h2 class="" style="text-align:center; margin-top: 0">Publication Details</h2>
     <div class="container mt-5">
@@ -739,6 +793,7 @@ background: rgba(52,57,87,0.9);
             if(!$conn) die("<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>");
             else{
                 $mainarr=array();
+                $cpub=array();
                 $quer = "SELECT Title,PID FROM publications WHERE PID in (SELECT PID from pubicationauthor where EID in (SELECT EID from faculty where email='sadagopan@iiitdm.ac.in'))";
                 $result = $obj->query($quer);
                 if(!$result) echo "<div class='row after publication conference data'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>";
@@ -751,8 +806,9 @@ background: rgba(52,57,87,0.9);
                             $str=$str.$row1["name"].",";
                         }
                         array_push($mainarr,($row["PID"]));
-                        if($str=="") echo '<div class="row after publication conference data"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this)" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["Title"].'</p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">Fully Contibuted by you</p></div></div>';  
-                        else  echo '<div class="row after publication conference data"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this)" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["Title"].'</p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">'.substr($str,0,strlen($str)-1).'</p></div></div>'; 
+                        array_push($cpub,(int)$row["PID"]);
+                        if($str=="") { ?> <div class="row after publication conference data"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this,'conference')" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center"><?php echo $row["Title"]; ?></p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">Fully Contibuted by you</p></div></div>  <?php }
+                        else { ?> <div class="row after publication conference data"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this,'conference')" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center"><?php echo $row["Title"]; ?></p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center"><?php echo substr($str,0,strlen($str)-1); ?></p></div></div> <?php }
                     }
                 }   
             }?>
@@ -784,6 +840,7 @@ background: rgba(52,57,87,0.9);
             if(!$conn) die("<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>");
             else{
                 $mainarr=array();
+                $jpub=array();
                 $quer = "SELECT Paper_Title,JID FROM journals WHERE JID in (SELECT JID from journalauthor where EID in (SELECT EID from faculty where email='sadagopan@iiitdm.ac.in'))";
                 $result = $obj->query($quer);
                 if(!$result) echo "<div class='row after publication journal data'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No recorrds found.Post your first entry</p></div></div>";
@@ -796,8 +853,9 @@ background: rgba(52,57,87,0.9);
                             $str=$str.$row1["name"].",";
                         }
                         array_push($mainarr,($row["JID"]));
-                        if($str=="") echo '<div class="row after publication journal data"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this)" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["Paper_Title"].'</p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">Fully Contibuted by you</p></div></div>';  
-                        else  echo '<div class="row after publication journal data"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this)" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["Paper_Title"].'</p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">'.substr($str,0,strlen($str)-1).'</p></div></div>'; 
+                        array_push($jpub,(int)$row['JID']);
+                        if($str==""){ ?> <div class="row after publication journal data"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this,'journal')" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center"><?php echo $row["Paper_Title"];?></p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">Fully Contibuted by you</p></div></div>  <?php }
+                        else { ?>  <div class="row after publication journal data"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this,'journal')" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center"><?php echo $row["Paper_Title"]; ?></p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center"><?php echo substr($str,0,strlen($str)-1);?></p></div></div> <?php }
                     }
                 }
             }
@@ -1657,24 +1715,34 @@ background: rgba(52,57,87,0.9);
         }
      }
 
-    if(isset($_GET["q"])){
-        $servername = 'localhost';
-        $username = 'root';
-        $dbname = 'internship';
-        $conn=mysqli_connect($servername, $username,'', $dbname);
+    if(isset($_GET["deletepublication"])&&isset($_GET['type'])){
+        $obj=new SQL();
+        $conn=$obj->SQLi();
         if(!$conn) die();
         else{
-            $query="DELETE FROM `pubicationauthor` where PID=".$_GET["q"].";";
-            if(mysqli_query($conn,$query)){
-                $queryy="DELETE FROM `publications` WHERE PID=".$_GET["q"].";";
-                if(mysqli_query($conn,$queryy)){
-                    //deleted query
-                    echo "<script>window.location.href='./publications.php';</script>";
+            if($_GET['type']=='conference'){
+                $query="DELETE FROM `pubicationauthor` where PID=".$cpub[(int)$_GET["deletepublication"]].";";
+                if(mysqli_query($conn,$query)){
+                    $queryy="DELETE FROM `publications` WHERE PID=".$cpub[(int)$_GET["deletepublication"]].";";
+                    if(mysqli_query($conn,$queryy)){
+                        //deleted query
+                        echo "<script>window.location.href='./publications.php';</script>";
+                    }
+                }
+            }
+            if($_GET['type']=='journal'){
+                $query="DELETE FROM `journalauthor` where JID=".$jpub[(int)$_GET["deletepublication"]].";";
+                if(mysqli_query($conn,$query)){
+                    $queryy="DELETE FROM `journals` WHERE JID=".$jpub[(int)$_GET["deletepublication"]].";";
+                    if(mysqli_query($conn,$queryy)){
+                        //deleted query
+                        echo "<script>window.location.href='./publications.php';</script>";
+                    }
                 }
             }
         }
     }
-
+    include "./temp.php";
 
 ?>
 <!-- code end -->                        

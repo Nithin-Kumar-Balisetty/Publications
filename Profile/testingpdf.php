@@ -63,6 +63,8 @@ var_dump($samp->author);
 // (deletes the variable made by curl_init)
 curl_close($curl);*/
 
+
+
 ?>
 <?php 
     
