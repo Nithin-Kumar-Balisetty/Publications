@@ -1473,7 +1473,7 @@ background: rgba(52,57,87,0.9);
         $target_file = $target_dir ."sadagopan@iiitdm.ac.in-".date("Y-m-d").".".$imageFileType;
         $arr = array("xlsx","xlsm","csv");
          if(!in_array($imageFileType,$arr)){
-             echo "<script>alert('Not in xlsx or xlsm or csv format');</script>";
+             echo "<script>popupform('Excel not posted','Excel is not in xlsx or xlsm or csv format');</script>";
          }
          else{
          move_uploaded_file($_FILES["csvfile"]["tmp_name"], $target_file);
@@ -1742,7 +1742,7 @@ background: rgba(52,57,87,0.9);
             }
         }
     }
-    include "./temp.php";
+    include "./editpublicationmodule.php";
 
 ?>
 <!-- code end -->                        

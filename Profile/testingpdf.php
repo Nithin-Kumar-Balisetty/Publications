@@ -62,7 +62,7 @@ var_dump($samp->author);
 // close curl resource to free up system resources
 // (deletes the variable made by curl_init)
 curl_close($curl);*/
-
+$eventtype=array("Sports");
 
 
 ?>

@@ -1,4 +1,4 @@
-
+<?php include "./testingpdf.php"; ?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -11,7 +11,10 @@
         <title>Sport Event Info</title>
 
         <!-- Styles -->                        
-	<script type="text/javascript" src="http://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=mKXItK4TeJroSASXXe_5KSWnfxDJdrQzPpX53g5BOdG1FuAUtXL9FBLSZjMB8XD4GI9DGT2jmDoirP5meJ8OOFO2OH5mrDmgidYQXZKqPcK-yA7oYD67iPGaKMsiCgkW" charset="UTF-8"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<!-- <script type="text/javascript" src="http://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=mKXItK4TeJroSASXXe_5KSWnfxDJdrQzPpX53g5BOdG1FuAUtXL9FBLSZjMB8XD4GI9DGT2jmDoirP5meJ8OOFO2OH5mrDmgidYQXZKqPcK-yA7oYD67iPGaKMsiCgkW" charset="UTF-8"></script> -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
         <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">         
         <link href="https://www.iiitdm.ac.in/Profile/assets/css/lib/menubar/sidebar.css" rel="stylesheet">
         <link href="https://www.iiitdm.ac.in/Profile/assets/css/lib/bootstrap.min.css" rel="stylesheet"> 
@@ -446,45 +449,532 @@ background: rgba(52,57,87,0.9);
 
 <!-- code start -->
 
+<script>
+    function popupform(strheader,strbody){
+        var whitebg = document.getElementById("white-background");
+        var dlg = document.getElementById("dlgbox");
+        whitebg.style.display = "block";
+        dlg.style.display = "block";
+
+        var winWidth = window.innerWidth;
+        var winHeight = window.innerHeight;
+        
+        dlg.style.left = (winWidth/2) - 480/2 + "px";
+        dlg.style.top = "150px";
+        $("#hidebox").hide();
+        $("#dlg-header-text").text(strheader);
+        $("#dlg-body").html(strbody);
+        $("#dlgLogin").hide();
+        $("#dlgLogout").text("Go Back");
+        $("#dlgLogout").click(function (){
+            window.location.href="./sportevent.php";
+        });
+    }
+    function deletetem(element){
+        var whitebg = document.getElementById("white-background");
+        var dlg = document.getElementById("dlgbox");
+        whitebg.style.display = "block";
+        dlg.style.display = "block";
+
+        var winWidth = window.innerWidth;
+        var winHeight = window.innerHeight;
+        
+        dlg.style.left = (winWidth/2) - 480/2 + "px";
+        dlg.style.top = "150px";
+        $("#hidebox").hide();
+        $("#dlg-header-text").text("Deleting an Event");
+        $("#dlg-body").html("Are you sure?<br>Press No to cancel the operation !!");
+        $("#dlgLogin").text("Yes");
+        $("#dlgLogout").text("No");
+        $("#dlgLogin").click(function (){
+            //console.log($(element.parentElement.parentElement.parentElement.parentElement).html())
+           // console.log($(".articlecontent").index($(element.parentElement.parentElement.parentElement.parentElement)));
+            var id=$(".articlecontent").index($(element.parentElement.parentElement.parentElement.parentElement));
+            window.location.href=window.location.href+"?deleteevent="+id+"&type=Sports";
+        });
+        $("#dlgLogout").click(function (){
+            window.location.href="./sportevent.php";
+        });
+    }
+    function deleteevent(ele){
+        deletetem(ele);
+    }
+    function editevent(element){
+        var id=$(".articlecontent").index($(element.parentElement.parentElement.parentElement.parentElement));
+        window.location.href=window.location.href+"?editingevent="+id+"&type=Sports";
+    }
+</script>
+
+<style>
+#white-background{
+    display: none;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    background-color: #fefefe;
+    opacity: 0.7;
+    z-index: 9999;
+}
+            
+#dlgbox{
+    /*initially dialog box is hidden*/
+    display: none;
+    position: fixed;
+    width: 480px;
+    z-index: 9999;
+    border-radius: 10px;
+    background-color: #7c7d7e;
+}
+
+#dlg-header{
+    background-color: #214B8C;
+    color: white;
+    font-size: 20px;
+    padding: 10px;
+    margin: 10px 10px 0px 10px;
+}
+
+#dlg-body{
+    background-color: white;
+    color: black;
+    font-size: 14px;
+    padding: 10px;
+    margin: 0px 10px 0px 10px;
+}
+
+#dlg-footer{
+    background-color: #f2f2f2;
+    text-align: right;
+    padding: 10px;
+    margin: 0px 10px 10px 10px;
+}
+
+#dlg-footer button{
+    color: white;
+}
+</style>
+
+<!-- dialog box --> 
+<div id="white-background"></div>
+<div id="dlgbox">
+    <div id="dlg-header">
+        <div id='dlg-header-text' style="display: inline-block;">You are deleting an entry.</div>
+        <div id='hidebox' style='float:right;'><i class="fa fa-times" aria-hidden="true"></i>
+</div>
+    </div>
+    <div id="dlg-body">Are you sure?</div>
+    <div id="dlg-footer">
+        <button class="btn btn-danger" id="dlgLogin">Yes</button>
+        <button class="btn btn-primary" id="dlgLogout" onclick="dlgout()">No</button>
+    </div>
+</div>
+<!-- dialog box -->
+
+<style>
+            .article{
+                position: relative;
+                padding: 5px;
+            }
+            .article>div{
+                color:black;
+            }
+            .articleimg{
+                margin:0px auto;  
+                max-width: 100%;  
+                width: 250px;
+                height : 250px;
+                display: block; /* remove extra space below image */
+            }
+            .articleimg1{
+                display: block;
+                margin: 0px auto;
+                max-width: 100%;
+                width: 125px;
+                height: 200px;
+            }
+            .articlecontent{
+                padding: 10px;
+                background-color: whitesmoke;
+                border: 1px solid black;
+                border-radius: 5%;  
+            }
+            .downdrop{
+                display: none;
+            }
+            .flexclass{
+                position: relative;
+                display: flex;
+                justify-content: flex-end;
+                z-index: 0;
+                margin: 5px 10px 0 0;
+            }
+            a {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            }
+</style>
+
 <div class='container'>
     <div id='fullcontainer'>
         <h3>Add Sport Event information</h3>
         <hr>
-        <form action="./sportevent.php" method="POST">
-            <div class='row'>
+        <?php 
+            if(isset($_POST["submitdetails"])){
+                if(count($_FILES['upload']['name'])>=1){
+                    $obj=new SQL();
+                    $conn=$obj->SQLi();
+                    if(!$conn){?>
+                        <script>popupform('Info not posted','Server Error.Sorry for the inconvenience');</script>
+                    <?php }
+                    else{
+                        //var_dump($_POST);
+                        $strfilename='';
+                        for($i=0;$i<count($_FILES['upload']['name']);$i++){
+                                $tempname=$_FILES['upload']['name'][$i];
+                                echo str_replace(' ','',$tempname);
+                                $imageFileType = pathinfo(basename($tempname),PATHINFO_EXTENSION);
+                                $targetdir="eventpics/";
+                                $target_file = $targetdir.str_replace(' ','',str_replace(".".$imageFileType,'',$tempname)).'--'.date('Y-m-d').".".$imageFileType;
+                                $arr=array('jpg', 'png', 'jpeg');
+                                if(!in_array($imageFileType,$arr)){?>
+                                    <script>
+                                        popupform('Image not acceptable','Image file extension should be of jpg,png and jpeg');
+                                    </script>
+                            <?php }
+                            else{
+                                //echo 'suxce';
+                                    move_uploaded_file($_FILES["upload"]["tmp_name"][$i], $target_file);
+                                    $strfilename=$strfilename.$target_file." , ";
+                            }
+                        }
+                        $query='INSERT into `events`(Ename,Description,imagesrc,date,type) values("'.$_POST['eventname'].'","'.$_POST['eventdes'].'","'.substr($strfilename,0,strlen($strfilename)-3).'","'.$_POST["eventdate"].'","Sports");';
+                        if(mysqli_query($conn,$query)){ ?>
+                            <script>
+                                popupform('Event Info posted','Successful');
+                            </script>
+                        <?php }
+                        else{ ?>
+                            <script>
+                                popupform('Event Info not posted','Not Successful.Sorry for the inconvenience');
+                            </script>                       
+                        <?php }
+                    }
+                }
+                else{?>
+                    <script>popupform('Info not posted','Server Error.Sorry for the inconvenience');</script>
+                <?php } 
+            }
+            
+        ?>
+        <form action="./sportevent.php" method="POST" enctype="multipart/form-data">
+            <div class='row mt-4'>
                 <div class='col-lg-4'>
                     <label for="eventname">Event Name : </label>
                     <span style='color:red;margin-left:10px;'>*</span>
                 </div>
                 <div class='col-lg-8'>
-                    <input type="text" name='eventname' size="50" required>
+                    <input type="text" name='eventname' size="50" >
                 </div>   
             </div>
-            <div class='row'>
+            <div class='row mt-4'>
                 <div class='col-lg-4'>
                     <label for="eventdata">Event Date : </label>
                     <span style='color:red;margin-left:10px;'>*</span>
                 </div>
                 <div class='col-lg-8'>
-                    <input type="date" name='eventdate' required>
+                    <input type="date" name='eventdate' >
                 </div>
             </div>
-            <div class='row'>
+            <div class='row mt-4'>
                 <div class='col-lg-4'>
                     <label for="eventdes">Event Description : </label>
                     <span style='color:red;margin-left:10px;'>*</span>
                 </div>
                 <div class='col-lg-8'>
-                    <textarea name="eventdes" id='eventdes' cols='30' rows="10"></textarea>
+                    <textarea class='form-control' name="eventdes" id='eventdes' cols='30' rows="10" ></textarea>
                 </div>
             </div>
+            <div class='row mt-4'>
+                <div class='col-lg-4'>
+                    <label for="upload">Photos : </label>
+                    <span style='color:red;margin-left:10px;'>*</span>
+                </div>  
+                <div class='col-lg-8'>
+                    <input type='file' name="upload[]" multiple required />
+                </div>
+            </div>
+            <div class='text-center mt-5'>
+                <button class='btn btn-success' name='submitdetails' type="submit">POST EVENT INFO</button>
+            </div>
         </form>
-
+        <h3 class='mt-4'>Sport Articles</h3>
+        <hr>
+        <div class='articlecontainer'>
+            <?php 
+                $obj=new SQL();
+                $conn=$obj->SQLi();
+                if($conn){
+                    $query='SELECT * from events where type="Sports"';
+                    $res=mysqli_query($conn,$query);
+                    $i=0;
+                    $eventid=array();
+                    while($row=mysqli_fetch_assoc($res)){
+                        array_push($eventid,(int)$row['EventId']);
+                        if($i%2==0){
+                            echo '<div class="row">';
+                        }?>
+                        <div class='col-lg-6 article'>
+                            <div class='articlecontent'>
+                                <div class="dropdown" style='display:inline-block;'>
+                                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" aria-haspopup="true" aria-expanded="true">
+                                            <i class='fa fa-gear'></i> 
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                        <li style='padding:0;'><a onclick='editevent(this)'>Edit</a></li>
+                                        <li style="padding:0;"><a onclick='deleteevent(this)'>Delete</a></li>
+                                    </ul>
+                                </div>
+                                <div class='mt-4'>
+                                    <?php 
+                                        $imagearray=explode(' , ',$row['imagesrc']);     
+                                    ?>
+                                    <img src="<?php echo $imagearray[0]; ?>"  class="articleimg" alt="">
+                                </div>
+                                <div class='mt-4'>
+                                    <?php echo $row['Description'];?>
+                                </div>
+                                <div class='mt-5 text-center'>
+                                   <div style='color:green;'><?php 
+                                        echo "Posted on : ".date('F d, Y',strtotime($row['date'])); 
+                                   ?></div> 
+                                </div>
+                            </div>
+                        </div>
+                    <?php
+                        if($i%2!=0) echo "</div>";
+                        $i++;
+                    }
+                    if(($i%2)!=0){
+                            echo "</div>";
+                    }
+                }
+            ?>
+           <!--  <div class='row'>
+                <div class='col-lg-6 article'>
+                    <div>
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima, maxime? Consequuntur architecto neque ex, voluptate doloremque deserunt reiciendis impedit maxime nobis doloribus ducimus est nihil! Accusamus debitis illum minus hic repellat et voluptates, non, numquam voluptas dicta nemo libero quod sed doloribus vero sint corrupti impedit! Similique eligendi error, ipsam est animi vero incidunt voluptates aspernatur fugiat molestiae atque eos.
+                    </div>
+                </div>
+                <div class='article col-lg-6 article'>
+                    <div>
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatum voluptatem, corporis, eligendi qui ipsa iure consequatur saepe perspiciatis sapiente amet deleniti eaque, aliquam distinctio quibusdam nostrum similique tempore magni at delectus. Ullam quisquam at ipsa unde? Obcaecati reprehenderit iure quas in, mollitia facilis nobis expedita corrupti illum architecto error necessitatibus ipsa voluptate explicabo eos magnam, deserunt ex modi reiciendis quidem voluptas nesciunt. Temporibus, dolores. Ex labore eaque sequi est nulla blanditiis repellat facilis totam obcaecati temporibus, vero accusantium incidunt commodi maiores maxime cum corporis? Reprehenderit corporis cupiditate unde neque deserunt tempore, eaque natus, nobis nemo aliquam ducimus esse. Nemo, ipsum iste. Perferendis non sit, repellat omnis nostrum alias? Aut quo veritatis iure, voluptas expedita eos maxime qui ab dolores fugiat?
+                    </div>
+                </div>
+            </div> -->
+        </div>
     </div>
 </div>
 
 
+<?php 
 
+if(isset($_GET["deleteevent"])&&isset($_GET['type'])){
+    $obj=new SQL();
+    $conn=$obj->SQLi();
+    if(!$conn) die();
+    else{
+        $query="DELETE FROM `events` where EventId=".$eventid[(int)$_GET['deleteevent']].";";
+        if(mysqli_query($conn,$query)){
+                //deleted query
+                echo "<script>window.location.href='./sportevent.php';</script>";
+        }
+        else{?>
+            <script>
+                popupform("Unable to delete the event",'Sorry for the inconvenience!');
+            </script>
+        <?php }
+    }
+}
+if(isset($_GET['editingevent'])&&isset($_GET['type'])){
+    $obj=new SQL();
+    $conn=$obj->SQLi();
+    if(!$conn) die();
+    else{
+        $query="SELECT * from events where EventId=".$eventid[(int)$_GET['editingevent']]." and type='".$_GET['type']."';";
+        $res=mysqli_query($conn,$query);
+        if($res && (mysqli_num_rows($res)==1)){
+            $row=mysqli_fetch_assoc($res);
+        ?>
+        <script>
+            $('#fullcontainer').children().css('display','none');
+        </script>        
+    <div class='appending' style='display : none;'>
+        <form action="./sportevent.php?editingevent=<?php echo $_GET['editingevent'];?>&type=<?php echo $_GET['type'];?>" method="POST" enctype="multipart/form-data">
+            <div class='row mt-4'>
+                <pre class='tab' style='color:green;margin-left:15px;'>Event Name (Originally Posted) :<?php echo "\t".$row['Ename'];?></pre>
+            </div>
+            <div class='row mt-4'>
+                <div class='col-lg-4'>
+                    <label for="eventname">Event Name : </label>
+                    <span style='color:red;margin-left:10px;'>*</span>
+                </div>
+                <div class='col-lg-8'>
+                    <input type="text" name='eventname' size="50" >
+                </div>   
+            </div>
+            <div class='row mt-4'>
+                <pre class='tab' style='color:green;margin-left:15px;'>Event Date (Originally Posted) :<?php echo "\t".$row['date'];?></pre>
+            </div>
+            <div class='row mt-4'>
+                <div class='col-lg-4'>
+                    <label for="eventdata">Event Date : </label>
+                    <span style='color:red;margin-left:10px;'>*</span>
+                </div>
+                <div class='col-lg-8'>
+                    <input type="date" name='eventdate' >
+                </div>
+            </div>
+            <div class='row mt-4'>
+                <pre class='tab' style='color:green;margin-left:15px;'>Event Description (Originally Posted) :<?php echo "\t".$row['Description'];?></pre>
+            </div>
+            <div class='row mt-4'>
+                <div class='col-lg-4'>
+                    <label for="eventdes">Event Description : </label>
+                    <span style='color:red;margin-left:10px;'>*</span>
+                </div>
+                <div class='col-lg-8'>
+                    <textarea class='form-control' name="eventdes" id='eventdes' cols='30' rows="10" ></textarea>
+                </div>
+            </div>
+            <div class='row mt-5'>
+                <label for="showImages" style='display:inline-block;margin-left:15px;'>Uploaded Images :</label>
+                <button class='btn btn-primary' style='margin-left:10%;' id='showImages'>Click to view Previously Uploaded Images</button>
+            </div>
+            <div class='row mt-5'>
+                <div class='col-lg-4'>
+                    <label for="upload">Photos : </label>
+                    <span style='color:red;margin-left:10px;'>*</span>
+                </div>  
+                <div class='col-lg-8'>
+                    <input type='file' name="upload[]" multiple required />
+                </div>
+            </div>
+            <div class='text-center mt-5'>
+                <button class='btn btn-success' name='eventedit' type="submit">EDIT EVENT INFO</button>
+                <a href="./sportevent.php" class='btn btn-danger'>Cancel</a>
+            </div>
+        </form>
+    </div>
+    <script>
+        $("#fullcontainer").html($(".appending").html());
+        $('#showImages').click(function(){
+            var whitebg = document.getElementById("white-background");
+            var dlg = document.getElementById("dlgbox");
+            whitebg.style.display = "block";
+            dlg.style.display = "block";
+
+            var winWidth = window.innerWidth;
+            var winHeight = window.innerHeight;
+            
+            dlg.style.left = (winWidth/2) - 480/2 + "px";
+            dlg.style.top = "150px";
+            $("#hidebox").hide();
+            $("#dlg-header-text").text("Uploaded Images");
+            <?php 
+                $imagearray=explode(' , ',$row['imagesrc']);
+                $strbody='<div class="row">';
+                for($i=0;$i<sizeof($imagearray);$i++){
+                    $strbody=$strbody.'<div class="col-lg-6"><img src="'.$imagearray[$i].'" class="articleimg1" alt="Image'.($i+1).'"></div>';
+                    if($i>=1)   break;
+                }
+                $strbody=$strbody.'</div>';
+            ?>
+            $("#dlg-body").html('<?php echo $strbody;?>');
+            $("#dlgLogin").hide();
+            $("#dlgLogout").text("Go Back");
+            $("#dlgLogout").click(function (){
+                $("#white-background").css('display','none');
+                $("#dlgbox").css('display','none');
+            });
+        });
+    </script>
+    <?php
+        if(isset($_POST['eventedit'])){
+            if(count($_FILES['upload']['name'])>=1){
+                $obj=new SQL();
+                $conn=$obj->SQLi();
+                if(!$conn){?>
+                    <script>popupform('Info not posted','Server Error.Sorry for the inconvenience');</script>
+                <?php }
+                else{
+                    //var_dump($_POST);
+                    $strfilename='';
+                    for($i=0;$i<count($_FILES['upload']['name']);$i++){
+                            $tempname=$_FILES['upload']['name'][$i];
+                            echo str_replace(' ','',$tempname);
+                            $imageFileType = pathinfo(basename($tempname),PATHINFO_EXTENSION);
+                            $targetdir="eventpics/";
+                            $target_file = $targetdir.str_replace(' ','',str_replace(".".$imageFileType,'',$tempname)).'--'.date('Y-m-d').".".$imageFileType;
+                            $arr=array('jpg', 'png', 'jpeg');
+                            if(!in_array($imageFileType,$arr)){?>
+                                <script>
+                                    var whitebg = document.getElementById("white-background");
+                                    var dlg = document.getElementById("dlgbox");
+                                    whitebg.style.display = "block";
+                                    dlg.style.display = "block";
+
+                                    var winWidth = window.innerWidth;
+                                    var winHeight = window.innerHeight;
+                                    
+                                    dlg.style.left = (winWidth/2) - 480/2 + "px";
+                                    dlg.style.top = "150px";
+                                    $("#hidebox").hide();
+                                    $("#dlg-header-text").text("Files not in jpg,jpeg,png format");
+                                    $("#dlg-body").html('Not Successful');
+                                    $("#dlgLogin").hide();
+                                    $("#dlgLogout").text("Go Back");
+                                    $("#dlgLogout").click(function (){
+                                        window.location.href="./sportevent.php?editingevent=<?php echo $_GET['editingevent'];?>&type=<?php echo $_GET['type'];?>";
+                                    });
+                                </script>
+                        <?php }
+                        else{
+                            //echo 'suxce';
+                                move_uploaded_file($_FILES["upload"]["tmp_name"][$i], $target_file);
+                                $strfilename=$strfilename.$target_file." , ";
+                        }
+                    }
+                    $query='UPDATE `events` SET `Ename`="'.$_POST['eventname'].'",`Description`="'.$_POST['eventdes'].'",`imagesrc`="'.substr($strfilename,0,strlen($strfilename)-3).'",`date`="'.$_POST["eventdate"].'",`type`="'.$_GET['type'].'" where `EventId`='.$eventid[(int)$_GET['editingevent']].' and type="'.$_GET['type'].'";';
+                    if(mysqli_query($conn,$query)){ ?>
+                        <script>
+                            //Succesfully Updated
+                            popupform('Event Info Edited','Successful');
+                        </script>
+                    <?php }
+                    else{ ?>
+                        <script>
+                            popupform('Event Info not posted','Not Successful.Sorry for the inconvenience<?php echo $query;?>');
+                        </script>                       
+                    <?php }
+                }
+            }
+            else{?>
+                <script>popupform('Info not posted','Server Error.Sorry for the inconvenience');</script>
+            <?php }            
+        }
+      }
+      else{?>
+            <script>
+                popupform("Unable to EDIT the event",'Sorry for the inconvenience');
+            </script>
+      <?php }
+    }
+}
+
+?>
 
 
 
