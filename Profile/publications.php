@@ -505,6 +505,7 @@ background: rgba(52,57,87,0.9);
             $("#white-background").hide();
             $("#dlgbox").hide();
             elementhide.checked=false;
+            $(".check").removeAttr('disabled');
         });
         var whitebg = document.getElementById("white-background");
         var dlg = document.getElementById("dlgbox");
