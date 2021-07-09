@@ -122,7 +122,7 @@
                                 <th>Year</th>
                                 <th>Authors</th>
                             <tr>
-                            <?php $query="SELECT PID,Title,ConferenceName,Year,Othernames from publications;";
+                            <?php $query="SELECT PID,Title,ConferenceName,Year,AuthorList from publications;";
                             $res=mysqli_query($conn,$query);
                             if($res){
                                 while($row=mysqli_fetch_assoc($res)){
@@ -132,7 +132,7 @@
                                     while($row1=mysqli_fetch_assoc($res1)){
                                         $names=$names.$row1['name'].",";
                                     }
-                                    $names=$names.$row["Othernames"];
+                                    $names=$names.$row["AuthorList"];
                                     echo "<tr>";
                                     echo "<th>".$row["Title"]."</th>";
                                     echo "<th>".$row["ConferenceName"]."</th>";
@@ -152,7 +152,7 @@
                                 <th>Year</th>
                                 <th>Authors</th>
                             <tr>
-                        <?php $query="SELECT JID,Paper_Title,Journal,Year,Othernames from journals;";
+                        <?php $query="SELECT JID,Paper_Title,Journal,Year,AuthorList from journals;";
                             $res=mysqli_query($conn,$query);
                             if($res){
                                 while($row=mysqli_fetch_assoc($res)){
@@ -162,7 +162,7 @@
                                     while($row1=mysqli_fetch_assoc($res1)){
                                         $names=$names.$row1['name'].",";
                                     }
-                                    $names=$names.$row["Othernames"];
+                                    $names=$names.$row["AuthorList"];
                                     echo "<tr>";
                                     echo "<th>".$row["Paper_Title"]."</th>";
                                     echo "<th>".$row["Journal"]."</th>";
@@ -184,7 +184,7 @@
                                 <th>Year</th>
                                 <th>Authors</th>
                             <tr>
-                            <?php $query="SELECT PID,Title,ConferenceName,Year,Othernames from publications natural join pubicationauthor where EID=".$_GET['id'].";";
+                            <?php $query="SELECT PID,Title,ConferenceName,Year,AuthorList from publications natural join pubicationauthor where EID=".$_GET['id'].";";
                             $res=mysqli_query($conn,$query);
                             if($res){
                                 while($row=mysqli_fetch_assoc($res)){
@@ -194,7 +194,7 @@
                                     while($row1=mysqli_fetch_assoc($res1)){
                                         $names=$names.$row1['name'].",";
                                     }
-                                    $names=$names.$row["Othernames"];
+                                    $names=$names.$row["AuthorList"];
                                     echo "<tr>";
                                     echo "<th>".$row["Title"]."</th>";
                                     echo "<th>".$row["ConferenceName"]."</th>";
@@ -214,7 +214,7 @@
                                 <th>Year</th>
                                 <th>Authors</th>
                             <tr>
-                        <?php $query="SELECT JID,Paper_Title,Journal,Year,Othernames from journals natural join journalauthor where EID=".$_GET['id'].";";
+                        <?php $query="SELECT JID,Paper_Title,Journal,Year,AuthorList from journals natural join journalauthor where EID=".$_GET['id'].";";
                             $res=mysqli_query($conn,$query);
                             if($res){
                                 while($row=mysqli_fetch_assoc($res)){
@@ -224,7 +224,7 @@
                                     while($row1=mysqli_fetch_assoc($res1)){
                                         $names=$names.$row1['name'].",";
                                     }
-                                    $names=$names.$row["Othernames"];
+                                    $names=$names.$row["AuthorList"];
                                     echo "<tr>";
                                     echo "<th>".$row["Paper_Title"]."</th>";
                                     echo "<th>".$row["Journal"]."</th>";

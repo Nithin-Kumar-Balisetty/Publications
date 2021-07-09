@@ -1357,6 +1357,10 @@ background: rgba(52,57,87,0.9);
                 }
             }
             if($check==0){
+                require_once dirname(__FILE__) . '/Classes/PHPExcel/IOFactory.php';
+                $fileselect = PHPExcel_IOFactory::identify("Conference.xlsx");
+                $excelreader = PHPExcel_IOFactory::createReader($fileselect);
+                $excel = $excelreader->load("Conference.xlsx");
                 $i=1;
                 $noofauth=0;
                 while(isset($_POST["Author".$i])){
@@ -1388,7 +1392,40 @@ background: rgba(52,57,87,0.9);
                             break;
                         }
                     }
-                    if($j-1==$noofauth)  echo "<script>popupform('Success','Your Conference Publication has been posted')</script>"; 
+                    if($j-1==$noofauth) { 
+                        $loop=1;
+                        $fmail='';
+                        while(isset($_POST['Author'.$loop])){
+                            $quer='SELECT email from faculty where EID='.$_POST["Author".$loop].';';
+                            $res=mysqli_query($conn,$quer);
+                            if(mysqli_num_rows($res)==1){
+                                $row=mysqli_fetch_assoc($res);
+                                $fmail=$fmail.$row['email'].',';
+                            }
+                            $loop++;
+                        }
+                        $fmail=substr($fmail,0,strlen($fmail)-1);
+                        //$attr=array("Title","Conference Name","Proceedings","ISSN","Volume No.","Pages","Year","Month","Conference Type(National or International)","Author List(Names of People who are not part of IIITDM)","DOI","IIITDM Author's Email Addresses seperated by comma","Open Access(type 1 if Yes or else 0)","SCI(type 1 if Yes or else 0)","Non-SCI(type 1 if Yes or else 0)","Scopus(type 1 if Yes or else 0)","Google Scholar(type 1 if Yes or else 0)");
+                        $norows=$excel->setActiveSheetIndex(0)->getHighestRow()+1;
+                        $insertarray=array($_POST['Title'],$_POST["ConferenceName"],$_POST['Proceedings'],(($_POST["ISSN1"].$_POST["ISSN2"])),$_POST['Vol'],$_POST['Pages'],$my[0],$my[1],$_POST['Ctype'],$new_str,$_POST['Link'],$fmail,$_POST['OA']);
+                        for($j=0;$j<sizeof($indexing);$j++){
+                            if(isset($_POST[str_replace(" ",'_',$indexing[$j])])){
+                                array_push($insertarray,1);
+                            }
+                            else{
+                                array_push($insertarray,0);
+                
+                            }
+                        }
+                        $j=0;
+                        foreach(range('A','Q') as $b){
+                            $excel->getActiveSheet()->setCellValue($b.(string)$norows,$insertarray[$j]);
+                            $j++;
+                        }
+                        $objWriter = PHPExcel_IOFactory::createWriter($excel,'Excel5');
+                        $objWriter->save("Conference.xlsx");
+                        echo "<script>popupform('Success','Your Conference Publication has been posted');</script>"; 
+                    }
                     else echo "<script>popupform('Publication not posted','Server Error.Sorry for the inconvinience!')</script>"; 
                 }
                 else{
@@ -1416,6 +1453,9 @@ background: rgba(52,57,87,0.9);
                 }
             }
             if($check==0){
+                $fileselect = PHPExcel_IOFactory::identify("Journal.xlsx");
+                $excelreader = PHPExcel_IOFactory::createReader($fileselect);
+                $excel = $excelreader->load("Journal.xlsx");
                 $i=1;
                 $noofauth=0;
                 while(isset($_POST["Author".$i])){
@@ -1446,7 +1486,40 @@ background: rgba(52,57,87,0.9);
                             break;
                         }
                     }
-                    if($j-1==$noofauth)  echo "<script>popupform('Success','Your Journal Publication has been posted')</script>"; 
+                    if($j-1==$noofauth){
+                        $loop=1;
+                        $fmail='';
+                        while(isset($_POST['Author'.$loop])){
+                            $quer='SELECT email from faculty where EID='.$_POST["Author".$loop].';';
+                            $res=mysqli_query($conn,$quer);
+                            if(mysqli_num_rows($res)==1){
+                                $row=mysqli_fetch_assoc($res);
+                                $fmail=$fmail.$row['email'].',';
+                            }
+                            $loop++;
+                        }
+                        $fmail=substr($fmail,0,strlen($fmail)-1);
+                        //        $attr=array("Title","Journal Name","ISSN","Volume No.","Issue No.","Pages","Year","Month",'Impact Factor',"Publisher(Springer,Elsevier etc.)","Author List(Names of People who are not part of IIITDM)","DOI","IIITDM Author's Email Addresses seperated by comma","Open Access(type 1 if Yes or else 0)","SCI(type 1 if Yes or else 0)","Non-SCI(type 1 if Yes or else 0)","Scopus(type 1 if Yes or else 0)","Google Scholar(type 1 if Yes or else 0)");
+                        $norows=$excel->setActiveSheetIndex(0)->getHighestRow()+1;
+                        $insertarray=array($_POST['Title'],$_POST["ConferenceName"],(($_POST["ISSN1"].$_POST["ISSN2"])),$_POST['Vol'],$_POST['Issue'],$_POST['Pages'],$my[0],$my[1],$_POST['IF'],$_POST['publisher'],$new_str,$_POST['Link'],$fmail,$_POST['OA']);
+                        for($j=0;$j<sizeof($indexing);$j++){
+                            if(isset($_POST[str_replace(" ",'_',$indexing[$j])])){
+                                array_push($insertarray,1);
+                            }
+                            else{
+                                array_push($insertarray,0);
+                
+                            }
+                        }
+                        $j=0;
+                        foreach(range('A','R') as $b){
+                            $excel->getActiveSheet()->setCellValue($b.(string)$norows,$insertarray[$j]);
+                            $j++;
+                        }
+                        $objWriter = PHPExcel_IOFactory::createWriter($excel,'Excel5');
+                        $objWriter->save("Journal.xlsx");
+                        echo "<script>popupform('Success','Your Journal Publication has been posted')</script>"; 
+                    }
                     else echo "<script>popupform('Publication not posted','Server Error.Sorry for the inconvinience!')</script>"; 
                 }
                 else{
@@ -1497,11 +1570,13 @@ background: rgba(52,57,87,0.9);
          $conn=mysqli_connect($servername, $username,'', $dbname);
          if(!$conn) die();
          else{
-        $attr=array("Title","Journal Name","ISSN","Volume","Issue","Pages","Year","Publisher","Indexing","Website URL","Author's email(Seperated by comma)","Othernames");
+        
+        $attr=array("Title","Journal Name","ISSN","Volume No.","Issue No.","Pages","Year","Month",'Impact Factor',"Publisher(Springer,Elsevier etc.)","Author List(Names of People who are not part of IIITDM)","DOI","IIITDM Author's Email Addresses seperated by comma","Open Access(type 1 if Yes or else 0)","SCI(type 1 if Yes or else 0)","Non-SCI(type 1 if Yes or else 0)","Scopus(type 1 if Yes or else 0)","Google Scholar(type 1 if Yes or else 0)");
         $char='A';
         for($k=0;$k<sizeof($attr);$k++){
             if($attr[$k]!=$objPHPExcel->getActiveSheet()->getCell($char.(int)1)->getValue()){
                 echo "<script>popupform('File not in desired format','Make sure the the file follow the journal template');</script>";
+                die();
             }
             $char++;
         }
@@ -1513,48 +1588,54 @@ background: rgba(52,57,87,0.9);
              $issue=$objPHPExcel->getActiveSheet()->getCell('E'.$i)->getValue();
              $pages=$objPHPExcel->getActiveSheet()->getCell('F'.$i)->getValue();
              $year=$objPHPExcel->getActiveSheet()->getCell('G'.$i)->getValue();
-             $publisher=$objPHPExcel->getActiveSheet()->getCell('H'.$i)->getValue();
-             $indexing=$objPHPExcel->getActiveSheet()->getCell('I'.$i)->getValue();
-             $weburl=$objPHPExcel->getActiveSheet()->getCell('J'.$i)->getValue();
-             $email=$objPHPExcel->getActiveSheet()->getCell('K'.$i)->getValue();
-             $othernames=$objPHPExcel->getActiveSheet()->getCell('L'.$i)->getValue();
-             $contents = str_replace(' ', '', $othernames);
-             $new_str = str_replace(' ', '', $email);
+             $month=$objPHPExcel->getActiveSheet()->getCell('H'.$i)->getValue();
+             $impactfactor=$objPHPExcel->getActiveSheet()->getCell('I'.$i)->getValue();
+             $publisher=$objPHPExcel->getActiveSheet()->getCell('J'.$i)->getValue();
+             $authorlist=$objPHPExcel->getActiveSheet()->getCell('K'.$i)->getValue();
+             $doi=$objPHPExcel->getActiveSheet()->getCell('L'.$i)->getValue();
+
+             $authormail=$objPHPExcel->getActiveSheet()->getCell('M'.$i)->getValue();
+             $openaccess=$objPHPExcel->getActiveSheet()->getCell('N'.$i)->getValue();
+             $sci=$objPHPExcel->getActiveSheet()->getCell('O'.$i)->getValue();
+             $nsci=$objPHPExcel->getActiveSheet()->getCell('P'.$i)->getValue();
+             $scopus=$objPHPExcel->getActiveSheet()->getCell('Q'.$i)->getValue();
+             $gscholar=$objPHPExcel->getActiveSheet()->getCell('R'.$i)->getValue();
+
+             $regex = '/^[a-z0-9]+@(iiitdm.ac.in)$/';
+             $contents = str_replace(' ', '', $authorlist);
+             $new_str = str_replace(' ', '', $authormail);
              $marray=explode(",",$new_str);
 
              $check=0;
              $str=strtolower($title);
-             $quer='SELECT JID,Paper_Title from `journals`;';
+             $quer='SELECT JID,Paper_Title,ISSN from `journals`;';
              $res=mysqli_query($conn,$quer);
              while($row=mysqli_fetch_assoc($res)){
                  $comp=strtolower($row["Paper_Title"]);
                  similar_text($comp,$str,$per);
-                 if($per<=100 && $per>=95){
+                 if(($per<=100 && $per>=95)||($row['ISSN']==$ISSN)){
                      $check=1;
-                     $errorlog="At row ".(string)($i)." of the excel identical journal is present.<br>";
+                     $errorlog=$errorlog."At row ".(string)($i)." of the excel an identical journal with same Title or ISSN is present.<br>";
                      break;
                  }
              }
+             for($z=0;$z<sizeof($marray);$z++){
+                if(!preg_match($regex, $marray[$z])) {
+                    $check=1;
+                    $errorlog=$errorlog."At row ".(string)($i)." of the excel the Author email field type is not of @iiitdm.ac.in<br>";
+                    break;
+                }
+             }  
              if($check==0){
                     $norows=$excel->setActiveSheetIndex(0)->getHighestRow()+1;
-                    $excel->getActiveSheet()->setCellValue('A'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('A'.$i)->getValue());
-                    $excel->getActiveSheet()->setCellValue('B'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('B'.$i)->getValue());
-                    $excel->getActiveSheet()->setCellValue('C'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('C'.$i)->getValue());
-                    $excel->getActiveSheet()->setCellValue('D'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('D'.$i)->getValue());
-                    $excel->getActiveSheet()->setCellValue('E'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('E'.$i)->getValue());
-                    $excel->getActiveSheet()->setCellValue('F'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('F'.$i)->getValue());
-                    $excel->getActiveSheet()->setCellValue('G'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('G'.$i)->getValue());
-                    $excel->getActiveSheet()->setCellValue('H'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('H'.$i)->getValue());
-                    $excel->getActiveSheet()->setCellValue('I'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('I'.$i)->getValue());
-                    $excel->getActiveSheet()->setCellValue('J'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('J'.$i)->getValue());
-                    $excel->getActiveSheet()->setCellValue('K'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('K'.$i)->getValue());
-                    $excel->getActiveSheet()->setCellValue('L'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('L'.$i)->getValue());
-
+                    foreach(range('A','R') as $b){
+                        $excel->getActiveSheet()->setCellValue($b.(string)$norows,$objPHPExcel->getActiveSheet()->getCell($b.$i)->getValue());
+                    }
 
                     $objWriter = PHPExcel_IOFactory::createWriter($excel,'Excel5');
                     $objWriter->save("Journal.xlsx");
-                    $str='"'.$title.'","'.$journalname.'","'.$ISSN.'",'.$vol.','.$issue.','.$pages.','.$year.',"'.$publisher.'","'.$indexing.'","'.$weburl.'",'.sizeof($marray).',"'.$contents.'"';
-                    $query1="INSERT INTO journals (Paper_Title,Journal,ISSN,VolNo,Issue,Pages,Year,Publisher,Indexing,Website_URL,No_of_Auth,Othernames) values(".$str.")";
+                    $str='"'.$title.'","'.$journalname.'","'.$ISSN.'",'.$vol.','.$issue.','.$pages.','.$year.','.$month.',"'.$publisher.'","'.$doi.'",'.sizeof($marray).',"'.$contents.'",'.$openaccess.','.$sci.','.$nsci.','.$scopus.','.$gscholar.','.$impactfactor;
+                    $query1="INSERT INTO journals (Paper_Title,Journal,ISSN,VolNo,Issue,Pages,Year,month,Publisher,DOI,No_of_Auth,AuthorList,OpenAccess,SCI,Non_SCI,Scopus,Google_Scholar,IFactor) values(".$str.")";
                     if(mysqli_query($conn,$query1)){
                         //successfully inserted
                         $querr='SELECT MAX(JID) as jid from journals;';
@@ -1623,7 +1704,7 @@ background: rgba(52,57,87,0.9);
         $conn=mysqli_connect($servername, $username,'', $dbname);
         if(!$conn) die();
         else{
-       $attr=array("Title","Conference Name","ISSN","Volume","Pages","Year","Proceedings","Indexing","Website URL","Author's email(Seperated by comma)");
+       $attr=array("Title","Conference Name","Proceedings","ISSN","Volume No.","Pages","Year","Month","Conference Type(National or International)","Author List(Names of People who are not part of IIITDM)","DOI","IIITDM Author's Email Addresses seperated by comma","Open Access(type 1 if Yes or else 0)","SCI(type 1 if Yes or else 0)","Non-SCI(type 1 if Yes or else 0)","Scopus(type 1 if Yes or else 0)","Google Scholar(type 1 if Yes or else 0)");
        $char='A';
        for($k=0;$k<sizeof($attr);$k++){
            if($attr[$k]!=$objPHPExcel->getActiveSheet()->getCell($char.(int)1)->getValue()){
@@ -1635,51 +1716,56 @@ background: rgba(52,57,87,0.9);
        while($objPHPExcel->getActiveSheet()->getCell('A'.$i)->getValue()!=''){
             $title=$objPHPExcel->getActiveSheet()->getCell('A'.$i)->getValue();
             $confname=$objPHPExcel->getActiveSheet()->getCell('B'.$i)->getValue();
-            $ISSN=$objPHPExcel->getActiveSheet()->getCell('C'.$i)->getValue();
-            $vol=$objPHPExcel->getActiveSheet()->getCell('D'.$i)->getValue();
-            $pages=$objPHPExcel->getActiveSheet()->getCell('E'.$i)->getValue();
-            $year=$objPHPExcel->getActiveSheet()->getCell('F'.$i)->getValue();
-            $proceedings=$objPHPExcel->getActiveSheet()->getCell('G'.$i)->getValue();
-            $indexing=$objPHPExcel->getActiveSheet()->getCell('H'.$i)->getValue();
-            $weburl=$objPHPExcel->getActiveSheet()->getCell('I'.$i)->getValue();
-            $email=$objPHPExcel->getActiveSheet()->getCell('J'.$i)->getValue();
-            $othernames=$objPHPExcel->getActiveSheet()->getCell('K'.$i)->getValue();
-            $contents = str_replace(' ', '', $othernames);
-            $new_str = str_replace(' ', '', $email);
-            $marray=explode(",",$new_str);
+            $proceedings=$objPHPExcel->getActiveSheet()->getCell('C'.$i)->getValue();
+            $ISSN=$objPHPExcel->getActiveSheet()->getCell('D'.$i)->getValue();
+            $vol=$objPHPExcel->getActiveSheet()->getCell('E'.$i)->getValue();
+            $pages=$objPHPExcel->getActiveSheet()->getCell('F'.$i)->getValue();
+            $year=$objPHPExcel->getActiveSheet()->getCell('G'.$i)->getValue();
+            $month=$objPHPExcel->getActiveSheet()->getCell('H'.$i)->getValue();
+            $ctype=$objPHPExcel->getActiveSheet()->getCell('I'.$i)->getValue();
+            $othernames=$objPHPExcel->getActiveSheet()->getCell('J'.$i)->getValue();
+            $doi=$objPHPExcel->getActiveSheet()->getCell('K'.$i)->getValue();
+            $authormail=$objPHPExcel->getActiveSheet()->getCell('L'.$i)->getValue();
+            $openaccess=$objPHPExcel->getActiveSheet()->getCell('M'.$i)->getValue();
+            $sci=$objPHPExcel->getActiveSheet()->getCell('N'.$i)->getValue();
+            $nsci=$objPHPExcel->getActiveSheet()->getCell('O'.$i)->getValue();
+            $scopus=$objPHPExcel->getActiveSheet()->getCell('P'.$i)->getValue();
+            $gscholar=$objPHPExcel->getActiveSheet()->getCell('Q'.$i)->getValue();
 
+            $contents = str_replace(' ', '', $othernames);
+            $new_str = str_replace(' ', '', $authormail);
+            $marray=explode(",",$new_str);
+            $regex = '/^[a-z0-9]+@(iiitdm.ac.in)$/';
             $check=0;
             $str=strtolower($title);
-            $quer='SELECT PID,Title from `publications`;';
+            $quer='SELECT PID,Title,ISSN from `publications`;';
             $res=mysqli_query($conn,$quer);
             while($row=mysqli_fetch_assoc($res)){
                 $comp=strtolower($row["Title"]);
                 similar_text($comp,$str,$per);
-                if($per<=100 && $per>=95){
+                if(($per<=100 && $per>=95)||($row['ISSN']==$ISSN)){
                     $check=1;
-                    $errorlog="At row ".(string)($i)." of the excel identical conference is present.<br>";
+                    $errorlog=$errorlog."At row ".(string)($i)." of the excel identical conference with same Title of ISSN is present.<br>";
                     break;
                 }
             }
+            for($z=0;$z<sizeof($marray);$z++){
+                if(!preg_match($regex, $marray[$z])) {
+                    $check=1;
+                    $errorlog=$errorlog."At row ".(string)($i)." of the excel the Author email field type is not of @iiitdm.ac.in<br>";
+                    break;
+                }
+            } 
             if($check==0){
                     $norows=$excel->setActiveSheetIndex(0)->getHighestRow()+1;
-                    $excel->getActiveSheet()->setCellValue('A'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('A'.$i)->getValue());
-                    $excel->getActiveSheet()->setCellValue('B'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('B'.$i)->getValue());
-                    $excel->getActiveSheet()->setCellValue('C'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('C'.$i)->getValue());
-                    $excel->getActiveSheet()->setCellValue('D'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('D'.$i)->getValue());
-                    $excel->getActiveSheet()->setCellValue('E'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('E'.$i)->getValue());
-                    $excel->getActiveSheet()->setCellValue('F'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('F'.$i)->getValue());
-                    $excel->getActiveSheet()->setCellValue('G'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('G'.$i)->getValue());
-                    $excel->getActiveSheet()->setCellValue('H'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('H'.$i)->getValue());
-                    $excel->getActiveSheet()->setCellValue('I'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('I'.$i)->getValue());
-                    $excel->getActiveSheet()->setCellValue('J'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('J'.$i)->getValue());
-                    $excel->getActiveSheet()->setCellValue('K'.(string)$norows,$objPHPExcel->getActiveSheet()->getCell('K'.$i)->getValue());
-
+                    foreach(range('A','Q') as $b){
+                        $excel->getActiveSheet()->setCellValue($b.(string)$norows,$objPHPExcel->getActiveSheet()->getCell($b.$i)->getValue());
+                    }
                     $objWriter = PHPExcel_IOFactory::createWriter($excel,'Excel5');
                     $objWriter->save("Conference.xlsx");
-                   $str='"'.$title.'","'.$confname.'","'.$ISSN.'",'.$vol.','.$pages.','.$year.',"'.$proceedings.'","'.$indexing.'","'.$weburl.'",'.sizeof($marray).',"'.$contents.'"';
+                   $str='"'.$title.'","'.$confname.'","'.$ISSN.'",'.$vol.','.$pages.','.$year.','.$month.',"'.$proceedings.'","'.$ctype.'","'.$doi.'",'.sizeof($marray).',"'.$contents.'",'.$openaccess.','.$sci.','.$nsci.','.$scopus.','.$gscholar;
                    
-                   $query1="INSERT INTO publications (Title,ConferenceName,ISSN,Vol,Pages,Year,Proceedings,Indexing,Website_URL,No_of_Auth,Othernames) values(".$str.")";
+                   $query1="INSERT INTO publications (Title,ConferenceName,ISSN,Vol,Pages,Year,month,Proceedings,type,DOI,No_of_Auth,AuthorList,OpenAccess,SCI,Non_SCI,Scopus,Google_Scholar) values(".$str.")";
                    if(mysqli_query($conn,$query1)){
                        //successfully inserted
                        $querr='SELECT MAX(PID) as pid from publications;';
