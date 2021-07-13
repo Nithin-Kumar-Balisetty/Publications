@@ -1112,7 +1112,7 @@ background: rgba(52,57,87,0.9);
                 <label for="PName">Paper Title : <span style="color : red;">*</span></label>
                 </div>
                 <div class="col-lg-9">
-                <input type="text" name="Title" size="75">
+                <input type="text" name="Title" size="75" required>
                 </div>
             </div>
             <div class="row">
@@ -1120,7 +1120,7 @@ background: rgba(52,57,87,0.9);
                 <label for="ConName">Journal Name :</label>
                 </div>
                 <div class="col-lg-4">
-                <input type="text" name="ConferenceName" >
+                <input type="text" name="ConferenceName" value=''>
                 </div>
             </div>
             <div class="row">
@@ -1129,9 +1129,9 @@ background: rgba(52,57,87,0.9);
                 <span style="color:red;">*</span>
                 </div>
                 <div class="col-lg-9">
-                <input type="number" name="ISSN1"  style="display : inline-block;" min="1000" max="9999">
+                <input type="number" name="ISSN1"  style="display : inline-block;" min="1000" max="9999" required>
                 <p style="display : inline-block;">-</p>
-                <input type="number" name="ISSN2"  style="display : inline-block;" min="1000" max="9999">
+                <input type="number" name="ISSN2"  style="display : inline-block;" min="1000" max="9999" required>
                 </div>
             </div>
             <div class="row">
@@ -1141,7 +1141,7 @@ background: rgba(52,57,87,0.9);
                 <span style='color:red;'>Enter names seperated by comma</span>
                 </div>
                 <div class="col-lg-9">
-                <input type="text" name="Listnames" size='50'>
+                <input type="text" name="Listnames" size='50' required>
                 </div>
             </div>
             <div class="row mt-2">
@@ -1149,7 +1149,7 @@ background: rgba(52,57,87,0.9);
                 <label for="VolumeNo">Volume No :</label>
                 </div>
                 <div class="col-lg-4">
-                <input type="number" name="Vol" >
+                <input type="number" name="Vol" value=''>
                 </div>
             </div>
             <div class="row">
@@ -1157,7 +1157,7 @@ background: rgba(52,57,87,0.9);
                 <label for="Pages">Issue No :</label>
                 </div>
                 <div class="col-lg-4">
-                <input type="number" name="Issue" >
+                <input type="number" name="Issue" value=''>
                 </div>
             </div>
             <div class="row">
@@ -1165,7 +1165,7 @@ background: rgba(52,57,87,0.9);
                 <label for="Pages">Pages :</label>
                 </div>
                 <div class="col-lg-4">
-                <input type="number" name="Pages" >
+                <input type="number" name="Pages" value=''>
                 </div>
             </div>
             <div class="row">
@@ -1174,16 +1174,15 @@ background: rgba(52,57,87,0.9);
                 <span style='color:red;'>*</span>
                 </div>
                 <div class="col-lg-4">
-                <input type="month" name="Month" >
+                <input type="month" name="Month" required>
                 </div>
             </div>
             <div class="row">
                 <div class="col-lg-3">
                 <label for="Year">Impact factor :</label>
-                <span style='color:red;'>*</span>
                 </div>
                 <div class="col-lg-4">
-                <input type="number" step='any' name="IF" >
+                <input type="number" step='any' name="IF" value=''>
                 </div>
             </div>
             <div class="row">
@@ -1191,7 +1190,8 @@ background: rgba(52,57,87,0.9);
                 <label for="Year">Publisher :</label>
                 </div>
                 <div class="col-lg-9">
-                    <select name="publisher" id="publisher">
+                    <select name="publisher" id="publisher" required>
+                        <option value="">Select from pull-down</option>
                         <?php 
                         for($i=0;$i<sizeof($journalpublisher);$i++){
                             echo '<option value="'.$i.'">'.$journalpublisher[$i].'</option>';
@@ -1219,7 +1219,7 @@ background: rgba(52,57,87,0.9);
                 <label for="Year">Open Access :</label>
                 </div>
                 <div class='col-lg-1'>
-                    <input type="radio" name='OA' value='1'>
+                    <input type="radio" name='OA' value='1' required>
                     <label for='OA'>Yes</label>
                 </div>
                 <div class='col-lg-1'>
@@ -1435,7 +1435,8 @@ background: rgba(52,57,87,0.9);
         }
     }
     if(isset($_POST["JournalPOST"])){
-       $obj=new SQL();
+        //var_dump($_POST);
+      $obj=new SQL();
         $conn=$obj->SQLi();
         if(!$conn)  echo '<script>popupform("Your Publication is not posted","There an internal issue in the server.Sorry for the inconvinience!");</script>';
         else{
@@ -1476,7 +1477,11 @@ background: rgba(52,57,87,0.9);
                         $index=$index.",0";
                     }
                 }
-                $quer='INSERT INTO `journals`(Paper_Title,Journal,VolNo,Issue,Pages,Year,month,Publisher,'.$indexstr.',No_of_Auth,ISSN,DOI,AuthorList,IFactor) values("'.$_POST["Title"].'","'.$_POST["ConferenceName"].'",'.$_POST["Vol"].','.$_POST["Issue"].','.$_POST["Pages"].','.$my[0].','.$my[1].',"'.$journalpublisher[(int)$_POST["publisher"]].'",'.$index.','.$noofauth.',"'.(($_POST["ISSN1"].$_POST["ISSN2"])).'","'.$_POST["Link"].'","'.$new_str.'",'.$_POST['IF'].');';
+                function isnull($str){
+                    if($str=='') return $str=$str.'NULL';
+                    else return $str;
+                }
+                $quer='INSERT INTO `journals`(Paper_Title,Journal,VolNo,Issue,Pages,Year,month,Publisher,'.$indexstr.',No_of_Auth,ISSN,DOI,AuthorList,IFactor) values("'.$_POST["Title"].'","'.($_POST["ConferenceName"]).'",'.isnull($_POST["Vol"]).','.isnull($_POST["Issue"]).','.isnull($_POST["Pages"]).','.$my[0].','.$my[1].',"'.$journalpublisher[(int)$_POST["publisher"]].'",'.$index.','.$noofauth.',"'.(($_POST["ISSN1"].$_POST["ISSN2"])).'","'.$_POST["Link"].'","'.($new_str).'",'.isnull($_POST['IF']).');';
                 if(mysqli_query($conn,$quer)){
                     $rowcount=mysqli_fetch_array(mysqli_query($conn,'SELECT MAX(JID) as max FROM `journals`;'));                    $j=1;
                     while(isset($_POST["Author".$j])){
@@ -1524,7 +1529,7 @@ background: rgba(52,57,87,0.9);
                     else echo "<script>popupform('Publication not posted','Server Error.Sorry for the inconvinience!')</script>"; 
                 }
                 else{
-                     echo "<script>popupform('Insert Publication not posted','Server Error.Sorry for the inconvinience!');</script>"; 
+                     echo "<script>popupform('Insert Publication not posted','Server Error.Sorry for the inconvinience!".$quer."');</script>"; 
                 }
             }
         }

@@ -1292,15 +1292,26 @@ background: rgba(52,57,87,0.9);
                     <script>
                         $('.paten').hide();$('.publi').hide();
                         function searchfaculty(){
+                            $("#searchIFyear").hide();
+                            $("#searchIFfacyr").hide();
+                            $('#searchIFfac').css('display','flex');
+                            $('#searchIFfac').css('justify-content','center');
 
                         }
                         function searchyear(){
-
+                            $('#searchIFfac').hide();
+                            $("#searchIFfacyr").hide();
+                            $("#searchIFyear").css('display','flex');
+                            $("#searchIFyear").css('justify-content','center');
                         }
                         function facyear(){
-                            
+                            $('#searchIFfac').hide();
+                            $("#searchIFyear").hide();
+                            $("#searchIFfacyr").css('display','flex');
+                            $("#searchIFfacyr").css('justify-content','center');
                         }
                     </script>
+
                     <div class='pagedropdown' style="display:flex;justify-content:center;">
                         <div class="dropdown">
                         <button class="btn btn-white dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -1312,6 +1323,78 @@ background: rgba(52,57,87,0.9);
                             <a class="dropdown-item" onclick="facyear()">Search by faculty and year</a>
                         </div>
                         </div>
+                    </div>
+                    <div id='searchIFfac' class='mt-5' style='display:none;'>
+                        <form action="./searchpublications.php" method="GET">
+                        <div class='row'>
+                        <input type="hidden" name='IF' value='<?php echo $_GET['IF'];?>'>
+                        <div class='col-lg-3'><label for="facIF">Select Faculty name : </label></div>
+                        <div class='col-lg-7'>
+                            <select name="facIF" required>
+                                <option value="">--Select--</option>
+                                <?php 
+                                    $querfac='SELECT EID,name,dept,email from faculty';
+                                    $res=mysqli_query($conn,$querfac);
+                                    if($res){
+                                        while($row=mysqli_fetch_assoc($res)){?>
+                                                <option value="<?php echo $row['EID'];?>"><?php echo $row['name']."(".$row['dept'].") (".$row['email'].")" ;?></option>
+                                       <?php }
+                                    }
+                                    else{
+                                        echo "<script>$('#searchIFfac').css('display','none');</script>";
+                                    }
+                                ?>
+                            </select>
+                        </div>
+                               <div class='col-lg-2'> <button type='submit' class='ml-4'>Search</button> </div>
+                        </div>
+                        </form>
+                    </div>
+                    <div id='searchIFyear' class='mt-5' style='display:none;'>
+                        <form action="./searchpublications.php" method="GET">
+                        <div class='row'>
+                        <input type="hidden" name='IF' value='<?php echo $_GET['IF'];?>'>
+                        <div class='col-lg-4'><label for="facIF">Select Year : </label></div>
+                        <div class='col-lg-6'>
+                            <input type="number" name='yearIF' min='2000' required>
+                        </div>
+                               <div class='col-lg-2'> <button type='submit' class='ml-4'>Search</button> </div>
+                        </div>
+                        </form>
+                    </div>
+                    <div id='searchIFfacyr' class='mt-5' style='display:none;'>
+                        <form action="./searchpublications.php" method="GET">
+                        <input type="hidden" name='IF' value='<?php echo $_GET['IF'];?>'>
+                        <div class='row'>
+                        <div class='col-lg-4'><label for="facIF">Select Faculty : </label></div>
+                        <div class='col-lg-8'>
+                            <select name="facIF" style='width:350px;' required>
+                                <option value="">--Select--</option>
+                                <?php 
+                                    $querfac='SELECT EID,name,dept,email from faculty';
+                                    $res=mysqli_query($conn,$querfac);
+                                    if($res){
+                                        while($row=mysqli_fetch_assoc($res)){?>
+                                                <option value="<?php echo $row['EID'];?>"><?php echo $row['name']."(".$row['dept'].") (".$row['email'].")" ;?></option>
+                                       <?php }
+                                    }
+                                    else{
+                                        echo "<script>$('#searchIFfac').css('display','none');</script>";
+                                    }
+                                ?>
+                            </select>
+                        </div>
+                        </div>
+                        <div class='row'>
+                        <div class='col-lg-4'><label for="yearIF">Select Year : </label></div>
+                        <div class='col-lg-8'>
+                            <input type="number" name='yearIF' min='2000' style='width:100px;' required>
+                        </div>
+                        </div>
+
+                        <div class='text-center mt-4'> <button type='submit' class='ml-4'>Search</button> </div>
+                        
+                        </form>
                     </div>
                 
                 <?php
@@ -1325,6 +1408,7 @@ background: rgba(52,57,87,0.9);
                     echo '<div class="para col-lg-1"><p class="mb-2 mt-2 text-center text-white">IF</p></div>';
                     echo '<div class="para col-lg-1"><p class="mb-2 mt-2 text-center text-white">Year</p></div>';
                     echo '<div class="para col-lg-4"><p class="mb-2 mt-2 text-center text-white">Authors</p></div></div>';
+                    if(!isset($_GET['facIF'])&&!isset($_GET['yearIF'])){
                     $query="SELECT JID,Paper_Title,Year,IFactor from `journals` where IFactor>=".$_GET["IF"].";";
                     $res=mysqli_query($conn,$query);
                     if(!$res) echo "<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>";
@@ -1339,6 +1423,55 @@ background: rgba(52,57,87,0.9);
                             echo '<div class="row after"><div class="col-lg-6"><p class="mb-2 mt-2 text-center">'.$row["Paper_Title"].'</p></div><div class="col-lg-1"><p class="mb-2 mt-2 text-center">'.$row['IFactor'].'</p></div><div class="col-lg-1"><p class="mb-2 mt-2 text-center">'.$row['Year'].'</p></div><div class="col-lg-4"><p class="mb-2 mt-2 text-center">'.substr($str,0,strlen($str)-1).'</p></div></div>'; 
                         }   
                     }
+                }
+                if(isset($_GET['facIF'])&&!isset($_GET['yearIF'])){
+                    $query="SELECT JID,Paper_Title,Year,IFactor from `journals` natural join `faculty` natural join `journalauthor` where EID=".$_GET['facIF']." and IFactor>=".$_GET["IF"].";";
+                    $res=mysqli_query($conn,$query);
+                    if(!$res) echo "<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>";
+                    else{
+                        while($row=mysqli_fetch_assoc($res)){
+                            $query1='SELECT `name` from `faculty` NATURAL JOIN `journalauthor` WHERE `JID`='.$row["JID"].';';
+                            $str="";
+                            $result1 = mysqli_query($conn, $query1);
+                            while($row1= mysqli_fetch_assoc($result1)){
+                                $str=$str.$row1["name"].",";
+                            }
+                            echo '<div class="row after"><div class="col-lg-6"><p class="mb-2 mt-2 text-center">'.$row["Paper_Title"].'</p></div><div class="col-lg-1"><p class="mb-2 mt-2 text-center">'.$row['IFactor'].'</p></div><div class="col-lg-1"><p class="mb-2 mt-2 text-center">'.$row['Year'].'</p></div><div class="col-lg-4"><p class="mb-2 mt-2 text-center">'.substr($str,0,strlen($str)-1).'</p></div></div>'; 
+                        }   
+                    }
+                }
+                if(isset($_GET['yearIF'])&&!isset($_GET['facIF'])){
+                    $query="SELECT JID,Paper_Title,Year,IFactor from `journals` where Year=".$_GET['yearIF']." and IFactor>=".$_GET["IF"].";";
+                    $res=mysqli_query($conn,$query);
+                    if(!$res) echo "<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>";
+                    else{
+                        while($row=mysqli_fetch_assoc($res)){
+                            $query1='SELECT `name` from `faculty` NATURAL JOIN `journalauthor` WHERE `JID`='.$row["JID"].';';
+                            $str="";
+                            $result1 = mysqli_query($conn, $query1);
+                            while($row1= mysqli_fetch_assoc($result1)){
+                                $str=$str.$row1["name"].",";
+                            }
+                            echo '<div class="row after"><div class="col-lg-6"><p class="mb-2 mt-2 text-center">'.$row["Paper_Title"].'</p></div><div class="col-lg-1"><p class="mb-2 mt-2 text-center">'.$row['IFactor'].'</p></div><div class="col-lg-1"><p class="mb-2 mt-2 text-center">'.$row['Year'].'</p></div><div class="col-lg-4"><p class="mb-2 mt-2 text-center">'.substr($str,0,strlen($str)-1).'</p></div></div>'; 
+                        }   
+                    }
+                }
+                if(isset($_GET['yearIF'])&&isset($_GET['facIF'])){
+                    $query="SELECT JID,Paper_Title,Year,IFactor from `journals` natural join `faculty` natural join `journalauthor` where EID=".$_GET['facIF']." and Year=".$_GET['yearIF']." and IFactor>=".$_GET["IF"].";";
+                    $res=mysqli_query($conn,$query);
+                    if(!$res) echo "<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>";
+                    else{
+                        while($row=mysqli_fetch_assoc($res)){
+                            $query1='SELECT `name` from `faculty` NATURAL JOIN `journalauthor` WHERE `JID`='.$row["JID"].';';
+                            $str="";
+                            $result1 = mysqli_query($conn, $query1);
+                            while($row1= mysqli_fetch_assoc($result1)){
+                                $str=$str.$row1["name"].",";
+                            }
+                            echo '<div class="row after"><div class="col-lg-6"><p class="mb-2 mt-2 text-center">'.$row["Paper_Title"].'</p></div><div class="col-lg-1"><p class="mb-2 mt-2 text-center">'.$row['IFactor'].'</p></div><div class="col-lg-1"><p class="mb-2 mt-2 text-center">'.$row['Year'].'</p></div><div class="col-lg-4"><p class="mb-2 mt-2 text-center">'.substr($str,0,strlen($str)-1).'</p></div></div>'; 
+                        }   
+                    }
+                }
             }
         }
         ?>
