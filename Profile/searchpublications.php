@@ -429,7 +429,7 @@ background: rgba(52,57,87,0.9);
 				
 				.dropdown:hover .dropdown-menu {
     display: block;
-    margin-top: 0; // remove the gap so it doesn't close 
+    margin-top: 0; 
  }
 				</style> <div class="content-wrap">
             <div class="main">

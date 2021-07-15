@@ -63,7 +63,7 @@ background: rgba(52,57,87,0.9);
   }
   .dropdown:hover .dropdown-menu {
     display: block;
-    margin-top: 0; // remove the gap so it doesn't close
+    margin-top: 0; 
  }
 
   </style>
@@ -459,6 +459,28 @@ background: rgba(52,57,87,0.9);
 
 <!-- code start -->
 
+<script>
+    function popupform(strheader,strbody){
+        var whitebg = document.getElementById("white-background");
+        var dlg = document.getElementById("dlgbox");
+        whitebg.style.display = "block";
+        dlg.style.display = "block";
+
+        var winWidth = window.innerWidth;
+        var winHeight = window.innerHeight;
+        
+        dlg.style.left = (winWidth/2) - 480/2 + "px";
+        dlg.style.top = "150px";
+        $("#hidebox").hide();
+        $("#dlg-header-text").text(strheader);
+        $("#dlg-body").html(strbody);
+        $("#dlgLogin").hide();
+        $("#dlgLogout").text("Go Back");
+        $("#dlgLogout").click(function (){
+            window.location.href="./patents.php";
+        });
+    }
+</script>
 
 <style>
 /* template start*/ 
@@ -534,18 +556,39 @@ background: rgba(52,57,87,0.9);
 }
 </style>
  
-  
+<!-- dialog box --> 
+<div id="white-background"></div>
+<div id="dlgbox">
+    <div id="dlg-header">
+        <div id='dlg-header-text' style="display: inline-block;">You are deleting an entry.</div>
+        <div id='hidebox' style='float:right;'><i class="fa fa-times" aria-hidden="true"></i>
+</div>
+    </div>
+    <div id="dlg-body">Are you sure?</div>
+    <div id="dlg-footer">
+        <button class="btn btn-danger" id="dlgLogin">Yes</button>
+        <button class="btn btn-primary" id="dlgLogout" onclick="dlgout()">No</button>
+    </div>
+</div>
+<!-- dialog box -->
+
 <div class="container">
-    <h2 class="" style="text-align:center; margin-top: 0">Patent Details</h2>
+    <h2 class="" style="text-align:center; margin-top: 0">Patent and Book Chapter Details</h2>
+    <div class="container mt-5">
+        <div class="row begin">
+            <div class='col-sm-6 text-center publi' onclick="expandpublic()"> <p>Patents</p></div>
+            <div class='col-sm-6 text-center paten' onclick="expandpate()"> <p>Book Chapters</p></div>
+        </div>
+    </div>
     <div class="container" id="fullcontainer" style="margin : 0;margin-top : 30px; font-size:18px;">
         <div class="row">
             <div class="para col-lg-1">
             </div>
             <div class="para col-lg-8">
-            <p class="mb-2 mt-2 text-center text-white">Patent Title</p>
+            <p class="mb-2 mt-2 text-center text-white publication type">Patent Title</p>
             </div>
             <div class="para col-lg-3">
-            <p class="mb-2 mt-2 text-center text-white">Role</p>
+            <p class="mb-2 mt-2 text-center text-white role">Role</p>
             </div>
         </div>
         <?php
@@ -556,24 +599,75 @@ background: rgba(52,57,87,0.9);
             else{
                 $quer = "SELECT PTitle,PaId FROM patents WHERE PIid in (SELECT EID from faculty where email='sadagopan@iiitdm.ac.in')";
                 $result = $obj->query($quer);
-                if(!$result) echo "<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found as a PRINCIPAL INVESTIGATOR.Post your first entry</p></div></div>";
+                if(!$result) echo "<div class='row after publication journal'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found as a PRINCIPAL INVESTIGATOR.Post your first entry</p></div></div>";
                 else{   
                     while($row = mysqli_fetch_assoc($result)) {
-                         echo '<div class="row after"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this)" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["PTitle"].'</p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">'."Pricipal Investigator".'</p></div></div>'; 
+                         echo '<div class="row after publication journal"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this)" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["PTitle"].'</p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">'."Pricipal Investigator".'</p></div></div>'; 
                     }
                 }
                 $quer1 = "SELECT PTitle,PaId FROM patents WHERE PaId in (Select PaId from `patentcopi` where COPI in (SELECT EID from faculty where email='sadagopan@iiitdm.ac.in'))";
                 $result1 = $obj->query($quer1);
-                if(!$result1) echo "<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found as a CO-PRINCIPAL INVESTIGATOR.Post your first entry</p></div></div>";
+                if(!$result1) echo "<div class='row after publication journal'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found as a CO-PRINCIPAL INVESTIGATOR.Post your first entry</p></div></div>";
                 else{   
                     while($row = mysqli_fetch_assoc($result1)) {
-                         echo '<div class="row after"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this)" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["PTitle"].'</p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">'."Co-Pricipal Investigator".'</p></div></div>'; 
+                         echo '<div class="row after publication journal"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this)" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["PTitle"].'</p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">'."Co-Pricipal Investigator".'</p></div></div>'; 
+                    }
+                }
+                $quer = "SELECT ChapName,BID FROM bookchapter WHERE BID in (SELECT BID from bookids where EID in (SELECT EID from faculty where email='sadagopan@iiitdm.ac.in'))";
+                $result = $obj->query($quer);
+                if(!$result) echo "<div class='row after publication conference'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>";
+                else{
+                    while($row = mysqli_fetch_assoc($result)) {
+                        $subq = 'SELECT `name` from `faculty` INNER JOIN `bookids` on faculty.EID=bookids.EID WHERE `BID`='.$row["BID"].' and `email`!="sadagopan@iiitdm.ac.in"';
+                        $str="";
+                        $result1 = mysqli_query($conn, $subq);
+                        while($row1= mysqli_fetch_assoc($result1)){
+                            $str=$str.$row1["name"].",";
+                        }
+                        //array_push($mainarr,($row["PID"]));
+                        //array_push($cpub,(int)$row["PID"]);
+                        if($str=="") { ?> <div class="row after publication conference"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this,'conference')" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center"><?php echo $row["ChapName"]; ?></p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">Fully Contibuted by you</p></div></div>  <?php }
+                        else { ?> <div class="row after publication conference "><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this,'conference')" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center"><?php echo $row["ChapName"]; ?></p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center"><?php echo substr($str,0,strlen($str)-1); ?></p></div></div> <?php }
                     }
                 }
             }
         ?>
     </div>
     <script>
+         function expandjo(ele){
+        $('.excelform').parent().hide();
+        $("#expandpu").hide();
+        $("#expandjo").show();
+
+    }
+    function expandpu(ele){
+       $("#expandjo").hide();
+       $('.excelform').parent().hide();
+        $("#expandpu").toggle();
+    }
+        $(".publication.conference").hide();
+            $(".publi").css('border-bottom','3px solid green');
+            $(".publi").css('background-color','whitesmoke');
+            function expandpublic(){
+                $(".publi").css('border-bottom','3px solid green');
+                $(".paten").css('border-bottom','0px');
+                $(".publi").css('background-color','whitesmoke');
+                $(".paten").css('background-color','white');
+                $(".publication.type").text("Patent Title");
+                $('.role').text('Role');
+                $(".publication.journal").show();
+                $(".publication.conference").hide();
+            }
+            function expandpate(){
+                $(".paten").css('border-bottom','3px solid green');
+                $(".publi").css('border-bottom','0px');
+                $(".paten").css('background-color','whitesmoke');
+                $(".publi").css('background-color','white');
+                $(".publication.type").text("Book Chapter Title");
+                $('.role').text('Contributed with');
+                $(".publication.journal").hide();
+                $(".publication.conference").show();
+            }
         function expand(ele){
             // $(ele.nextElementSibling).toggle(); 
             if($($('.excelform')[0].parentElement).css("display")!="none") $($('.excelform')[0].parentElement).css("display","none");
@@ -584,6 +678,66 @@ background: rgba(52,57,87,0.9);
             if($("#expand").css("display")!="none") $("#expand").css("display","none");
             $($('.excelform')[0].parentElement).toggle();
         }
+        function insertC(ele){
+            var beforeclone=document.createElement("div");
+            $(beforeclone).addClass("row firstblock");
+            <?php 
+            $content="";
+            $obj=new SQL();
+            if($obj->SQLi()){
+            $res=$obj->query('SELECT `name`,`EID` from faculty');
+            while($row=mysqli_fetch_assoc($res)){
+                $content=$content.'<option value="'.$row["EID"].'">'.$row["name"].'</option>';
+            } 
+            }   ?>
+            $(beforeclone).html('<div class="col-lg-3"><label for="Link">Author 1 :</label><span style="color:red;">*</span></div><div class="col-lg-auto" style="display: inline-block;"><div style="margin-top: 7.5px;"><select name="Author1"><?php echo $content ?></select></div></div><div style="display : inline-block;"><div style="margin-top: 10px;"><i class="fa fa-plus-circle" style="color : green; font-size : 20px;" onclick="insertC(this)"></i></div></div>');
+            var element = beforeclone;
+            //$(element.children[1].children[0].children[1].children[0]).remove();
+            //$(element.children[1].children[0].children[0]).val("");
+            $(ele.nextElementSibling).remove();
+            element.children[2].children[0].innerHTML=element.children[2].children[0].innerHTML+'<i class="fa fa-minus-circle"style="color : red; font-size : 20px;" onclick="deleteC(this)"></i>';
+            var str=ele.parentElement.parentElement.previousElementSibling.previousElementSibling.children[0].innerHTML;
+            $(element.children[0].children[0]).text("Author "+(parseInt(str.slice(7,str.length-2))+1)+" :");
+            $(element.children[1].children[0].children[0]).attr("name","Author"+(parseInt(str.slice(7,str.length-2))+1));
+            $(element).insertAfter($(ele.parentElement.parentElement.parentElement));
+            $(ele).remove();
+        }
+        function insertB(ele){
+            var beforeclone=document.createElement("div");
+            $(beforeclone).addClass("row secondblock");
+            <?php 
+            $content="";
+            $obj=new SQL();
+            if($obj->SQLi()){
+            $res=$obj->query('SELECT `name`,`EID` from faculty');
+            while($row=mysqli_fetch_assoc($res)){
+                $content=$content.'<option value="'.$row["EID"].'">'.$row["name"].'</option>';
+            } 
+            }   ?>
+            $(beforeclone).html('<div class="col-lg-3"><label for="Link">Author 1 :</label><span style="color:red;">*</span></div><div class="col-lg-auto" style="display: inline-block;"><div style="margin-top: 7.5px;"><select name="COPI1"><?php echo $content ?></select></div></div><div style="display : inline-block;"><div style="margin-top: 10px;"><i class="fa fa-plus-circle" style="color : green; font-size : 20px;" onclick="insertB(this)"></i></div></div>');
+            var element = beforeclone;
+            //$(element.children[1].children[0].children[1].children[0]).remove();
+            //$(element.children[1].children[0].children[0]).val("");
+            $(ele.nextElementSibling).remove();
+            element.children[2].children[0].innerHTML=element.children[2].children[0].innerHTML+'<i class="fa fa-minus-circle"style="color : red; font-size : 20px;" onclick="deleteB(this)"></i>';
+            var str=ele.parentElement.parentElement.previousElementSibling.previousElementSibling.children[0].innerHTML;
+            $(element.children[0].children[0]).text("CO Principal Investigator "+(parseInt(str.slice(26,str.length-2))+1)+" :");
+            $(element.children[1].children[0].children[0]).attr("name","COPI"+(parseInt(str.slice(26,str.length-2))+1));
+            $(element).insertAfter($(ele.parentElement.parentElement.parentElement));
+            $(ele).remove();
+        }
+        function deleteC(ele){
+            if($(ele.parentElement.parentElement.parentElement.previousElementSibling.children[1].children[0].children[0]).attr('name')!='Author1')
+                ele.parentElement.parentElement.parentElement.previousElementSibling.children[2].children[0].innerHTML=ele.parentElement.parentElement.parentElement.previousElementSibling.children[2].children[0].innerHTML+'<i class="fa fa-minus-circle"style="color : red; font-size : 20px;" onclick="deleteC(this)"></i>';
+            ele.parentElement.parentElement.parentElement.previousElementSibling.children[2].children[0].innerHTML=('<i class="fa fa-plus-circle"style="color : green; font-size : 20px;" onclick="insertC(this)"></i>')+ele.parentElement.parentElement.parentElement.previousElementSibling.children[2].children[0].innerHTML;
+            $(ele.parentElement.parentElement.parentElement).remove();
+        }
+        function deleteB(ele){
+            if($(ele.parentElement.parentElement.parentElement.previousElementSibling.children[1].children[0].children[0]).attr('name')!='COPI1')
+                ele.parentElement.parentElement.parentElement.previousElementSibling.children[2].children[0].innerHTML=ele.parentElement.parentElement.parentElement.previousElementSibling.children[2].children[0].innerHTML+'<i class="fa fa-minus-circle"style="color : red; font-size : 20px;" onclick="deleteB(this)"></i>';
+            ele.parentElement.parentElement.parentElement.previousElementSibling.children[2].children[0].innerHTML=('<i class="fa fa-plus-circle"style="color : green; font-size : 20px;" onclick="insertB(this)"></i>')+ele.parentElement.parentElement.parentElement.previousElementSibling.children[2].children[0].innerHTML;
+            $(ele.parentElement.parentElement.parentElement).remove();
+        }
     </script>
     <div class='text-center mt-5'>
         <iframe src="printem.php?patentall=true" style="display:none;" name="conf1"></iframe>
@@ -591,11 +745,23 @@ background: rgba(52,57,87,0.9);
         <iframe src="printem.php?patent=14" style="display:none;" name="conf2"></iframe>
         <button class="btn btn-success" onclick="frames['conf2'].print()">Print your Patent</button>
     </div>
-    <div class="insertbutton text-center mt-5">
-        <button class="btn btn-success mr-4" style="font-size:16px;" onclick="expand(this)">Insert</button>
-        <button class="btn btn-success ml-4" onclick='excel(this)' style="font-size : 16px;">Excel</button>
+    <div class="insertbutton mt-5">
+        <!--<button class="btn btn-success mr-4" style="font-size:16px;" onclick="expand(this)">Insert</button>
+        <button class="btn btn-success ml-4" onclick='excel(this)' style="font-size : 16px;">Excel</button> -->
+        <div class="btn-group dropdown mt-5" style="margin-left:50%;">
+        <button type="button" class="btn btn-success dropdown-toggle insertb" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Insert
+        </button>
+        <div class="dropdown-menu">
+            <li class="dropdown-item" onclick="expandjo(this)">Patent Details</li>
+            <li class="dropdown-item" onclick="expandpu(this)">Book Chapter Details</li>
+            <hr class="my-2">
+            <li class="dropdown-item" onclick="excel(this,'Journal')">Upload Journal Excel</li>
+            <li class="dropdown-item" onclick="excel(this,'Conference')">Upload Conference Excel</li>
+        </div>
     </div>
-    <div id="expand" style="display :none;">
+    </div>
+    <div id="expandjo" style="display :none;">
         <h3>Patent Details</h3>
         <hr class="mt-2">
         <?php 
@@ -622,11 +788,7 @@ background: rgba(52,57,87,0.9);
             }
         }
         ?>
-        <form action="../Profile/patents.php" method="POST">
-            <?php
-                $rand=rand();
-                $_SESSION['rand']=$rand;
-            ?>
+        <form action="./patents.php" method="POST">
             <input type="hidden" value="<?php echo $rand; ?>" name="randcheck" />
             <div class="row">
                 <div class="col-lg-3">
@@ -687,85 +849,7 @@ background: rgba(52,57,87,0.9);
                 </div>
             </div>
             <script>
-                function insertC(ele,strname){
-                    if(strname=='PI')
-                                var beforeclone=document.getElementsByClassName("firstblock")[0];
-                    else    
-                        var beforeclone=document.getElementsByClassName("secondblock")[0];
-
-                    var element = beforeclone.cloneNode(true);
-                    $(element.children[1].children[0].children[1].children[0]).remove();
-                    $(element.children[1].children[0].children[0]).val("");
-                    element.children[2].children[0].innerHTML=element.children[2].children[0].innerHTML+'<i class="fa fa-minus-circle"style="color : red; font-size : 20px;" onclick="deleteC(this)"></i>';
-                    var str=ele.parentElement.parentElement.previousElementSibling.previousElementSibling.children[0].innerHTML;
-                    if(strname=="PI")   $(element.children[1].children[0].children[0]).attr("name",strname+(parseInt(str.slice(23,str.length-2))+1));
-                    else $(element.children[1].children[0].children[0]).attr("name",strname+(parseInt(str.slice(26,str.length-2))+1));
-                    $(element.children[1].children[0].children[2]).attr("name",strname+"id"+$(element.children[1].children[0].children[0]).attr("name").slice(strname.length));
-                    if(strname=='PI') element.children[0].children[0].innerHTML="Principal Investigator "+(parseInt(str.slice(23,str.length-2))+1)+" :";
-                    else element.children[0].children[0].innerHTML="CO Principal Investigator "+(parseInt(str.slice(26,str.length-2))+1)+" :";
-                    $(element.children[1].children[0].children[0]).removeAttr('list');
-                    console.log((element.children[1].children[0].children[0]));
-                    if(strname=='PI')
-                        $(element).insertBefore(".secondblock");
-                    else    
-                        $(element).insertBefore("#appendbefore");
-
-                }
-                function deleteC(ele){
-                    $(ele.parentElement.parentElement.parentElement).remove();
-                }
-                function searchname(ele){   
-                    //console.log($(ele).val());
-                    if(($(ele).val().length>=1) && ($(ele).val().includes("(") || $(ele).val().includes(")") )){
-                        var datalistele= ele.nextElementSibling.children[0].children; 
-                        for(var i=0;i<datalistele.length;i++){
-                                if($(datalistele[i]).val() == $(ele).val()){
-                                    $(ele.nextElementSibling.nextElementSibling).val($(datalistele[i]).attr('data-value'));
-                                }
-                            }
-                    }
-                    else{
-                        console.log($(ele).attr('name'));
-                        if($(ele).attr("name")=="PI1"){
-                            $.ajax({
-                                url : "./oninputtemp.php?qr="+$(ele).val(),
-                                type : "GET",
-                                success : function(data){
-                                    ele.nextElementSibling.innerHTML=data;
-                                    $(ele).attr("list","facultynames");
-                                    var datalistele= ele.nextElementSibling.children[0].children; 
-                                    $(ele.nextElementSibling.nextElementSibling).val("null");
-                                    for(var i=0;i<datalistele.length;i++){
-                                        if($(datalistele[i]).val() == $(ele).val()){
-                                            $(ele.nextElementSibling.nextElementSibling).val($(datalistele[i]).attr('data-value'));
-                                        }
-                                    }
-                                },error : function(err){
-                                    console.log("not working");
-                                }
-                            })
-                        }
-                    else{
-                        $.ajax({
-                        url : "./oninputtemp.php?qrr="+$(ele).val()+"&id="+$(ele).attr('name').slice(4),
-                        type : "GET",
-                        success : function(data){
-                            ele.nextElementSibling.innerHTML=data;
-                            $(ele).attr("list","facultynames"+$(ele).attr('name').slice(4));
-                            var datalistele= ele.nextElementSibling.children[0].children; 
-                            $(ele.nextElementSibling.nextElementSibling).val("null");
-                            for(var i=0;i<datalistele.length;i++){
-                                if($(datalistele[i]).val() == $(ele).val()){
-                                    $(ele.nextElementSibling.nextElementSibling).val($(datalistele[i]).attr('data-value'));
-                                }
-                            }
-                        },error : function(err){
-                            console.log("not working");
-                        }
-                    })
-                    }
-                } 
-            }
+        
             </script> 
             <div class="row firstblock">
                 <div class="col-lg-3">
@@ -784,18 +868,26 @@ background: rgba(52,57,87,0.9);
             <div class="row secondblock">
                 <div class="col-lg-3">
                 <label for="Link">CO Principal Investigator 1 :</label>
-                <span style="color:red;"></span>
+                <span style="color:red;">*</span>
                 </div>
                 <div class="col-lg-auto" style="display: inline-block;">
                     <div style="margin-top: 7.5px;">
-                        <input type="text" name="COPI1" oninput="searchname(this)" autocomplete="off" value="">
-                        <div class="appearfac"></div>
-                        <input type="hidden" name="COPIid1" value="null">
+                        <select name="COPI1" id="">
+                                <?php 
+                                $obj=new SQL();
+                                if($obj->SQLi()){
+                                    $res=$obj->query('SELECT `name`,`EID` from faculty');
+                                    while($row=mysqli_fetch_assoc($res)){?>
+                                        <option value="<?php echo $row["EID"] ?>"><?php echo $row["name"] ?></option>
+                                    <?php   }  
+                                }  
+                                ?>
+                            </select>
                     </div>
                 </div>
                 <div style="display : inline-block;">
                         <div style="margin-top: 10px;">
-                            <i class="fa fa-plus-circle" style="color : green; font-size : 20px;" onclick="insertC(this,'COPI')"></i>
+                            <i class="fa fa-plus-circle" style="color : green; font-size : 20px;" onclick="insertB(this)"></i>
                         </div>
                 </div>
             </div>
@@ -804,7 +896,201 @@ background: rgba(52,57,87,0.9);
             </div>
         </form>
     </div>
-    
+    <div id='expandpu' style='display : none;'>
+    <h3>Book Chapter Details</h3>
+        <hr class="mt-2">
+        <?php 
+        if(isset($_POST["BOOKPOST"])){
+            if((isset($_POST['ISSN1'])&&isset($_POST['ISSN2']))&&(isset($_POST['ISBN1'])&&isset($_POST['ISBN2'])&&isset($_POST['ISBN3'])&&isset($_POST['ISBN4']))){ ?>
+                <!--<script>
+                    popupform('NOT POSTED','BUHAHAHAA');
+                </script> -->
+            <?php
+            var_dump($_POST);
+            //echo $_POST[0];
+            }
+            else if((isset($_POST['ISSN1'])&&isset($_POST['ISSN2']))||(isset($_POST['ISBN1'])&&isset($_POST['ISBN2'])&&isset($_POST['ISBN3'])&&isset($_POST['ISBN4']))){
+            //var_dump($_POST);
+            $obj=new SQL();
+            $conn=$obj->SQLi();
+            if(!$conn){ ?>
+                <script>
+                    popupform('NOT POSTED','INSERTION');
+                </script>
+            <?php }
+            else{
+                function isnull($str){
+                    if($str=='') return $str=$str.'NULL';
+                    else return $str;
+                }
+                $my=explode('-',$_POST["myear"]);
+                $isn='';
+                if(isset($_POST['ISSN1'])){
+                        $isn=$_POST['ISSN1'].$_POST['ISSN2'];
+                }
+                else{
+                    $isn=$_POST['ISBN1'].$_POST['ISBN2'].$_POST['ISBN3'].$_POST['ISBN4'];
+                }
+                $quer = "INSERT into `bookchapter`(ChapName,BName,Year,Month,ISN,Proceedings,Publisher,EditorList,Pages,Issue) values('".$_POST["ChapName"]."','".$_POST["BName"]."',".$my[0].",".$my[1].",'".$isn."','".$_POST["Proceedings"]."','".$_POST['Publisher']."','".$_POST['EditorList']."',".isnull($_POST['Pages']).",".isnull($_POST['Issue']).");";
+                if($obj->query($quer) == FALSE) {
+                        ?>
+                        <script>
+                            popupform('not posted<?php echo $quer;?>','Insertion error');
+                        </script>
+                <?php }
+                else{
+                    $i=1;$err=0;
+                    while(isset($_POST["Author".$i])) {
+                        $quer2="SELECT MAX(BID) as total from `bookchapter`;";
+                        $res=$obj->query($quer2);
+                        $data=mysqli_fetch_array($res);
+                        $quer1 = "INSERT into `bookids`(BID,EID) values(".$data["total"].",".$_POST["Author".$i].");";
+                        if($obj->query($quer1) == FALSE){
+                           $err++; 
+                        }
+                        $i++;
+                    }
+                    if($err==0){
+                      ?>
+                      <script>
+                          popupform('Successfully Posted','Oio oi');
+                      </script>
+                      <?php  
+                    }
+                    else{
+                        ?>
+                        <script>
+                            popupform('Unsuccessful','Make Sure to edit the Book Chpater once again');
+                        </script>
+                        <?php
+                    }
+                }
+                
+                }
+            }
+            else{ ?>
+                <script>
+                    popupform('NOT POSTED','HINATA');
+                </script>
+            <?php }
+        }
+        ?>
+    <form action="./patents.php" method="POST">
+            <div class="row">
+                <div class="col-lg-3">
+                <label for="PName">Book Chapter Name : <span style="color : red;">*</span></label>
+                </div>
+                <div class="col-lg-4">
+                <input type="text" name="ChapName" required>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3">
+                <label for="PName">Book Name : <span style="color : red;">*</span></label>
+                </div>
+                <div class="col-lg-4">
+                <input type="text" name="BName" required>
+                </div>
+            </div>
+            <div class="row mt-2 typeIden">
+                <div class="col-lg-3">
+                    <label for="Ctype">Identification Type :</label>
+                </div>
+                <div class="col-lg-2">
+                    <input type="radio" name="type" value='ISSN' onclick='showISSN()'>
+                    <label for="Ctype">ISSN</label>
+                </div>
+                <div class='col-lg-2'>
+                    <input type="radio" name='type' value='ISBN' onclick="showISBN()">
+                    <label for="Ctype">ISBN</label>
+                </div>
+            </div>
+            <script>
+                function showISSN(){
+                    $('.ISSN').remove();
+                    $('<div class="row ISSN"><div class="col-lg-3"><label for="ISSN">ISSN :</label></div><div class="col-lg-9"><input type="number" name="ISSN1"  style="display : inline-block;" min="1000" max="9999" ><p style="display : inline-block;">-</p><input type="number" name="ISSN2"  style="display : inline-block;" min="1000" max="9999" ></div></div>').insertAfter($('.typeIden'));
+                    $('.ISBN').remove();
+                }
+                function showISBN(){
+                    $('.ISBN').remove();
+                    $('<div class="row ISBN"><div class="col-lg-3"><label for="ISSN">ISBN :</label></div><div class="col-lg-9"><input type="number" name="ISBN1"  style="display : inline-block;" ><p style="display : inline-block;">-</p><input type="number" name="ISBN2"  style="display : inline-block;" ><p style="display : inline-block;">-</p><input type="number" name="ISBN3"  style="display : inline-block;" ><p style="display : inline-block;">-</p><input type="number" name="ISBN4"  style="display : inline-block;" ></div></div>').insertAfter($('.typeIden'));
+                    $('.ISSN').remove();
+                }
+            </script>
+            <div class="row">
+                <div class="col-lg-3">
+                <label for="Year">Month and Year :</label>
+                </div>
+                <div class="col-lg-4">
+                <input type="month" name="myear" >
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3">
+                <label for="Link">Proceedings :</label>
+                </div>
+                <div class="col-lg-9">
+                <input type="text" name="Proceedings">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3">
+                <label for="Link">Pages :</label>
+                </div>
+                <div class="col-lg-9">
+                <input type="number" name="Pages">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3">
+                <label for="Link">Issue :</label>
+                </div>
+                <div class="col-lg-9">
+                <input type="number" name="Issue">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3">
+                <label for="Link">Editor List :</label>
+                </div>
+                <div class="col-lg-9">
+                <input type="text" name="EditorList">
+                </div>
+            </div>
+            <div class="row firstblock">
+                <div class="col-lg-3">
+                <label for="Link">Author 1 :</label>
+                <span style="color:red;">*</span>
+                </div>
+                <div class="col-lg-auto" style="display: inline-block;">
+                    <div style="margin-top: 7.5px;">
+                        <select name="Author1" id="">
+                                <?php 
+                                $obj=new SQL();
+                                if($obj->SQLi()){
+                                    $res=$obj->query('SELECT `name`,`EID` from faculty');
+                                    while($row=mysqli_fetch_assoc($res)){?>
+                                        <option value="<?php echo $row["EID"] ?>"><?php echo $row["name"] ?></option>
+                                    <?php   }  
+                                }  
+                                ?>
+                            </select>
+                    </div>
+                </div>
+                <div style="display : inline-block;">
+                        <div style="margin-top: 10px;">
+                            <i class="fa fa-plus-circle" style="color : green; font-size : 20px;" onclick="insertC(this)"></i>
+                        </div>
+                </div>
+            </div>
+            <div class="text-center mt-4" id="appendbefore">
+                <button type="submit" name="BOOKPOST" class="btn btn-success">POST THE DETAILS</button>
+            </div>
+        </form>
+    </div>
+    <script>
+
+    </script>
     <div class="text-center" style="display: none;">
         <form action="../Profile/publications.php" method="post" enctype="multipart/form-data" class="excelform mt-5">
             <?php
