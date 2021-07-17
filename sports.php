@@ -492,16 +492,22 @@ aside
                       $conn = mysqli_connect($servername, $username,'', $dbname);
                       if(!$conn) die();
                       else{
-                          $query='SELECT Ename,`Description`,imagesrc from events where type="Sports" ORDER BY date desc';
+                          $query='SELECT Ename,`Description`,imagesrc,imagedes from events where type="Sports" ORDER BY date desc';
                           
                           $res=mysqli_query($conn,$query);
                           while($row=mysqli_fetch_assoc($res)){?>
                               <p class='subheaderSpecial' style='margin:20px 0;'><?php echo $row['Ename'];?></p>
                               <?php
-                                $imagearray=explode(' , ',$row['imagesrc']); 
+                                $imagearray=explode(' , ',$row['imagesrc']);
+								$imagedesarray=explode(' *#,#* ',$row['imagedes']);  
                                 if(sizeof($imagearray)==1){?>
                                         <div style='display:flex;justify-content:center;'>
-                                            <img src="Profile/<?php echo $imagearray[0];?>" alt="Image not found" height="240" width="360">
+										<div>
+											<img src="Profile/<?php echo $imagearray[0];?>" alt="Image not found" height="240" width="360">
+											<div class='imagedes'>
+												<?php echo $imagedesarray[0];?>
+											</div>
+										</div>
                                         </div>
                                <?php }
                                else{
@@ -510,12 +516,32 @@ aside
                                    else $ni=sizeof($imagearray)-1;
                                    for($i=0;$i<$ni;$i++){?>
                                         <div style='display:flex;justify-content:center;'>
-                                            <img src="Profile/<?php echo $imagearray[$i];?>" alt="Image not found" height="240" width='360' style='margin-right:20px;'>
-                                            <img src="Profile/<?php echo $imagearray[$i+1];?>" alt="Image not found" height="240" width='360' style='margin-left:20px;'>
+											<div>
+                                            	<img src="Profile/<?php echo $imagearray[$i];?>" alt="Image not found" height="240" width='360' style='margin-right:20px;'>
+												<div class='imagedes'>
+													<?php echo $imagedesarray[$i];?>
+												</div>
+											</div>
+											<div>
+											<img src="Profile/<?php echo $imagearray[$i+1];?>" alt="Image not found" height="240" width='360' style='margin-left:20px;'>
+											<div class='imagedes'>
+													<?php echo $imagedesarray[$i+1];?>
+												</div>
+											</div>
                                         </div>
                                   <?php 
                                     $i++;  
                                 }
+								if($ni!=sizeof($imagearray)){ ?>
+									<div style='display:flex;justify-content:center;'>
+											<div>
+                                            	<img src="Profile/<?php echo $imagearray[sizeof($imagearray)-1];?>" alt="Image not found" height="240" width='360' style='margin-right:20px;'>
+												<div class='imagedes'>
+													<?php echo $imagedesarray[sizeof($imagearray)-1];?>
+												</div>
+											</div>
+                                        </div>
+								<?php }
                                }
                               ?>
                               <div class='desc' style='margin-top:20px;'><?php echo $row['Description'];?></div>
@@ -527,7 +553,19 @@ aside
 			
 		</div>
 		
-		
+<!-- style -->
+
+<style>
+	.imagedes{
+		background-color: #214B8C;
+		color : white;
+		margin: 10px auto;
+		width : 80%;
+		text-align: center;
+	}
+</style>
+
+<!-- style -->
 <div style="background-color: white; width: 100%; height: 40px;"></div>
 <div style="background-color: #214B8C; width: 100%; height: 2px;"></div>
 				

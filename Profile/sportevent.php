@@ -623,34 +623,36 @@ background: rgba(52,57,87,0.9);
         <hr>
         <?php 
             if(isset($_POST["submitdetails"])){
-                if(count($_FILES['upload']['name'])>=1){
+                if(isset($_POST['eventdes'],$_POST['eventdate'],$_POST['eventname'])){
                     $obj=new SQL();
                     $conn=$obj->SQLi();
                     if(!$conn){?>
                         <script>popupform('Info not posted','Server Error.Sorry for the inconvenience');</script>
                     <?php }
                     else{
-                        //var_dump($_POST);
                         $strfilename='';
-                        for($i=0;$i<count($_FILES['upload']['name']);$i++){
-                                $tempname=$_FILES['upload']['name'][$i];
-                                echo str_replace(' ','',$tempname);
-                                $imageFileType = pathinfo(basename($tempname),PATHINFO_EXTENSION);
-                                $targetdir="eventpics/";
-                                $target_file = $targetdir.str_replace(' ','',str_replace(".".$imageFileType,'',$tempname)).'--'.date('Y-m-d').".".$imageFileType;
-                                $arr=array('jpg', 'png', 'jpeg');
+                        $i=1;
+                        $desname='';
+                        while(isset($_FILES['upload'.$i])){
+                            $tempname=$_FILES['upload'.$i]['name'];
+                            str_replace(' ','',$tempname);
+                            $imageFileType = pathinfo(basename($tempname),PATHINFO_EXTENSION);
+                            $targetdir="eventpics/";
+                            $target_file = $targetdir.str_replace(' ','',str_replace(".".$imageFileType,'',$tempname)).'--'.date('Y-m-d').".".$imageFileType;
+                            $arr=array('jpg', 'png', 'jpeg');
                                 if(!in_array($imageFileType,$arr)){?>
                                     <script>
                                         popupform('Image not acceptable','Image file extension should be of jpg,png and jpeg');
                                     </script>
                             <?php }
                             else{
-                                //echo 'suxce';
-                                    move_uploaded_file($_FILES["upload"]["tmp_name"][$i], $target_file);
+                                    move_uploaded_file($_FILES["upload".$i]["tmp_name"], $target_file);
                                     $strfilename=$strfilename.$target_file." , ";
+                                    $desname=$desname.$_POST['upload'.$i.'des']." *#,#* ";
                             }
+                            $i++;
                         }
-                        $query='INSERT into `events`(Ename,Description,imagesrc,date,type) values("'.$_POST['eventname'].'","'.$_POST['eventdes'].'","'.substr($strfilename,0,strlen($strfilename)-3).'","'.$_POST["eventdate"].'","Sports");';
+                        $query='INSERT into `events`(Ename,Description,imagesrc,date,type,imagedes) values("'.$_POST['eventname'].'","'.$_POST['eventdes'].'","'.substr($strfilename,0,strlen($strfilename)-3).'","'.$_POST["eventdate"].'","Sports","'.substr($desname,0,strlen($desname)-7).'");';
                         if(mysqli_query($conn,$query)){ ?>
                             <script>
                                 popupform('Event Info posted','Successful');
@@ -661,11 +663,14 @@ background: rgba(52,57,87,0.9);
                                 popupform('Event Info not posted','Not Successful.Sorry for the inconvenience');
                             </script>                       
                         <?php }
-                    }
+                    } 
                 }
-                else{?>
-                    <script>popupform('Info not posted','Server Error.Sorry for the inconvenience');</script>
-                <?php } 
+                else{   ?>
+                    <script>
+                        popupform('Cannot be Inserted','Server Error');
+                    </script>
+                   <?php 
+                }
             }
             
         ?>
@@ -676,7 +681,7 @@ background: rgba(52,57,87,0.9);
                     <span style='color:red;margin-left:10px;'>*</span>
                 </div>
                 <div class='col-lg-8'>
-                    <input type="text" name='eventname' size="50" >
+                    <input type="text" name='eventname' size="50" required>
                 </div>   
             </div>
             <div class='row mt-4'>
@@ -685,7 +690,7 @@ background: rgba(52,57,87,0.9);
                     <span style='color:red;margin-left:10px;'>*</span>
                 </div>
                 <div class='col-lg-8'>
-                    <input type="date" name='eventdate' >
+                    <input type="date" name='eventdate' required>
                 </div>
             </div>
             <div class='row mt-4'>
@@ -694,22 +699,98 @@ background: rgba(52,57,87,0.9);
                     <span style='color:red;margin-left:10px;'>*</span>
                 </div>
                 <div class='col-lg-8'>
-                    <textarea class='form-control' name="eventdes" id='eventdes' cols='30' rows="10" ></textarea>
+                    <textarea class='form-control' name="eventdes" id='eventdes' cols='30' rows="10" required></textarea>
                 </div>
             </div>
             <div class='row mt-4'>
                 <div class='col-lg-4'>
-                    <label for="upload">Photos : </label>
+                    <label for="upload">Photo 1 : </label>
                     <span style='color:red;margin-left:10px;'>*</span>
                 </div>  
-                <div class='col-lg-8'>
+                <!--<div class='col-lg-8'>
                     <input type='file' name="upload[]" multiple required />
+                </div>-->
+                <div class='col-lg-8'>
+                    <input type="file" name='upload1' required />
                 </div>
+            </div>
+            <div class='row mt-4'>
+                <div class='col-lg-4'>
+                    <label for="upload">Photo 1 Description : </label>
+                    <span style='color:red;margin-left:10px;'>*</span>
+                </div>  
+                <!--<div class='col-lg-8'>
+                    <input type='file' name="upload[]" multiple required />
+                </div>-->
+                <div class='col-lg-8'>
+                    <input type="text" name='upload1des' required />
+                </div>
+            </div>
+            <div class='text-center mt-5'>
+                <button class='btn btn-primary' onclick='addpic(this)'>Add another pic</button>
+                <button class='btn btn-primary' onclick='removepic(this)'>Remove one photo field</button>
             </div>
             <div class='text-center mt-5'>
                 <button class='btn btn-success' name='submitdetails' type="submit">POST EVENT INFO</button>
             </div>
         </form>
+        <style>
+            .photo{
+                display: none;
+            }
+            .desphoto{
+                display: none;
+            }
+        </style>
+        <div class='row mt-4 photo'>
+                <div class='col-lg-4'>
+                    <label for="upload">Photo 1 : </label>
+                    <span style='color:red;margin-left:10px;'>*</span>
+                </div>  
+                <!--<div class='col-lg-8'>
+                    <input type='file' name="upload[]" multiple required />
+                </div>-->
+                <div class='col-lg-8'>
+                    <input type="file" name='upload1' required />
+                </div>
+            </div>
+            <div class='row mt-4 desphoto'>
+                <div class='col-lg-4'>
+                    <label for="upload">Photo 1 Description : </label>
+                    <span style='color:red;margin-left:10px;'>*</span>
+                </div>  
+                <!--<div class='col-lg-8'>
+                    <input type='file' name="upload[]" multiple required />
+                </div>-->
+                <div class='col-lg-8'>
+                    <input type="text" name='upload1des' required />
+                </div>
+            </div>
+        <script>
+            function addpic(ele){
+                var numele=ele.parentElement.previousElementSibling.previousElementSibling.children[1].children[0];
+                var num=$(numele).attr('name');
+                var clone1=document.getElementsByClassName('photo')[0].cloneNode(true);
+                $(clone1).removeClass('photo');
+                $(clone1.children[0].children[0]).text('Photo '+(parseInt(num.slice(6))+1));
+                $(clone1.children[1].children[0]).attr('name','upload'+(parseInt(num.slice(6))+1));
+                var clone2=document.getElementsByClassName('desphoto')[0].cloneNode(true);
+                $(clone2).removeClass('desphoto');
+                $(clone2.children[0].children[0]).text('Photo '+(parseInt(num.slice(6))+1)+" Description");
+                $(clone2.children[1].children[0]).attr('name','upload'+(parseInt(num.slice(6))+1)+'des');
+                $(clone1).insertBefore($(ele.parentElement));
+                $(clone2).insertBefore($(ele.parentElement));
+
+            }
+            function removepic(ele){
+                var numele=ele.parentElement.previousElementSibling.previousElementSibling.children[1].children[0];
+                var num=$(numele).attr('name');
+                if(num!='upload1'){
+                    $(ele.parentElement.previousElementSibling.previousElementSibling).remove();
+                    $(ele.parentElement.previousElementSibling).remove();
+                }   
+            }
+        </script>
         <h3 class='mt-4'>Sport Articles</h3>
         <hr>
         <div class='articlecontainer'>
@@ -717,7 +798,7 @@ background: rgba(52,57,87,0.9);
                 $obj=new SQL();
                 $conn=$obj->SQLi();
                 if($conn){
-                    $query='SELECT * from events where type="Sports"';
+                    $query='SELECT * from events where type="Sports" ORDER BY date desc';
                     $res=mysqli_query($conn,$query);
                     $i=0;
                     $eventid=array();
@@ -822,7 +903,7 @@ if(isset($_GET['editingevent'])&&isset($_GET['type'])){
                     <span style='color:red;margin-left:10px;'>*</span>
                 </div>
                 <div class='col-lg-8'>
-                    <input type="text" name='eventname' size="50" >
+                    <input type="text" name='eventname' size="50" required>
                 </div>   
             </div>
             <div class='row mt-4'>
@@ -834,7 +915,7 @@ if(isset($_GET['editingevent'])&&isset($_GET['type'])){
                     <span style='color:red;margin-left:10px;'>*</span>
                 </div>
                 <div class='col-lg-8'>
-                    <input type="date" name='eventdate' >
+                    <input type="date" name='eventdate' required>
                 </div>
             </div>
             <div class='row mt-4'>
@@ -846,21 +927,40 @@ if(isset($_GET['editingevent'])&&isset($_GET['type'])){
                     <span style='color:red;margin-left:10px;'>*</span>
                 </div>
                 <div class='col-lg-8'>
-                    <textarea class='form-control' name="eventdes" id='eventdes' cols='30' rows="10" ></textarea>
+                    <textarea class='form-control' name="eventdes" id='eventdes' cols='30' rows="10" required></textarea>
                 </div>
             </div>
             <div class='row mt-5'>
                 <label for="showImages" style='display:inline-block;margin-left:15px;'>Uploaded Images :</label>
                 <button class='btn btn-primary' style='margin-left:10%;' id='showImages'>Click to view Previously Uploaded Images</button>
             </div>
-            <div class='row mt-5'>
+            <div class='row mt-4'>
                 <div class='col-lg-4'>
-                    <label for="upload">Photos : </label>
+                    <label for="upload">Photo 1 : </label>
                     <span style='color:red;margin-left:10px;'>*</span>
                 </div>  
-                <div class='col-lg-8'>
+                <!--<div class='col-lg-8'>
                     <input type='file' name="upload[]" multiple required />
+                </div>-->
+                <div class='col-lg-8'>
+                    <input type="file" name='upload1' required />
                 </div>
+            </div>
+            <div class='row mt-4'>
+                <div class='col-lg-4'>
+                    <label for="upload">Photo 1 Description : </label>
+                    <span style='color:red;margin-left:10px;'>*</span>
+                </div>  
+                <!--<div class='col-lg-8'>
+                    <input type='file' name="upload[]" multiple required />
+                </div>-->
+                <div class='col-lg-8'>
+                    <input type="text" name='upload1des' required />
+                </div>
+            </div>
+            <div class='text-center mt-5'>
+                <button class='btn btn-primary' onclick='addpic(this)'>Add another pic</button>
+                <button class='btn btn-primary' onclick='removepic(this)'>Remove one photo field</button>
             </div>
             <div class='text-center mt-5'>
                 <button class='btn btn-success' name='eventedit' type="submit">EDIT EVENT INFO</button>
@@ -868,6 +968,63 @@ if(isset($_GET['editingevent'])&&isset($_GET['type'])){
             </div>
         </form>
     </div>
+    <style>
+            .photo{
+                display: none;
+            }
+            .desphoto{
+                display: none;
+            }
+        </style>
+        <div class='row mt-4 photo'>
+                <div class='col-lg-4'>
+                    <label for="upload">Photo 1 : </label>
+                    <span style='color:red;margin-left:10px;'>*</span>
+                </div>  
+                <!--<div class='col-lg-8'>
+                    <input type='file' name="upload[]" multiple required />
+                </div>-->
+                <div class='col-lg-8'>
+                    <input type="file" name='upload1' required />
+                </div>
+            </div>
+            <div class='row mt-4 desphoto'>
+                <div class='col-lg-4'>
+                    <label for="upload">Photo 1 Description : </label>
+                    <span style='color:red;margin-left:10px;'>*</span>
+                </div>  
+                <!--<div class='col-lg-8'>
+                    <input type='file' name="upload[]" multiple required />
+                </div>-->
+                <div class='col-lg-8'>
+                    <input type="text" name='upload1des' required />
+                </div>
+            </div>
+        <script>
+            function addpic(ele){
+                var numele=ele.parentElement.previousElementSibling.previousElementSibling.children[1].children[0];
+                var num=$(numele).attr('name');
+                var clone1=document.getElementsByClassName('photo')[0].cloneNode(true);
+                $(clone1).removeClass('photo');
+                $(clone1.children[0].children[0]).text('Photo '+(parseInt(num.slice(6))+1));
+                $(clone1.children[1].children[0]).attr('name','upload'+(parseInt(num.slice(6))+1));
+                var clone2=document.getElementsByClassName('desphoto')[0].cloneNode(true);
+                $(clone2).removeClass('desphoto');
+                $(clone2.children[0].children[0]).text('Photo '+(parseInt(num.slice(6))+1)+" Description");
+                $(clone2.children[1].children[0]).attr('name','upload'+(parseInt(num.slice(6))+1)+'des');
+                $(clone1).insertBefore($(ele.parentElement));
+                $(clone2).insertBefore($(ele.parentElement));
+
+            }
+            function removepic(ele){
+                var numele=ele.parentElement.previousElementSibling.previousElementSibling.children[1].children[0];
+                var num=$(numele).attr('name');
+                if(num!='upload1'){
+                    $(ele.parentElement.previousElementSibling.previousElementSibling).remove();
+                    $(ele.parentElement.previousElementSibling).remove();
+                }   
+            }
+        </script>
     <script>
         $("#fullcontainer").html($(".appending").html());
         $('#showImages').click(function(){
@@ -903,6 +1060,7 @@ if(isset($_GET['editingevent'])&&isset($_GET['type'])){
     </script>
     <?php
         if(isset($_POST['eventedit'])){
+            if(isset($_POST['eventname'],$_POST['eventdate'],$_POST['eventdes'])){
             if(count($_FILES['upload']['name'])>=1){
                 $obj=new SQL();
                 $conn=$obj->SQLi();
@@ -963,7 +1121,15 @@ if(isset($_GET['editingevent'])&&isset($_GET['type'])){
             }
             else{?>
                 <script>popupform('Info not posted','Server Error.Sorry for the inconvenience');</script>
-            <?php }            
+            <?php }  
+            }
+            else{
+                ?>
+                <script>
+                    popupform('Cannot be edited','Server Error');
+                </script>
+                <?php
+            }          
         }
       }
       else{?>

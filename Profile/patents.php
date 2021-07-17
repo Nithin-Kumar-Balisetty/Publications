@@ -551,9 +551,6 @@ background: rgba(52,57,87,0.9);
 #fullcontainer{
     
 }
-.excelform{
-    display: inline-block;
-}
 </style>
  
 <!-- dialog box --> 
@@ -635,14 +632,14 @@ background: rgba(52,57,87,0.9);
     </div>
     <script>
          function expandjo(ele){
-        $('.excelform').parent().hide();
+            $('.excelform').css('display','none');
         $("#expandpu").hide();
         $("#expandjo").show();
 
     }
     function expandpu(ele){
+        $('.excelform').css('display','none');
        $("#expandjo").hide();
-       $('.excelform').parent().hide();
         $("#expandpu").toggle();
     }
         $(".publication.conference").hide();
@@ -668,15 +665,17 @@ background: rgba(52,57,87,0.9);
                 $(".publication.journal").hide();
                 $(".publication.conference").show();
             }
-        function expand(ele){
+        /*function expand(ele){
             // $(ele.nextElementSibling).toggle(); 
-            if($($('.excelform')[0].parentElement).css("display")!="none") $($('.excelform')[0].parentElement).css("display","none");
-            $("#expand").toggle();
-        }
-        function excel(ele){
+            if($('.excelform').css("display")!="none") $('.excelform').css("display","none");
+            $("#expand").show();
+        }*/
+        function excel(ele,str){
             //$(ele.previousElementSibling).toggle();
-            if($("#expand").css("display")!="none") $("#expand").css("display","none");
-            $($('.excelform')[0].parentElement).toggle();
+            $('#expandjo').hide();
+            $('#expandpu').hide();
+            $('.excelform').css('display','none');
+            $('.excelform.'+str).show();
         }
         function insertC(ele){
             var beforeclone=document.createElement("div");
@@ -756,8 +755,8 @@ background: rgba(52,57,87,0.9);
             <li class="dropdown-item" onclick="expandjo(this)">Patent Details</li>
             <li class="dropdown-item" onclick="expandpu(this)">Book Chapter Details</li>
             <hr class="my-2">
-            <li class="dropdown-item" onclick="excel(this,'Journal')">Upload Journal Excel</li>
-            <li class="dropdown-item" onclick="excel(this,'Conference')">Upload Conference Excel</li>
+            <li class="dropdown-item" onclick="excel(this,'patent')">Upload Patent Excel</li>
+            <li class="dropdown-item" onclick="excel(this,'bookc')">Upload Bok Chapter Excel</li>
         </div>
     </div>
     </div>
@@ -1091,24 +1090,34 @@ background: rgba(52,57,87,0.9);
     <script>
 
     </script>
-    <div class="text-center" style="display: none;">
-        <form action="../Profile/publications.php" method="post" enctype="multipart/form-data" class="excelform mt-5">
-            <?php
-                $rand1=rand();
-                $_SESSION['rand1']=$rand1;
-            ?>
-            <input type="hidden" value="<?php echo $rand1; ?>" name="randcheck1" />
-            <div class="row text-center">
-                <div class="mt-2">
+    <div class="text-center excelform patent" style="display: none;">
+        <form action="../Profile/publications.php" method="post" enctype="multipart/form-data" class="mt-5">
+            <div class="row d-flex justify-content-center">
+                <div class="mt-2 col-lg-2">
                     <input type="file" name="csvfile" required>
                 </div>
-                <div>
+                <div class='col-lg-2'>
                     <button type="submit" name="uploadexcel" class="btn btn-info">Upload CSV</button>
                 </div>
             </div>
         </form>
         <div class="text-center" style="color:red;">
             *Table columns must be in the order (Patent Title,Patent Number,Year,Filing Type,Status,Details,Principal Investigator(email),CO Principal Investigator(Email))
+        </div>
+    </div>
+    <div class="text-center excelform bookc" style="display: none;">
+        <form action="../Profile/publications.php" method="post" enctype="multipart/form-data" class="mt-5">
+            <div class="row d-flex justify-content-center">
+                <div class="mt-2 col-lg-2">
+                    <input type="file" name="csvfile" required>
+                </div>
+                <div class='col-lg-2'>
+                    <button type="submit" name="uploadexcelb" class="btn btn-info">Upload CSV</button>
+                </div>
+            </div>
+        </form>
+        <div class="text-center" style="color:red;">
+            *Table columns must be in the order (Book Chapter Name,Book Name,Pages,Issue,Year,Month,ISBN or ISSN(Enter any one of them),Publisher,EditorList,Proceedings,author emails(seperated by comma))
         </div>
     </div>
 
