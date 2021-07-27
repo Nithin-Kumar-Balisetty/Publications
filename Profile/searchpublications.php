@@ -531,6 +531,7 @@ background: rgba(52,57,87,0.9);
     } 
     function samp(ele){
         $("#searchp").show();
+        $('#searchp1').remove();
         $("#searchp2").remove();
         if($(ele).val()=="1"){
             $("#searchp1").remove();
@@ -541,9 +542,9 @@ background: rgba(52,57,87,0.9);
         }
         if($(ele).val()=="2"){
             $("#searchp1").remove();
-            $("#searchp").hide();
-            $("#searchp").val('dept');
-            $("#searchp2").show();
+            $("#searchp").remove();
+            //$("#searchp").val('dept');
+            //$("#searchp2").show();
             $('<select id="searchp2" name="dept" style="height : 26px;"><?php $arr=array("CE","EE","ME","MAT","PHY");for($i=0;$i<sizeof($arr);$i++){echo '<option value="'.$arr[$i].'">'.$arr[$i].'</option>';}?></select>').insertBefore("form>button");
             $("form>button").css('margin-left','10px');
         }
@@ -611,29 +612,45 @@ background: rgba(52,57,87,0.9);
 </div>
     <div class="container mt-5">
         <div class="row">
-            <div class='col-sm-6 text-center publi'> <p onclick="expandpublic()">Publications</p></div>
-            <div class='col-sm-6 text-center paten'>  <p onclick="exapndpate()">Patents</p></div>
+            <div class='col-sm-4 text-center toggleflow publi'> <p onclick="expandpublic()">Publications</p></div>
+            <div class='col-sm-4 text-center toggleflow paten'>  <p onclick="exapndpate()">Patents</p></div>
+            <div class='col-sm-4 text-center toggleflow book'>  <p onclick="exapndbook()">Book Chapters</p></div>
         </div>
     </div>
         <script>
             $(".publi").css('border-bottom','3px solid green');
             $("#publicationvi").show();
             $("#patentvi").css('display','none');
+            $('#bookvi').css('display','none');
             function expandpublic(){
+                $(".toggleflow").css('border-bottom','0px');
                 $(".publi").css('border-bottom','3px solid green');
-                $(".paten").css('border-bottom','0px');
                 $("#publicationvi").css('display','block');
                 $("#patentvi").css('display','none');
+                $('#bookvi').css('display','none');
                 $(".puyearview").show();
                 $(".payearview").hide();
+                $(".bookyearview").hide();
             }
             function exapndpate(){
+                $(".toggleflow").css('border-bottom','0px');
                 $(".paten").css('border-bottom','3px solid green');
-                $(".publi").css('border-bottom','0px');
                 $("#publicationvi").css('display','none');
-                $("#patentvi").show();
+                $('#bookvi').css('display','none');
+                $("#patentvi").css('display','block');
                 $(".puyearview").hide();
                 $(".payearview").show();
+                $(".bookyearview").hide();
+            }
+            function exapndbook(){
+                $(".toggleflow").css('border-bottom','0px');
+                $(".book").css('border-bottom','3px solid green');
+                $("#publicationvi").css('display','none');
+                $('#patentvi').css('display','none');
+                $("#bookvi").show();
+                $(".puyearview").hide();
+                $(".payearview").hide();
+                $(".bookyearview").show();
             }
         </script>
     <div id="publication view">
@@ -645,10 +662,8 @@ background: rgba(52,57,87,0.9);
             if(isset($_GET["searchfac"])&& (!isset($_GET["id"]))&& (!isset($_GET["dept"]))){
                 echo '<div id="publicationvi">';
                 echo "<script>$('h3').css('display','block');$('hr').css('display','block');</script>";
-                $servername = 'localhost';
-                $username = 'root';
-                $dbname = 'internship';
-                $conn = mysqli_connect($servername, $username,'', $dbname);
+                $obj=new SQL();
+                $conn=$obj->SQLi();
                 if(!$conn) die();
                 else{
                     $name1=$_GET["searchfac"];
@@ -683,6 +698,10 @@ background: rgba(52,57,87,0.9);
                             echo "<a href='".("./searchpublications.php?searchfac=".$_GET["searchfac"]."&id=".$row["EID"])."&type=publications'>".$row["name"]."(".($rows+$rows1).")"."</a>";
                             echo "</div>";
                             }
+                            else{
+                                echo "<div class='col-lg-12'>No results found";
+                                echo "</div>";
+                            }
                         }
                     }
                     echo "</div>";
@@ -690,10 +709,8 @@ background: rgba(52,57,87,0.9);
                 echo '</div>';
                 echo '<div id="patentvi" style="display : none;">';
                 echo "<script>$('h3').css('display','block');$('hr').css('display','block');</script>";
-                $servername = 'localhost';
-                $username = 'root';
-                $dbname = 'internship';
-                $conn = mysqli_connect($servername, $username,'', $dbname);
+                $obj=new SQL();
+        $conn=$obj->SQLi();
                 if(!$conn) die();
                 else{
                     $name1=$_GET["searchfac"];
@@ -726,16 +743,58 @@ background: rgba(52,57,87,0.9);
                             echo "<a href='".("./searchpublications.php?searchfac=".$_GET["searchfac"]."&id=".$row["EID"])."&type=patents'>".$row["name"]."(".($rows+$rows1).")"."</a>";
                             echo "</div>";
                         }
+                        else{
+                            echo "<div class='col-lg-12'>No results found";
+                            echo "</div>";
+                        }
+                    }
+                    echo "</div>";
+                }
+                echo '</div>';
+                echo '<div id="bookvi" style="display:none;">';
+                echo "<script>$('h3').css('display','block');$('hr').css('display','block');</script>";
+                $obj=new SQL();
+        $conn=$obj->SQLi();
+                if(!$conn) die();
+                else{
+                    $name1=$_GET["searchfac"];
+                    for($i=0;$i<strlen($_GET["searchfac"]);$i++){
+                        if($_GET["searchfac"][$i]=='(' && $i>=2){
+                            $name1=(substr($_GET["searchfac"],0,$i-1));
+                            break;
+                        }
+                    }
+                    //echo "<script>alert('".$name1."')</script>";
+                    $query ="SELECT EID,name from `faculty` where name like ";
+                    if($name1==$_GET["searchfac"]){
+                        $query=$query."'%".$_GET["searchfac"]."%'";
+                    }
+                    else{
+                        $query=$query."'%".$name1."%';";
+                    }
+                    $res=mysqli_query($conn,$query);
+                    echo "<div class='row'>";
+                    if(mysqli_num_rows($res)==0)
+                    { echo "No results found"; }
+                    else{
+                        while($row=mysqli_fetch_array($res)){
+                            $query1="SELECT BID from `bookids` where EID=".$row['EID'].";";
+                            $res1=mysqli_query($conn,$query1);
+                            $rows=mysqli_num_rows($res1);
+                            if(($rows)!=0){
+                            echo "<div class='col-lg-12'>";
+                            echo "<a href='".("./searchpublications.php?searchfac=".$_GET["searchfac"]."&id=".$row["EID"])."&type=publications'>".$row["name"]."(".($rows).")"."</a>";
+                            echo "</div>";
+                            }
+                        }
                     }
                     echo "</div>";
                 }
                 echo '</div>';
             }
             if(isset($_GET["searchfac"])&&isset($_GET["id"])){
-                    $servername = 'localhost';
-                    $username = 'root';
-                    $dbname = 'internship';
-                    $conn = mysqli_connect($servername, $username,'', $dbname);
+                $obj=new SQL();
+                $conn=$obj->SQLi();
                     if(!$conn) die();
                     else{
                         echo "<script>$('#notfullcontainer').attr('id','fullcontainer');$('h3').text('ndewekw')</script>";
@@ -837,14 +896,41 @@ background: rgba(52,57,87,0.9);
                                 <div class="mt-5 text-center">
                             <button class="btn btn-success" onclick="frames['conf2'].print()">Print the results</button>
                             </div>
-                        <?php echo "</div>";
-                    }                
+                        <?php echo "</div>"; ?>
+
+                            <div class='bookyearview' style='display:none;'>
+                                <div class="row">
+                                    <div class="para col-lg-7">
+                                        <p class="mb-2 mt-2 text-center text-white">Book Chapter Name</p>
+                                    </div>
+                                    <div class="para col-lg-1"><p class="mb-2 mt-2 text-center text-white">Year</p></div>
+                                    <div class="para col-lg-4"><p class="mb-2 mt-2 text-center text-white">Contributed With</p></div>
+                                </div>
+                                <?php $bookquer="SELECT ChapName,BID,Year FROM bookchapter natural join bookids WHERE EID=".$_GET["id"].";";
+                                    $res=mysqli_query($conn,$bookquer);
+                                    while($row=mysqli_fetch_array($res)){
+                                        $cont='';
+                                        $sbook='SELECT name from bookids natural join faculty where BID='.$row['BID'].' and EID!='.$_GET['id'];
+                                        $res11=mysqli_query($conn,$sbook);
+                                        while($row1=mysqli_fetch_assoc($res11)){
+                                            $cont=$cont.$row1['name'].',';
+                                        } ?>
+                                    <div class="row after">
+                                            <div class="col-lg-7">
+                                        <p class="mb-2 mt-2 text-center"><?php echo $row['ChapName'];?></p>
+                                        </div>
+                                        <div class="col-lg-1"><p class="mb-2 mt-2 text-center"><?php echo $row['Year'];?></p></div>
+                                        <div class="col-lg-4"><p class="mb-2 mt-2 text-center"><?php echo $cont;?></p></div>
+                                    </div>
+                    <?php
+                                    }
+                                ?>
+                            </div>
+                    <?php }                
             }
             if(isset($_GET["searchyr"])){
-                $servername = 'localhost';
-                $username = 'root';
-                $dbname = 'internship';
-                $conn = mysqli_connect($servername, $username,'', $dbname);
+                $obj=new SQL();
+        $conn=$obj->SQLi();
                 if(!$conn) die();
                 else{
                     echo "<script>$('#notfullcontainer').attr('id','fullcontainer');$('h3').text('".$_GET["searchyr"]."')</script>";
@@ -918,14 +1004,41 @@ background: rgba(52,57,87,0.9);
                                 <div class="mt-5 text-center">
                             <button class="btn btn-success" onclick="frames['conf2'].print()">Print the results</button>
                             </div>
-                    <?php echo "</div>";
-                }
+                    <?php echo "</div>"; ?>
+                    <div class='bookyearview' style='display:none;'>
+                                <div class="row">
+                                    <div class="para col-lg-7">
+                                        <p class="mb-2 mt-2 text-center text-white">Book Chapter Name</p>
+                                    </div>
+                                    <div class="para col-lg-1"><p class="mb-2 mt-2 text-center text-white">Month</p></div>
+                                    <div class="para col-lg-4"><p class="mb-2 mt-2 text-center text-white">Authors</p></div>
+                                </div>
+                                <?php $bookquer="SELECT ChapName,BID,Month FROM bookchapter WHERE Year=".$_GET["searchyr"].";";
+                                    $res=mysqli_query($conn,$bookquer);
+                                    while($row=mysqli_fetch_array($res)){
+                                        $cont='';
+                                        $sbook='SELECT name from bookids natural join faculty where BID='.$row['BID'];
+                                        $res11=mysqli_query($conn,$sbook);
+                                        while($row1=mysqli_fetch_assoc($res11)){
+                                            $cont=$cont.$row1['name'].',';
+                                        } ?>
+                                    <div class="row after">
+                                            <div class="col-lg-7">
+                                        <p class="mb-2 mt-2 text-center"><?php echo $row['ChapName'];?></p>
+                                        </div>
+                                        <div class="col-lg-1"><p class="mb-2 mt-2 text-center"><?php echo $months[(int)$row['Month']];?></p></div>
+                                        <div class="col-lg-4"><p class="mb-2 mt-2 text-center"><?php echo substr($cont,0,strlen($cont)-1);?></p></div>
+                                    </div>
+                    <?php
+                                    }
+                                ?>
+                            </div>
+                    
+               <?php }
             }
             if(isset($_GET["searchyrA"])&&isset($_GET["searchyrB"])){
-                $servername = 'localhost';
-                $username = 'root';
-                $dbname = 'internship';
-                $conn = mysqli_connect($servername, $username,'', $dbname);
+                $obj=new SQL();
+        $conn=$obj->SQLi();
                 if(!$conn) die();
                 else{
                     echo "<script>$('#notfullcontainer').attr('id','fullcontainer');$('h3').text('From Year ".$_GET["searchyrA"]." to ".$_GET["searchyrB"]."');$('hr').css('display','block');</script>";
@@ -1001,15 +1114,41 @@ background: rgba(52,57,87,0.9);
                                 <div class="mt-5 text-center">
                             <button class="btn btn-success" onclick="frames['conf2'].print()">Print the results</button>
                             </div>
-                    <?php echo "</div>";
+                    <?php echo "</div>"; ?>
+                    <div class='bookyearview' style='display:none;'>
+                                <div class="row">
+                                    <div class="para col-lg-7">
+                                        <p class="mb-2 mt-2 text-center text-white">Book Chapter Name</p>
+                                    </div>
+                                    <div class="para col-lg-1"><p class="mb-2 mt-2 text-center text-white">Year</p></div>
+                                    <div class="para col-lg-4"><p class="mb-2 mt-2 text-center text-white">Authors</p></div>
+                                </div>
+                                <?php $bookquer="SELECT ChapName,BID,Year FROM bookchapter WHERE Year>=".$min." and Year<=".$max." ORDER by Year desc;";
+                                    $res=mysqli_query($conn,$bookquer);
+                                    while($row=mysqli_fetch_array($res)){
+                                        $cont='';
+                                        $sbook='SELECT name from bookids natural join faculty where BID='.$row['BID'];
+                                        $res11=mysqli_query($conn,$sbook);
+                                        while($row1=mysqli_fetch_assoc($res11)){
+                                            $cont=$cont.$row1['name'].',';
+                                        } ?>
+                                    <div class="row after">
+                                            <div class="col-lg-7">
+                                        <p class="mb-2 mt-2 text-center"><?php echo $row['ChapName'];?></p>
+                                        </div>
+                                        <div class="col-lg-1"><p class="mb-2 mt-2 text-center"><?php echo $row['Year'];?></p></div>
+                                        <div class="col-lg-4"><p class="mb-2 mt-2 text-center"><?php echo substr($cont,0,strlen($cont)-1);?></p></div>
+                                    </div>
+                    <?php
+                                    }
+                                ?>
+                            </div>
 
-                }
+               <?php }
             }
         if(isset($_GET["dept"])){
-                $servername = 'localhost';
-                $username = 'root';
-                $dbname = 'internship';
-                $conn = mysqli_connect($servername, $username,'', $dbname);
+                $obj=new SQL();
+        $conn=$obj->SQLi();
                 if(!$conn) die();
                 else{
                     echo "<script>$('#notfullcontainer').attr('id','fullcontainer');$('h3').text('".$_GET["dept"]." Department');$('hr').css('display','block');</script>";
@@ -1034,7 +1173,7 @@ background: rgba(52,57,87,0.9);
                     }
                     $query="SELECT distinct(PID) from `pubicationauthor` NATURAL JOIN `faculty` where `dept`='".$_GET["dept"]."';";
                     $res=mysqli_query($conn,$query);
-                    if(!$res) echo "<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>";
+                    if(!$res) echo "<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No reconkrds found.Post your first entry</p></div></div>";
                     else{
                         $mainarr=array();
                         while($row=mysqli_fetch_assoc($res)){
@@ -1067,17 +1206,25 @@ background: rgba(52,57,87,0.9);
                                 <div class="mt-5 text-center">
                             <button class="btn btn-success" onclick="frames['conf2'].print()">Print the results</button>
                             </div>
-                    <?php echo "</div>";
+                    <?php echo "</div>"; ?>
+                    <div class='bookyearview' style='display:none;'>
+                                <div class="row">
+                                    <div class="para col-lg-7">
+                                        <p class="mb-2 mt-2 text-center text-white">Book Chapter Name</p>
+                                    </div>
+                                    <div class="para col-lg-1"><p class="mb-2 mt-2 text-center text-white">Year</p></div>
+                                    <div class="para col-lg-4"><p class="mb-2 mt-2 text-center text-white">Authors</p></div>
+                                </div>
+                                <div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>Try Searching through faculty name or year</p></div></div>
+                    </div>
                     
-                }
+                <?php }
         }
         if(isset($_GET["facname"])&& isset($_GET["searchyrB"])){
                 echo '<div id="publicationvi">';
                 echo "<script>$('h3').css('display','block');$('hr').css('display','block');</script>";
-                $servername = 'localhost';
-                $username = 'root';
-                $dbname = 'internship';
-                $conn = mysqli_connect($servername, $username,'', $dbname);
+                $obj=new SQL();
+        $conn=$obj->SQLi();
                 if(!$conn) die();
                 else{
                     $name1=$_GET["facname"];
@@ -1115,6 +1262,10 @@ background: rgba(52,57,87,0.9);
                             echo "<a href='".("./searchpublications.php?year=".$_GET["searchyrB"]."&id=".$row["EID"])."&type=publications'>".$row["name"]."(".($rows+$rows1)." publications in ".$_GET["searchyrB"]." )"."</a>";
                             echo "</div>";
                             }
+                            else{
+                                echo "<div class='col-lg-12'>No results found";
+                                echo "</div>";
+                            }
                         }
                     }
                     echo "</div>";
@@ -1122,10 +1273,8 @@ background: rgba(52,57,87,0.9);
                 echo '</div>';
                 echo '<div id="patentvi" style="display : none;">';
                 echo "<script>$('h3').css('display','block');$('hr').css('display','block');</script>";
-                $servername = 'localhost';
-                $username = 'root';
-                $dbname = 'internship';
-                $conn = mysqli_connect($servername, $username,'', $dbname);
+                $obj=new SQL();
+        $conn=$obj->SQLi();
                 if(!$conn) die();
                 else{
                     $name1="";
@@ -1158,16 +1307,66 @@ background: rgba(52,57,87,0.9);
                             echo "<a href='".("./searchpublications.php?year=".$_GET["searchyrB"]."&id=".$row["EID"])."&type=patents'>".$row["name"]."(".($rows+$rows1)." patents in ".$_GET["searchyrB"]." )"."</a>";
                             echo "</div>";
                         }
+                        else{
+                            echo "<div class='col-lg-12'>No results found";
+                            echo "</div>";
+                        }
+                    }
+                    echo "</div>";
+                }
+                echo '</div>'; 
+                echo '<div id="bookvi" style="display:none;">';
+                echo "<script>$('h3').css('display','block');$('hr').css('display','block');</script>";
+                $obj=new SQL();
+        $conn=$obj->SQLi();
+                if(!$conn) die();
+                else{
+                    $name1=$_GET["facname"];
+                    for($i=0;$i<strlen($name1);$i++){
+                        if($name1[$i]=='(' || $name1[$i]==')'){
+                            break;
+                        }
+                    }
+                    $name1=substr($name1,0,$i);
+                    if($name1[$i-1]==' '){
+                        $name1=substr($name1,0,$i-1); 
+                    } 
+                    //echo "<script>alert('".$name1."')</script>";
+                    $query ="SELECT EID,name from `faculty` where name like ";
+                    if($name1==$_GET["facname"]){
+                        $query=$query."'%".$_GET["facname"]."%'";
+                    }
+                    else{
+                        $query=$query."'%".$name1."%';";
+                    }
+                    $res=mysqli_query($conn,$query);
+                    echo "<div class='row'>";
+                    if(mysqli_num_rows($res)==0)
+                    { echo "No results found"; }
+                    else{
+                        while($row=mysqli_fetch_array($res)){
+                            $query1="SELECT BID from `bookids` natural join `bookchapter` where EID=".$row['EID']." and Year=".$_GET["searchyrB"].";";
+                            $res1=mysqli_query($conn,$query1);
+                            $rows=mysqli_num_rows($res1);
+                            if(($rows)!=0){
+                            echo "<div class='col-lg-12'>";
+                            echo "<a href='".("./searchpublications.php?year=".$_GET["searchyrB"]."&id=".$row["EID"])."&type=publications'>".$row["name"]."(".($rows)." bookchapters in ".$_GET["searchyrB"]." )"."</a>";
+                            echo "</div>";
+                            }
+                            else{
+                                echo "<div class='col-lg-12'>No results found";
+                                echo "</div>";
+                            }
+                        }
                     }
                     echo "</div>";
                 }
                 echo '</div>';
+                
         }
         if(isset($_GET["year"]) && isset($_GET["id"])){
-                    $servername = 'localhost';
-                    $username = 'root';
-                    $dbname = 'internship';
-                    $conn = mysqli_connect($servername, $username,'', $dbname);
+            $obj=new SQL();
+            $conn=$obj->SQLi();
                     if(!$conn) die();
                     else{
                         echo "<script>$('#notfullcontainer').attr('id','fullcontainer');$('h3').text('ndewekw')</script>";
@@ -1281,8 +1480,34 @@ background: rgba(52,57,87,0.9);
                                 <div class="mt-5 text-center">
                             <button class="btn btn-success" onclick="frames['conf2'].print()">Print the results</button>
                             </div>
-                        <?php echo "</div>";
-                    }            
+                        <?php echo "</div>"; ?>
+                        <div class='bookyearview' style='display:none;'>
+                                <div class="row">
+                                    <div class="para col-lg-8">
+                                        <p class="mb-2 mt-2 text-center text-white">Book Chapter Name</p>
+                                    </div>
+                                    <div class="para col-lg-4"><p class="mb-2 mt-2 text-center text-white">Authors</p></div>
+                                </div>
+                                <?php $bookquer="SELECT ChapName,BID FROM bookchapter natural join bookids WHERE Year=".$_GET["year"]." and EID=".$_GET['id'].";";
+                                    $res=mysqli_query($conn,$bookquer);
+                                    while($row=mysqli_fetch_array($res)){
+                                        $cont='';
+                                        $sbook='SELECT name from bookids natural join faculty where BID='.$row['BID'];
+                                        $res11=mysqli_query($conn,$sbook);
+                                        while($row1=mysqli_fetch_assoc($res11)){
+                                            $cont=$cont.$row1['name'].',';
+                                        } ?>
+                                    <div class="row after">
+                                            <div class="col-lg-8">
+                                        <p class="mb-2 mt-2 text-center"><?php echo $row['ChapName'];?></p>
+                                        </div>
+                                        <div class="col-lg-4"><p class="mb-2 mt-2 text-center"><?php echo substr($cont,0,strlen($cont)-1);?></p></div>
+                                    </div>
+                    <?php
+                                    }
+                                ?>
+                            </div>
+                    <?php }            
         }
         if(isset($_GET['IF'])){
             $obj=new SQL();

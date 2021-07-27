@@ -482,11 +482,8 @@ aside
 								<div><a class="redirectlink">View More</a></div>
 							</li>
 							<?php 
-								$servername = 'localhost';
-								$username = 'root';
-								$dbname = 'project';
-								
-								$conn = mysqli_connect($servername, $username,'', $dbname); 
+								$obj=new SQL();
+								$conn=$obj->SQLi();
 								if(!$conn){
 									die('Zero results');
 								}
@@ -591,10 +588,8 @@ robot</li>
 						if(num=="2021"){
 							$("<div class='expanding'><p class='header'>2021</p><div class='expanding_inside'><?php
 								$strname="";
-								$servername = 'localhost';
-								$username = 'root';
-								$dbname = 'project';
-								$conn = mysqli_connect($servername, $username,'', $dbname); 
+								$obj=new SQL();
+        						$conn=$obj->SQLi();
 								if(!$conn){
 									$strname.=$strname."<li><p class='paragraph' style='margin:0; text-align:inherit; display : inline-block'>No new oru rod published</p><p class='paragraph' style='margin:0 20px; text-align:inherit; border-top: 1px solid #ddd; padding-left:20px;'></p></li>";
 								}
@@ -617,10 +612,8 @@ robot</li>
 						if(num=="2020"){
 							$("<div class='expanding'><p class='header'>2020</p><div class='expanding_inside'><?php
 								$strname="";
-								$servername = 'localhost';
-								$username = 'root';
-								$dbname = 'project';
-								$conn = mysqli_connect($servername, $username,'', $dbname); 
+								$obj=new SQL();
+        						$conn=$obj->SQLi();
 								if(!$conn){
 									$strname.=$strname."<li><p class='paragraph' style='margin:0; text-align:inherit; display : inline-block'>No new oru rod published</p><p class='paragraph' style='margin:0 20px; text-align:inherit; border-top: 1px solid #ddd; padding-left:20px;'></p></li>";
 								}
@@ -642,10 +635,8 @@ robot</li>
 							if(num=="2019"){
 							$("<div class='expanding'><p class='header'>2019</p><div class='expanding_inside'><?php
 								$strname="";
-								$servername = 'localhost';
-								$username = 'root';
-								$dbname = 'project';
-								$conn = mysqli_connect($servername, $username,'', $dbname); 
+								$obj=new SQL();
+       							 $conn=$obj->SQLi();
 								if(!$conn){
 									$strname.=$strname."<li><p class='paragraph' style='margin:0; text-align:inherit; display : inline-block'>No new oru rod published</p><p class='paragraph' style='margin:0 20px; text-align:inherit; border-top: 1px solid #ddd; padding-left:20px;'></p></li>";
 								}
@@ -668,10 +659,8 @@ robot</li>
 						if(num=="2018"){
 							$("<div class='expanding'><p class='header'>2018</p><div class='expanding_inside'><?php
 								$strname="";
-								$servername = 'localhost';
-								$username = 'root';
-								$dbname = 'project';
-								$conn = mysqli_connect($servername, $username,'', $dbname); 
+								$obj=new SQL();
+        						$conn=$obj->SQLi();
 								if(!$conn){
 									$strname.=$strname."<li><p class='paragraph' style='margin:0; text-align:inherit; display : inline-block'>No new oru rod published</p><p class='paragraph' style='margin:0 20px; text-align:inherit; border-top: 1px solid #ddd; padding-left:20px;'></p></li>";
 								}

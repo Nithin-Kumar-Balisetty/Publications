@@ -1,4 +1,4 @@
-
+<?php include($_SERVER['DOCUMENT_ROOT']."/ip/Profile/testingpdf.php");?>
 <html >
 	<head >
 		<title >Sports | IIITDM Kancheepuram</title>
@@ -386,7 +386,7 @@ aside
 			<div id="wrapper">
 				<!--code start -->
                 <style>
-                    .semi-nav{
+                    semi-nav{
                         width: 100%;
                         background-color: #214B8C;
                         margin-top: 1px;
@@ -398,7 +398,7 @@ aside
                         border-bottom: 0;
                         text-decoration: none;
                         display: inline-block;
-                    }
+                    } 
                 </style>
 				<h3 class='text-center' style="color: #214B8C;font-size:42px;">Sports</h3>
                 
@@ -486,10 +486,8 @@ aside
                 </div>
                 <div class='sportsec' style="display: none;">
                 <?php
-                      $servername = 'localhost';
-                      $username = 'root';
-                      $dbname = 'internship';
-                      $conn = mysqli_connect($servername, $username,'', $dbname);
+                      $obj=new SQL();
+					  $conn=$obj->SQLi();
                       if(!$conn) die();
                       else{
                           $query='SELECT Ename,`Description`,imagesrc,imagedes from events where type="Sports" ORDER BY date desc';

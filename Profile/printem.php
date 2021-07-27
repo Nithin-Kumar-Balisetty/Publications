@@ -1,3 +1,9 @@
+<?php
+        require "./testingpdf.php";
+
+        // email Google session should be added here. For testing take an static email
+        $email='sadagopan@iiitdm.ac.in';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -108,10 +114,8 @@
                 <table>
                     
                 <?php
-                    $servername = 'localhost';
-                    $username = 'root';
-                    $dbname = 'internship';
-                    $conn=mysqli_connect($servername, $username,'', $dbname);
+                    $obj=new SQL();
+                    $conn=$obj->SQLi();
                     if(!$conn) die();
                     else{
                         if(isset($_GET["type"])&& !isset($_GET["id"])){

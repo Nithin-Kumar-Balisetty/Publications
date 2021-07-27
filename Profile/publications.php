@@ -1,5 +1,8 @@
 <?php
-        require "./testingpdf.php";
+        include_once("./testingpdf.php");
+
+        // email Google session should be added here. For testing take an static email
+        $email='sadagopan@iiitdm.ac.in';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -646,10 +649,11 @@ background: rgba(52,57,87,0.9);
         <?php 
         $content="";
         $obj=new SQL();
-        if($obj->SQLi()){
-        $res=$obj->query('SELECT `name`,`EID` from faculty');
+        $conn=$obj->SQLi();
+        if($conn){
+        $res=$obj->query('SELECT `name`,`EID`,`dept`,`email` from faculty');
         while($row=mysqli_fetch_assoc($res)){
-            $content=$content.'<option value="'.$row["EID"].'">'.$row["name"].'</option>';
+            $content=$content.'<option value="'.$row["EID"].'">'.$row["name"]."(".$row['dept'].")"."-".$row['email'].'</option>';
          } 
         }   ?>
         $(beforeclone).html('<div class="col-lg-3"><label for="Link">Author 1 :</label><span style="color:red;">*</span></div><div class="col-lg-auto" style="display: inline-block;"><div style="margin-top: 7.5px;"><select name="Author1"><?php echo $content ?></select></div></div><div style="display : inline-block;"><div style="margin-top: 10px;"><i class="fa fa-plus-circle" style="color : green; font-size : 20px;" onclick="insertC(this)"></i></div></div>');
@@ -795,12 +799,12 @@ background: rgba(52,57,87,0.9);
             else{
                 $mainarr=array();
                 $cpub=array();
-                $quer = "SELECT Title,PID FROM publications WHERE PID in (SELECT PID from pubicationauthor where EID in (SELECT EID from faculty where email='sadagopan@iiitdm.ac.in'))";
+                $quer = "SELECT Title,PID FROM publications WHERE PID in (SELECT PID from pubicationauthor where EID in (SELECT EID from faculty where email='".$email."'))";
                 $result = $obj->query($quer);
                 if(!$result) echo "<div class='row after publication conference data'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>";
                 else{
                     while($row = mysqli_fetch_assoc($result)) {
-                        $subq = 'SELECT `name` from `faculty` INNER JOIN `pubicationauthor` on faculty.EID=pubicationauthor.EID WHERE `PID`='.$row["PID"].' and `email`!="sadagopan@iiitdm.ac.in"';
+                        $subq = 'SELECT `name` from `faculty` INNER JOIN `pubicationauthor` on faculty.EID=pubicationauthor.EID WHERE `PID`='.$row["PID"].' and `email`!="'.$email.'"';
                         $str="";
                         $result1 = mysqli_query($conn, $subq);
                         while($row1= mysqli_fetch_assoc($result1)){
@@ -822,7 +826,7 @@ background: rgba(52,57,87,0.9);
                     $conn=$obj->SQLi();
                     if(!$conn)  echo '<script>popupform("An error occured","Please try next time.Sorry for the inconvinience!");</script>';
                     else{
-                        $query="SELECT EID from faculty where email='sadagopan@iiitdm.ac.in';";
+                        $query="SELECT EID from faculty where email='".$email."';";
                         $res=mysqli_query($conn,$query);
                         if(mysqli_num_rows($res)==1){
                         $id=mysqli_fetch_assoc($res)['EID'];?>
@@ -842,12 +846,12 @@ background: rgba(52,57,87,0.9);
             else{
                 $mainarr=array();
                 $jpub=array();
-                $quer = "SELECT Paper_Title,JID FROM journals WHERE JID in (SELECT JID from journalauthor where EID in (SELECT EID from faculty where email='sadagopan@iiitdm.ac.in'))";
+                $quer = "SELECT Paper_Title,JID FROM journals WHERE JID in (SELECT JID from journalauthor where EID in (SELECT EID from faculty where email='".$email."'))";
                 $result = $obj->query($quer);
                 if(!$result) echo "<div class='row after publication journal data'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No recorrds found.Post your first entry</p></div></div>";
                 else{
                     while($row = mysqli_fetch_assoc($result)) {
-                        $subq = 'SELECT `name` from `faculty` INNER JOIN `journalauthor` on faculty.EID=journalauthor.EID WHERE `JID`='.$row["JID"].' and `email`!="sadagopan@iiitdm.ac.in"';
+                        $subq = 'SELECT `name` from `faculty` INNER JOIN `journalauthor` on faculty.EID=journalauthor.EID WHERE `JID`='.$row["JID"].' and `email`!="'.$email.'"';
                         $str="";
                         $result1 = mysqli_query($conn, $subq);
                         while($row1= mysqli_fetch_assoc($result1)){
@@ -1072,10 +1076,11 @@ background: rgba(52,57,87,0.9);
                         <select name="Author1" id="">
                             <?php 
                               $obj=new SQL();
-                              if($obj->SQLi()){
-                                $res=$obj->query('SELECT `name`,`EID` from faculty');
+                              $conn=$obj->SQLi();
+                              if($conn){
+                                $res=$obj->query('SELECT `name`,`EID`,`dept`,`email` from faculty');
                                 while($row=mysqli_fetch_assoc($res)){?>
-                                    <option value="<?php echo $row["EID"] ?>"><?php echo $row["name"] ?></option>
+                                    <option value="<?php echo $row["EID"] ?>"><?php echo $row["name"]."(".$row['dept'].")"."-".$row['email']; ?></option>
                                 <?php   }  
                               }  
                             ?>
@@ -1259,10 +1264,11 @@ background: rgba(52,57,87,0.9);
                         <select name="Author1" id="">
                                 <?php 
                                 $obj=new SQL();
-                                if($obj->SQLi()){
-                                    $res=$obj->query('SELECT `name`,`EID` from faculty');
+                                $conn=$obj->SQLi();
+                                if($conn){
+                                    $res=$obj->query('SELECT `name`,`EID`,`dept`,`email` from faculty');
                                     while($row=mysqli_fetch_assoc($res)){?>
-                                        <option value="<?php echo $row["EID"] ?>"><?php echo $row["name"] ?></option>
+                                        <option value="<?php echo $row["EID"] ?>"><?php echo $row["name"]."(".$row['dept'].")"."-".$row['email']; ?></option>
                                     <?php   }  
                                 }  
                                 ?>
@@ -1550,7 +1556,7 @@ background: rgba(52,57,87,0.9);
     if(isset($_POST["uploadexcelJ"])){
         $target_dir = 'uploads/';
         $imageFileType = pathinfo(basename($_FILES["csvfile"]["name"]),PATHINFO_EXTENSION);
-        $target_file = $target_dir ."sadagopan@iiitdm.ac.in-".date("Y-m-d").".".$imageFileType;
+        $target_file = $target_dir .$email."-".date("Y-m-d").".".$imageFileType;
         $arr = array("xlsx","xlsm","csv");
          if(!in_array($imageFileType,$arr)){
              echo "<script>popupform('Excel not posted','Excel is not in xlsx or xlsm or csv format');</script>";
@@ -1569,11 +1575,9 @@ background: rgba(52,57,87,0.9);
 
          $i=2;
          $strname="";
-         $servername = 'localhost';
-         $username = 'root';
-         $dbname = 'internship';
+         $obj=new SQL();
+        $conn=$obj->SQLi();
          $errorlog="";
-         $conn=mysqli_connect($servername, $username,'', $dbname);
          if(!$conn) die();
          else{
         
@@ -1685,7 +1689,7 @@ background: rgba(52,57,87,0.9);
      if(isset($_POST["uploadexcelC"])){
         $target_dir = 'uploads/';
         $imageFileType = pathinfo(basename($_FILES["csvfile"]["name"]),PATHINFO_EXTENSION);
-        $target_file = $target_dir ."sadagopan@iiitdm.ac.in-".date("Y-m-d").".".$imageFileType;
+        $target_file = $target_dir .$email."-".date("Y-m-d").".".$imageFileType;
         $arr = array("xlsx","xlsm","csv");
          if(!in_array($imageFileType,$arr)){
              echo "<script>alert('Not in xlsx or xlsm or csv format');</script>";
@@ -1703,11 +1707,9 @@ background: rgba(52,57,87,0.9);
 
         $i=2;
         $strname="";
-        $servername = 'localhost';
-        $username = 'root';
-        $dbname = 'internship';
+        $obj=new SQL();
+        $conn=$obj->SQLi();
         $errorlog="";
-        $conn=mysqli_connect($servername, $username,'', $dbname);
         if(!$conn) die();
         else{
        $attr=array("Title","Conference Name","Proceedings","ISSN","Volume No.","Pages","Year","Month","Conference Type(National or International)","Author List(Names of People who are not part of IIITDM)","DOI","IIITDM Author's Email Addresses seperated by comma","Open Access(type 1 if Yes or else 0)","SCI(type 1 if Yes or else 0)","Non-SCI(type 1 if Yes or else 0)","Scopus(type 1 if Yes or else 0)","Google Scholar(type 1 if Yes or else 0)");
@@ -1835,7 +1837,7 @@ background: rgba(52,57,87,0.9);
             }
         }
     }
-    include "./editpublicationmodule.php";
+    include_once("./editpublicationmodule.php");
 
 ?>
 <!-- code end -->                        

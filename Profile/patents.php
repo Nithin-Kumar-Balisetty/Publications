@@ -1,6 +1,7 @@
 <?php  
-    require "./testingpdf.php";
-    session_start();    
+    include_once("./testingpdf.php");
+    // email Google session should be added here. For testing take an static email
+    $email='sadagopan@iiitdm.ac.in';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -480,6 +481,73 @@ background: rgba(52,57,87,0.9);
             window.location.href="./patents.php";
         });
     }
+    function popedit(strheader,strbody,elementhide,type){
+        $("#hidebox").click(function(){
+            $("#white-background").hide();
+            $("#dlgbox").hide();
+            elementhide.checked=false;
+            $(".check").removeAttr('disabled');
+        });
+        var whitebg = document.getElementById("white-background");
+        var dlg = document.getElementById("dlgbox");
+        whitebg.style.display = "block";
+        dlg.style.display = "block";
+
+        var winWidth = window.innerWidth;
+        var winHeight = window.innerHeight;
+        
+        dlg.style.left = (winWidth/2) - 480/2 + "px";
+        dlg.style.top = "150px";
+        $("#dlg-header-text").text(strheader);
+        $("#dlg-body").html(strbody);
+        $("#dlgLogin").text("EDIT");
+        $("#dlgLogin").click(function(){
+            var id=$(".publication."+type).index($(elementhide.parentElement.parentElement));
+            window.location.href="./patents.php?editpublication="+id+"&type="+type;
+            //console.log("./patents.php?editpublication="+id+"&type="+type);
+        });
+        $("#dlgLogout").text("DELETE");
+        $("#dlgLogout").click(function (){
+            deletetem(elementhide,type);
+        });
+    }
+    function clickingchec(ele,type){
+            if(ele.checked==true){
+                $('.check').attr('disabled',true);
+                $(ele).attr('disabled',false);
+                popedit("Edit or Delete the patent",'Press EDIT button to edit the patent and press DELETE button to delete the patent',ele,type);
+            }
+            else{
+                $(".check").attr('disabled',false);
+            }
+    }
+    function deletetem(element,type){
+        var whitebg = document.getElementById("white-background");
+        var dlg = document.getElementById("dlgbox");
+        whitebg.style.display = "block";
+        dlg.style.display = "block";
+
+        var winWidth = window.innerWidth;
+        var winHeight = window.innerHeight;
+        
+        dlg.style.left = (winWidth/2) - 480/2 + "px";
+        dlg.style.top = "150px";
+        $("#hidebox").hide();
+        $("#dlg-header-text").text("Deleting a patent");
+        $("#dlg-body").html("Are you sure?<br>Press No to cancel the operation !!");
+        $("#dlgLogin").text("Yes");
+        $("#dlgLogout").text("No");
+        $("#dlgLogin").click(function (){
+            console.log($(".publication."+type).index($(element.parentElement.parentElement)));
+            var id=$(".publication."+type).index($(element.parentElement.parentElement));
+            if(type=='journal') window.location.href=window.location.href+"?delete="+id+"&type=patent";
+            else if(type=='conference') window.location.href=window.location.href+"?delete="+id+"&type=bookchapter";
+            else window.location.href='./patents.php';
+        });
+        $("#dlgLogout").click(function (){
+            window.location.href="./patents.php";
+        });
+    }   
 </script>
 
 <style>
@@ -594,28 +662,33 @@ background: rgba(52,57,87,0.9);
             $conn=$obj->SQLi();
             if(!$conn) die("<div class='row after'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>");
             else{
-                $quer = "SELECT PTitle,PaId FROM patents WHERE PIid in (SELECT EID from faculty where email='sadagopan@iiitdm.ac.in')";
+                $cpub=array();
+                $jpub=array();
+                $quer = "SELECT PTitle,PaId FROM patents WHERE PIid in (SELECT EID from faculty where email='".$email."')";
                 $result = $obj->query($quer);
                 if(!$result) echo "<div class='row after publication journal'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found as a PRINCIPAL INVESTIGATOR.Post your first entry</p></div></div>";
                 else{   
                     while($row = mysqli_fetch_assoc($result)) {
-                         echo '<div class="row after publication journal"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this)" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["PTitle"].'</p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">'."Pricipal Investigator".'</p></div></div>'; 
-                    }
+                        array_push($cpub,$row['PaId']); ?>
+                         <div class="row after publication journal"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this,'journal')" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center"><?php echo $row["PTitle"];?></p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">Pricipal Investigator</p></div></div>
+                    
+                    <?php    }
                 }
-                $quer1 = "SELECT PTitle,PaId FROM patents WHERE PaId in (Select PaId from `patentcopi` where COPI in (SELECT EID from faculty where email='sadagopan@iiitdm.ac.in'))";
+                $quer1 = "SELECT PTitle,PaId FROM patents WHERE PaId in (Select PaId from `patentcopi` where COPI in (SELECT EID from faculty where email='".$email."'))";
                 $result1 = $obj->query($quer1);
                 if(!$result1) echo "<div class='row after publication journal'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found as a CO-PRINCIPAL INVESTIGATOR.Post your first entry</p></div></div>";
                 else{   
                     while($row = mysqli_fetch_assoc($result1)) {
-                         echo '<div class="row after publication journal"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this)" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center">'.$row["PTitle"].'</p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">'."Co-Pricipal Investigator".'</p></div></div>'; 
-                    }
+                        array_push($cpub,$row['PaId']); ?>
+                         <div class="row after publication journal"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this,'journal')" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center"><?php echo $row["PTitle"];?></p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">Co-Pricipal Investigator</p></div></div>
+                       <?php }
                 }
-                $quer = "SELECT ChapName,BID FROM bookchapter WHERE BID in (SELECT BID from bookids where EID in (SELECT EID from faculty where email='sadagopan@iiitdm.ac.in'))";
+                $quer = "SELECT ChapName,BID FROM bookchapter WHERE BID in (SELECT BID from bookids where EID in (SELECT EID from faculty where email='".$email."'))";
                 $result = $obj->query($quer);
                 if(!$result) echo "<div class='row after publication conference'><div class='col-sm-12'><p class='mb-2 mt-2 text-center'>No records found.Post your first entry</p></div></div>";
                 else{
                     while($row = mysqli_fetch_assoc($result)) {
-                        $subq = 'SELECT `name` from `faculty` INNER JOIN `bookids` on faculty.EID=bookids.EID WHERE `BID`='.$row["BID"].' and `email`!="sadagopan@iiitdm.ac.in"';
+                        $subq = 'SELECT `name` from `faculty` INNER JOIN `bookids` on faculty.EID=bookids.EID WHERE `BID`='.$row["BID"].' and `email`!="'.$email.'"';
                         $str="";
                         $result1 = mysqli_query($conn, $subq);
                         while($row1= mysqli_fetch_assoc($result1)){
@@ -623,12 +696,19 @@ background: rgba(52,57,87,0.9);
                         }
                         //array_push($mainarr,($row["PID"]));
                         //array_push($cpub,(int)$row["PID"]);
+                        array_push($jpub,$row['BID']);
                         if($str=="") { ?> <div class="row after publication conference"><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this,'conference')" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center"><?php echo $row["ChapName"]; ?></p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center">Fully Contibuted by you</p></div></div>  <?php }
                         else { ?> <div class="row after publication conference "><div class="col-lg-1 text-center align-self-center"><input type="checkbox" class="check" onclick="clickingchec(this,'conference')" ></div><div class="col-lg-8"><p class="mb-2 mt-2 text-center"><?php echo $row["ChapName"]; ?></p></div><div class="col-lg-3"><p class="mb-2 mt-2 text-center"><?php echo substr($str,0,strlen($str)-1); ?></p></div></div> <?php }
                     }
                 }
             }
         ?>
+        <div class='text-center mt-5'>
+            <iframe src="printem.php?patentall=true" style="display:none;" name="conf1"></iframe>
+            <button class="btn btn-success" onclick="frames['conf1'].print()">Print All Patent</button>
+            <iframe src="printem.php?patent=14" style="display:none;" name="conf2"></iframe>
+            <button class="btn btn-success" onclick="frames['conf2'].print()">Print your Patent</button>
+        </div>
     </div>
     <script>
          function expandjo(ele){
@@ -684,9 +764,9 @@ background: rgba(52,57,87,0.9);
             $content="";
             $obj=new SQL();
             if($obj->SQLi()){
-            $res=$obj->query('SELECT `name`,`EID` from faculty');
+            $res=$obj->query('SELECT `name`,`EID`,`dept`,`email` from faculty');
             while($row=mysqli_fetch_assoc($res)){
-                $content=$content.'<option value="'.$row["EID"].'">'.$row["name"].'</option>';
+                $content=$content.'<option value="'.$row["EID"].'">'.$row["name"]."(".$row['dept'].")"."-".$row['email'].'</option>';
             } 
             }   ?>
             $(beforeclone).html('<div class="col-lg-3"><label for="Link">Author 1 :</label><span style="color:red;">*</span></div><div class="col-lg-auto" style="display: inline-block;"><div style="margin-top: 7.5px;"><select name="Author1"><?php echo $content ?></select></div></div><div style="display : inline-block;"><div style="margin-top: 10px;"><i class="fa fa-plus-circle" style="color : green; font-size : 20px;" onclick="insertC(this)"></i></div></div>');
@@ -737,13 +817,8 @@ background: rgba(52,57,87,0.9);
             ele.parentElement.parentElement.parentElement.previousElementSibling.children[2].children[0].innerHTML=('<i class="fa fa-plus-circle"style="color : green; font-size : 20px;" onclick="insertB(this)"></i>')+ele.parentElement.parentElement.parentElement.previousElementSibling.children[2].children[0].innerHTML;
             $(ele.parentElement.parentElement.parentElement).remove();
         }
+
     </script>
-    <div class='text-center mt-5'>
-        <iframe src="printem.php?patentall=true" style="display:none;" name="conf1"></iframe>
-        <button class="btn btn-success" onclick="frames['conf1'].print()">Print All Patent</button>
-        <iframe src="printem.php?patent=14" style="display:none;" name="conf2"></iframe>
-        <button class="btn btn-success" onclick="frames['conf2'].print()">Print your Patent</button>
-    </div>
     <div class="insertbutton mt-5">
         <!--<button class="btn btn-success mr-4" style="font-size:16px;" onclick="expand(this)">Insert</button>
         <button class="btn btn-success ml-4" onclick='excel(this)' style="font-size : 16px;">Excel</button> -->
@@ -756,9 +831,12 @@ background: rgba(52,57,87,0.9);
             <li class="dropdown-item" onclick="expandpu(this)">Book Chapter Details</li>
             <hr class="my-2">
             <li class="dropdown-item" onclick="excel(this,'patent')">Upload Patent Excel</li>
-            <li class="dropdown-item" onclick="excel(this,'bookc')">Upload Bok Chapter Excel</li>
+            <li class="dropdown-item" onclick="excel(this,'bookc')">Upload Book Chapter Excel</li>
         </div>
     </div>
+    <script>
+        $('.insertbutton').click(false);
+    </script>
     </div>
     <div id="expandjo" style="display :none;">
         <h3>Patent Details</h3>
@@ -768,19 +846,50 @@ background: rgba(52,57,87,0.9);
             //var_dump($_POST);
             $obj=new SQL();
             $conn=$obj->SQLi();
-            if(!$conn) die("<script>alert('Data not able added.Try again !');</script>");
+            if(!$conn){
+                ?>
+                <script>
+                    popupform('Server Error','Caanot Post the patent details.Try Again!!');
+                </script>
+                <?php
+            }
             else{
-                $quer = "INSERT into `patents`(PTitle,PNum,PIid,Ftype,Status,Year,Details) values('".$_POST["Title"]."',".$_POST["PNum"].",".$_POST["PIid1"].",'".$ftype[(int)($_POST["ftype"])]."','".$_POST["fstatus"]."',".$_POST["Year"].",'".$_POST["Details"]."');";
-                if($obj->query($quer) == FALSE) die("<script>alert('Data not able added.Try again !');</script>");
+                $my=explode('-',$_POST["Year"]);
+                $quer = "INSERT into `patents`(PTitle,PNum,PIid,Ftype,Status,Year,Month,Details) values('".$_POST["Title"]."',".$_POST["PNum"].",".$_POST["PIid1"].",'".$ftype[(int)($_POST["ftype"])]."','".$_POST["fstatus"]."',".$my[0].",".$my[1].",'".$_POST["Details"]."');";
+                if($obj->query($quer) == FALSE){ ?>
+                <script>
+                    popupform('Server Error','Caanot Post the patent details.Try Again!!');
+                </script> <?php }
                 else{
-                    $i=1;
-                    while(isset($_POST["COPIid".$i])) {
-                        $quer2="SELECT COUNT(PaId) as total from `patents`;";
+                    $i=1;$j=1;
+                    while(isset($_POST["COPI".$i])) {
+                        $quer2="SELECT MAX(PaId) as total from `patents`;";
                         $res=$obj->query($quer2);
                         $data=mysqli_fetch_array($res);
-                        $quer1 = "INSERT into `patentcopi`(PaId,COPI) values(".$data["total"].",".$_POST["COPIid".$i].");";
-                        if($obj->query($quer1) == FALSE) die("<script>alert('".mysqli_error($conn)."');</script>");
+                        $quer1 = "INSERT into `patentcopi`(PaId,COPI) values(".$data["total"].",".$_POST["COPI".$i].");";
+                        if($obj->query($quer1) == FALSE){
+                            $j++;
+                            ?>
+                            <script>
+                                popupform('Server Error','<?php echo $quer1;?>Caanot Post the patent details.Try Again!!');
+                            </script>
+                            <?php
+                        }
                         $i++;
+                    }
+                    if($j>1){
+                        ?>
+                        <script>
+                            popupform('Server Error','Caanot Post the patent details.Try Again!!');
+                        </script>
+                        <?php
+                    }
+                    else{
+                        ?>
+                        <script>
+                            popupform('Succesful','Patent Posted');
+                        </script>
+                        <?php
                     }
                 }
                 
@@ -807,10 +916,10 @@ background: rgba(52,57,87,0.9);
             </div>
             <div class="row">
                 <div class="col-lg-3">
-                <label for="Year">Year :</label>
+                <label for="Year">Month and Year :</label>
                 </div>
-                <div class="col-lg-4">
-                <input type="year" name="Year" >
+                <div class="col-lg-7">
+                <input type="month" name="Year" >
                 </div>
             </div>
             <div class="row">
@@ -857,9 +966,17 @@ background: rgba(52,57,87,0.9);
                 </div>
                 <div class="col-lg-auto" style="display: inline-block;">
                     <div style="margin-top: 7.5px;">
-                        <input type="text" name="PI1" oninput="searchname(this)" autocomplete="off" value="">
-                        <div class="appearfac"></div>
-                        <input type="hidden" name="PIid1" value="null">
+                        <select name="PIid1" id="">
+                                <?php 
+                                $obj=new SQL();
+                                if($obj->SQLi()){
+                                    $res=$obj->query('SELECT `name`,`EID`,`dept`,`email` from faculty');
+                                    while($row=mysqli_fetch_assoc($res)){?>
+                                        <option value="<?php echo $row["EID"] ?>"><?php echo $row["name"]."(".$row['dept'].")"."-".$row['email']; ?></option>
+                                    <?php   }  
+                                }  
+                                ?>
+                            </select>
                     </div>
                 </div>
 
@@ -875,9 +992,9 @@ background: rgba(52,57,87,0.9);
                                 <?php 
                                 $obj=new SQL();
                                 if($obj->SQLi()){
-                                    $res=$obj->query('SELECT `name`,`EID` from faculty');
+                                    $res=$obj->query('SELECT `name`,`EID`,`dept`,`email` from faculty');
                                     while($row=mysqli_fetch_assoc($res)){?>
-                                        <option value="<?php echo $row["EID"] ?>"><?php echo $row["name"] ?></option>
+                                        <option value="<?php echo $row["EID"] ?>"><?php echo $row["name"]."(".$row['dept'].")"."-".$row['email']; ?></option>
                                     <?php   }  
                                 }  
                                 ?>
@@ -901,11 +1018,11 @@ background: rgba(52,57,87,0.9);
         <?php 
         if(isset($_POST["BOOKPOST"])){
             if((isset($_POST['ISSN1'])&&isset($_POST['ISSN2']))&&(isset($_POST['ISBN1'])&&isset($_POST['ISBN2'])&&isset($_POST['ISBN3'])&&isset($_POST['ISBN4']))){ ?>
-                <!--<script>
-                    popupform('NOT POSTED','BUHAHAHAA');
-                </script> -->
+                <script>
+                    popupform('NOT POSTED','Server Error');
+                </script>
             <?php
-            var_dump($_POST);
+            //var_dump($_POST);
             //echo $_POST[0];
             }
             else if((isset($_POST['ISSN1'])&&isset($_POST['ISSN2']))||(isset($_POST['ISBN1'])&&isset($_POST['ISBN2'])&&isset($_POST['ISBN3'])&&isset($_POST['ISBN4']))){
@@ -1050,6 +1167,22 @@ background: rgba(52,57,87,0.9);
             </div>
             <div class="row">
                 <div class="col-lg-3">
+                <label for="Link">Publisher :</label>
+                </div>
+                <div class="col-lg-9">
+                 <select name="Publisher" id="">
+                     <?php
+                        for($i=0;$i<sizeof($journalpublisher);$i++){
+                            ?>
+                            <option value="<?php echo $journalpublisher[$i];?>"><?php echo $journalpublisher[$i];?></option>
+                            <?php
+                        }
+                     ?>
+                 </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3">
                 <label for="Link">Editor List :</label>
                 </div>
                 <div class="col-lg-9">
@@ -1067,9 +1200,9 @@ background: rgba(52,57,87,0.9);
                                 <?php 
                                 $obj=new SQL();
                                 if($obj->SQLi()){
-                                    $res=$obj->query('SELECT `name`,`EID` from faculty');
+                                    $res=$obj->query('SELECT `name`,`EID`,`dept`,`email` from faculty');
                                     while($row=mysqli_fetch_assoc($res)){?>
-                                        <option value="<?php echo $row["EID"] ?>"><?php echo $row["name"] ?></option>
+                                        <option value="<?php echo $row["EID"] ?>"><?php echo $row["name"]."(".$row['dept'].")"."-".$row['email']; ?></option>
                                     <?php   }  
                                 }  
                                 ?>
@@ -1091,7 +1224,7 @@ background: rgba(52,57,87,0.9);
 
     </script>
     <div class="text-center excelform patent" style="display: none;">
-        <form action="../Profile/publications.php" method="post" enctype="multipart/form-data" class="mt-5">
+        <form action="../Profile/patents.php" method="post" enctype="multipart/form-data" class="mt-5">
             <div class="row d-flex justify-content-center">
                 <div class="mt-2 col-lg-2">
                     <input type="file" name="csvfile" required>
@@ -1106,7 +1239,7 @@ background: rgba(52,57,87,0.9);
         </div>
     </div>
     <div class="text-center excelform bookc" style="display: none;">
-        <form action="../Profile/publications.php" method="post" enctype="multipart/form-data" class="mt-5">
+        <form action="../Profile/patents.php" method="post" enctype="multipart/form-data" class="mt-5">
             <div class="row d-flex justify-content-center">
                 <div class="mt-2 col-lg-2">
                     <input type="file" name="csvfile" required>
@@ -1122,7 +1255,52 @@ background: rgba(52,57,87,0.9);
     </div>
 
 </div>
+<?php 
+if(isset($_GET["delete"])&&isset($_GET['type'])){
+    $obj=new SQL();
+    $conn=$obj->SQLi();
+    if(!$conn) die();
+    else{
+        if($_GET['type']=='patent'){
+            $query="DELETE FROM `patentcopi` where PaId=".$cpub[(int)$_GET["delete"]].";";
+            if(mysqli_query($conn,$query)){
+                $queryy="DELETE FROM `patents` WHERE PaId=".$cpub[(int)$_GET["delete"]].";";
+                if(mysqli_query($conn,$queryy)){
+                    //deleted query
+                    echo "<script>window.location.href='./patents.php';</script>";
+                }
+            }
+        }
+        if($_GET['type']=='bookchapter'){
+            $query="DELETE FROM `bookids` where BID=".$jpub[(int)$_GET["delete"]].";";
+            if(mysqli_query($conn,$query)){
+                $queryy="DELETE FROM `bookchapter` WHERE BID=".$jpub[(int)$_GET["delete"]].";";
+                if(mysqli_query($conn,$queryy)){
+                    //deleted query ?>
+                     <script>popupform('Successfully','Deleted bookchapter');</script>;
+                     <?php
+                }
+                else{
+                    ?>
+                    <script>
+                        popupform("Error Occured",'Try Again !!');
+                    </script>
+                    <?php
+                }
+            }
+            else{ ?>
+                <script>
+                    popupform('Error Occured','Try Again Later');
+                </script>
+                <?php
+            }
+        }
+    }
+}
 
+include_once("./patentexcel.php");
+
+?>
 <!-- code end -->
   
   

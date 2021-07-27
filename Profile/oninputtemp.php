@@ -1,5 +1,5 @@
 <?php
-
+include "./testingpdf.php";
 /*if(isset($_GET['q'])){
         $servername = 'localhost';
         $username = 'root';
@@ -21,10 +21,8 @@
         }
 }*/
 if(isset($_GET['q'])){
-    $servername = 'localhost';
-    $username = 'root';
-    $dbname = 'internship';
-    $conn = mysqli_connect($servername, $username,'', $dbname);
+    $obj=new SQL();
+    $conn=$obj->SQLi();
     if(!$conn) die();
     else{
         if($_GET['q']!=""){
@@ -43,10 +41,8 @@ if(isset($_GET['q'])){
     }
 }
 if(isset($_GET['qr'])){
-    $servername = 'localhost';
-        $username = 'root';
-        $dbname = 'internship';
-        $conn = mysqli_connect($servername, $username,'', $dbname);
+    $obj=new SQL();
+        $conn=$obj->SQLi();
         if(!$conn) die();
         else{
             if($_GET['qr']!=""){
@@ -65,10 +61,8 @@ if(isset($_GET['qr'])){
         }
 }
 if(isset($_GET['qrr'])&&isset($_GET["id"])){
-    $servername = 'localhost';
-        $username = 'root';
-        $dbname = 'internship';
-        $conn = mysqli_connect($servername, $username,'', $dbname);
+    $obj=new SQL();
+        $conn=$obj->SQLi();
         if(!$conn) die();
         else{
             if($_GET['qrr']!=""){

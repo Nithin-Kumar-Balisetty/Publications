@@ -1,4 +1,7 @@
 <?php 
+    // email Google session should be added here. For testing take an static email
+    $email='sadagopan@iiitdm.ac.in';
+    
     if(isset($_GET["editpublication"])&isset($_GET['type'])){
         $obj=new SQL();
         $conn=$obj->SQLi();
