@@ -1,5 +1,5 @@
 <?php
-include "./testingpdf.php";
+include "./SQLclass.php";
 /*if(isset($_GET['q'])){
         $servername = 'localhost';
         $username = 'root';

@@ -1,12 +1,47 @@
-<?php include($_SERVER['DOCUMENT_ROOT']."/ip/Profile/SQLclass.php");?>
 <html >
 	<head >
-		<title >Sports | IIITDM Kancheepuram</title>
+		<title >Publications | IIITDM Kancheepuram</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta charset="utf-8" />
-		<link rel="stylesheet" type="text/css" href="./css/materialize.min.css">
-		<link rel="stylesheet" type="text/css" href="./css/style.css">
-    <script>
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
+		<link rel="stylesheet" type="text/css" href="css/materialize.min.css">
+		<link rel="stylesheet" type="text/css" href="css/style.css">
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8" crossorigin="anonymous"></script>
+		<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+		
+		<script type="text/javascript">
+			google.charts.load('current', {packages: ['corechart', 'bar']});
+			google.charts.setOnLoadCallback(drawBarColors);
+
+			function drawBarColors() {
+				var data = google.visualization.arrayToDataTable([
+				['Year', 'Journal', 'Conference'],
+				
+				['2016-2017', 10, 33],['2013-2014', 18, 25],				]);
+
+				var options = {
+				title: '',
+				chartArea: {width: '50%'},
+				isStacked: true,
+				colors: ['#214B8C', '#3275AA'],
+				hAxis: {
+					title: 'Total Publications',
+					minValue: 0
+        		},
+				vAxis: {
+					title: 'Year'
+        		}
+      		};
+	  	var chart = new google.visualization.BarChart(document.getElementById('chart_div'));
+	  	chart.draw(data, options);
+    	}
+    	</script>
+			
+			
+			
+	<script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
@@ -15,7 +50,7 @@
   ga('create', 'UA-93511975-1', 'auto');
   ga('send', 'pageview');
 
-</script>
+</script>		
 	</head>
 
 
@@ -23,9 +58,6 @@
 
 <head>
 	<link rel="shortcut icon" href="../img/logo.png" />
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 </head>
 
 	
@@ -204,11 +236,11 @@ aside
 		</style>
 		<!--start css for new menu (right menu addition) -->
 		
-		<div style="width: 100%; background-color: #214B8C;" align="center"><img class="HWlogo" style="margin: 2px 0 9px 0;" src="../img/HWlogo1.png" alt="" /></div> 
+		<div style="width: 100%; background-color: #214B8C;" align="center"><img class="HWlogo" style="margin: 2px 0 9px 0;" src="images/module_table_bottom.png" alt="" /></div> 
 		
 		<div style="width: 100%; background-color: #214B8C; margin-top: 1px; height: 56px; position: absolute; z-index: 10000;" align="center" id="nav">
 		<ul class="topnav" id="myTopnav">
-			<li><a class="full" href="../">Home</a><a class="half" href="../"><img class="half" src="../img/icon/home.png" width="30px" /></a></li>
+			<li><a class="full" href="../mass.php">Home</a><a class="half" href="../"><img class="half" src="../img/icon/home.png" width="30px" /></a></li>
 			<li><a class="full" href="#Administration">Administration</a><a class="half" href="../Others/sitemap.php#Administration"><img class="half" src="../img/icon/administration.png" width="30px" /></a>
 				<ul style="margin: 0; padding: 0;list-style-type: none; position: absolute;">
 					<li style="margin: 0; padding: 0;">
@@ -320,7 +352,7 @@ aside
 					<div style="background-color: #214B8C; opacity: 0.9; height: 105px; width: 200px; margin: 0; padding: 0;">
 						<ul style="margin: 0;" class="list">
 							<li><a href="../Research/Overview.php" style="padding: 0;">Overview</a></li>
-							<li><a href="../Research/Funded_Project.php" style="padding: 0;">Funded Projects</a></li>
+							<li><a href="Research/fundedprojects.php" style="padding: 0;">Funded Projects</a></li>
 							<li><a href="../Research/Publications.php" style="padding: 0;">Publications</a></li>
 						</ul>
 					</div>
@@ -384,186 +416,276 @@ aside
 			<div style="width: 100%; opacity: 0; height: 100px" ></div>
 			
 			<div id="wrapper">
-				<!--code start -->
-                <style>
-                    semi-nav{
-                        width: 100%;
-                        background-color: #214B8C;
-                        margin-top: 1px;
-                        height: auto;
-                        position: absolute;
-                    }
-                    .topnav a{
-                        margin-left: 10px;
-                        border-bottom: 0;
-                        text-decoration: none;
-                        display: inline-block;
-                    } 
-                </style>
-				<h3 class='text-center' style="color: #214B8C;font-size:42px;">Sports</h3>
-                
-                <div style='margin-top:30px;'>
-                    <ul class='topnav'>
-                        <a id='gen'>General Information</a>
-                        <a id='sportevent'>Sport Events</a>
-                    </ul>
-                </div>
-                <p style='margin:0;border-bottom:2px solid;'></p>
-				<br>
+				<style>
+					.publication_block{
+						display : grid;
+						grid-template-columns: 1fr 1fr;
+					}
+					.container{
+						color: black;
+						font-size: 18px;
+						padding: 0px;
+						list-style-type: none;
+						width : 85%;
+						margin : 10px auto;
+						text-align : center;
+						border : 1.5px solid #636363;
+						overflow: hidden;
+						border-radius: 1rem;
+					}
+					.container>li{
+						margin: 0;
+						padding : 0 5px;
+						border-bottom: 1.5px solid #636363;
+					}
+					.container>li:last-child{
+						border-bottom: 0 solid #636363;
+					}
+					.container>li:first-child{
+						padding: 0;
+						border-top-left-radius: 0.98rem;
+   						border-top-right-radius: 0.98rem;
+						background-color: #214B8C;
+						color: #edeaea;
+						display: grid;
+  						grid-template-columns: 1fr 1fr;
+ 						grid-column-gap: 5px;
+  						justify-items: center;
+					}
+					.container>li:first-child>div:first-child{ 
+						font-size: 25px;
+						margin-left: auto;
+					}
+					.container>li:first-child>div:last-child{ 
+						font-size: 16px;
+						margin : auto 10px;	
+						margin-left: auto;
+					}
+					.redirectlink{
+						border : 0;
+					}
+					.redirectlink:hover{ 
+						text-decoration: underline;
+					}
+					
+				</style>
+				
+				<p class="header">Publications</p>
+				
+				<div id="chart_div" style="max-width: 900px; min-height: 400px; margin: 0 auto; margin-bottom: 10px"></div>
+				<p class="header">Publications by Year</p>
+				<div class="publication_block">
+					<div>
+						<div class="container">
+							<li>
+								<div>2021</div>
+								<div><a class="redirectlink">View More</a></div>
+							</li>
+							<?php 
+								$obj=new SQL();
+								$conn=$obj->SQLi();
+								if(!$conn){
+									die('Zero results');
+								}
+								else{
+									$quer = "SELECT `Title`,`link` FROM `publications` WHERE `Year`=2021 order by `PID` desc LIMIT 5";
+									$result = mysqli_query($conn, $quer);
+									if(mysqli_num_rows($result)==0){
+										echo '<li>No new Publications published</li>';
+									}
+									else{
+										while($row = mysqli_fetch_assoc($result)) {
+											echo '<li><a href="'.$row["link"].'" class="redirectlink">'.$row['Title'].'</a></li>';
+										  }
+									}
+								}
+							?>
+						</div>
+					</div>
+					<div>
+						<div class="container">
+							<li>
+								<div>2020</div>
+								<div><a class="redirectlink">View More</a></div>
+							</li>
+							<li>An Improved Criterion for the Global
+Asymptotic Stability of 2-D Discrete
+State-Delayed Systems with Saturation
+Nonlinearities</li>
+							<li>Passivity based stability condition for
+interefered digital filters</li>
+							<li>A miniaturized harmonic suppressed 3
+dB branch line coupler using H-shaped
+microstrip line
+</li>
+							<li>New Criteria for output strict and input
+strict passivity for interfered digital
+filters for biomedical applications</li>
+							<li>A novel broadband dual circularly
+polarized microstrip-fed monopole
+antenna</li>
+						</div>
+					</div>
+					<div>
+						<div class="container">
+							<li><div>2019</div>
+							<div><a class="redirectlink">View More</a></div></li>
+							<li>Effect of reinforcement forms in
+selectively reinforced polymer
+composite: temperature distribution
+under sliding contact condition</li>
+							<li>Design of a Quad-Band Branch Line
+Balun Using Extended Pi-Shaped
+Coupled Lines
+</li>
+							<li>Tri-connectivity Augmentation in Trees</li>
+							<li>Design of a Quad-Band Branch Line
+Balun Using Extended Pi-Shaped
+Coupled Lines
+</li>
+							<li>Tri-connectivity Augmentation in Trees</li>
+						</div>
+					</div>
+					<div>
+						<div class="container">
+							<li><div>2018</div>
+							<div><a class="redirectlink">View More</a></div></li>
+							<li>A compact wideband harmonic
+suppressed 10 dB branch line coupler
+using cascaded symmetric PI sections
+</li>
+							<li>Stochastic bifurcations in a vibro-impact
+Duffing–Van der Pol oscillator
+</li>
+							<li>Hybrid electrostatic and elastomer
+adhesion mechanism for wall climbing
+robot</li>
+							<li>Stochastic bifurcations in a vibro-impact
+Duffing–Van der Pol oscillator
+</li>
+							<li>Hybrid electrostatic and elastomer
+adhesion mechanism for wall climbing
+robot</li>
+						</div>
+					</div>
+				</div>
+				<style>
+				.expanding>div{
+					border-radius: 5px;
+					background-color: #edeaea;
+					color : black;
+				}
+				.expanding>div>li{
+					padding-left: 20px;
+					list-style-type: circle;
+				}
 
-                <script>
-                    $("#gen").click(function (){
-                        $(".general").css('display','block');
-                        $(".sportsec").css('display','none');
-                    });
-                    $("#sportevent").click(function (){
-                        $(".sportsec").css('display','block');
-                        $(".general").css('display','none');
-                    });
-
-
-                </script>
-                
-                <div class='general'>
-				<p class="subheader" style="text-align: center; font-size: 42px">'All work and no play makes Jack a dull boy'</p>
-				
-				<p class="paragraph">Truly said! At IIITDM Kancheepuram, we provide facilities for students to experience “above and beyond” academic experience, to maintain their physical fitness and to excel as a bright student. The institute has a gymnasium, cricket ground, football ground, basket ball court, lawn tennis court, volley ball court, table tennis room, badminton court etc.</p>
-				
-				
-				<p class="subheaderSpecial">Sports Facilities</p>
-				
-				<ul class="features" style="margin: 40px 10px 10px;">
-					
-					<li class="imgLi"><div class="imgList"><div class="imgList"><span style="margin-left: 0;"><img src="../img/sports/indoor.jpg" alt="" style="width: 240px; height: 240px; border-radius: 5%" /></span><p class="imgText" style="background-color: #214B8C">Arjuna Sports Complex</p></div></li>
-					
-					<li class="imgLi"><div class="imgList"><div class="imgList"><span style="margin-left: 0;"><img src="../img/sports/badminton.JPG" alt="" style="width: 240px; height: 240px; border-radius: 5%" /></span><p class="imgText" style="background-color: #214B8C">Indoor Badminton Court</p></div></li>
-					
-					<li class="imgLi"><div class="imgList"><div class="imgList"><span style="margin-left: 0;"><img src="../img/sports/basketball.jpg" alt="" style="width: 240px; height: 240px; border-radius: 5%" /></span><p class="imgText" style="background-color: #214B8C">Indoor Basketball Court</p></div></li>
-					
-					<li class="imgLi"><div class="imgList"><div class="imgList"><span style="margin-left: 0;"><img src="../img/sports/volleyball.JPG" alt="" style="width: 240px; height: 240px; border-radius: 5%" /></span><p class="imgText" style="background-color: #214B8C">Outdoor Volleyball Court</p></div></li>
-					
-					<li class="imgLi"><div class="imgList"><div class="imgList"><span style="margin-left: 0;"><img src="../img/sports/cricket.jpg" alt="" style="width: 240px; height: 240px; border-radius: 5%" /></span><p class="imgText" style="background-color: #214B8C">Cricket Ground</p></div></li>
-					
-					<li class="imgLi"><div class="imgList"><div class="imgList"><span style="margin-left: 0;"><img src="../img/sports/football.jpg" alt="" style="width: 240px; height: 240px; border-radius: 5%" /></span><p class="imgText" style="background-color: #214B8C">Football Ground</p></div></li>
-					
-					<li class="imgLi"><div class="imgList"><div class="imgList"><span style="margin-left: 0;"><img src="../img/sports/tennis.jpg" alt="" style="width: 240px; height: 240px; border-radius: 5%" /></span><p class="imgText" style="background-color: #214B8C">Tennis Court</p></div></li>
-					
-					<li class="imgLi"><div class="imgList"><div class="imgList"><span style="margin-left: 0;"><img src="../img/sports/tt.jpg" alt="" style="width: 240px; height: 240px; border-radius: 5%" /></span><p class="imgText" style="background-color: #214B8C">Table Tennis Room</p></div></li>
-					
-				</ul>
-				
-				<p class="smallParagraph" style="text-align: right; margin-bottom: 10px">Photo Courtesy: Ramesh G</p>
-				
-				
-
-				<p class="subheaderSpecial">Tournaments</p>
-				
-				<ul class="features" style="margin: 40px 10px 10px;">
-					
-					<li class="imgLi1"><div class="imgList"><div class="imgList"><span style="margin-left: 0;"><img src="../img/sports/inter.JPG" alt="" style="width: 360px; height: 240px; border-radius: 5%" /></span><p class="imgText" style="background-color: #214B8C; width: 360px">Inter IIIT Sports Meet</p></div></li>
-					
-					<li class="imgLi1"><div class="imgList"><div class="imgList"><span style="margin-left: 0;"><img src="../img/sports/inter.JPG" alt="" style="width: 360px; height: 240px; border-radius: 5%" /></span><p class="imgText" style="background-color: #214B8C; width: 360px">Design & Manufacturing Premier League</p></div></li>
-					
-					<li class="imgLi1"><div class="imgList"><div class="imgList"><span style="margin-left: 0;"><img src="../img/sports/inter.JPG" alt="" style="width: 360px; height: 240px; border-radius: 5%" /></span><p class="imgText" style="background-color: #214B8C; width: 360px">Freshie Tournament</p></div></li>
-					
-				</ul>
-				
-				
-				<p class="subheaderSpecial">Houses</p>
-				
-				<p class="paragraph">To encourage competition and involvement among students, IIITDM Kancheepuram has divided all the hostel inmates into 6 houses, namely:</p>
-				
-				<ul>
-					<li style="list-style-type: disc; color: #3275AA; font-size: 18px; display: list-item; list-style-position: inside;"><span style="color: black">Aravali (Captain-Men : Ramesh S / Captain-Women : Abinaya J L)</span></li>
-					<li style="list-style-type: disc; color: #259888; font-size: 18px; display: list-item; list-style-position: inside;"><span style="color: black">Nilgiri (Captain-Men : Adittya / Captain-Women : Chagam Yamuna)</span></li>
-					<li style="list-style-type: disc; color: #800080; font-size: 18px; display: list-item; list-style-position: inside;"><span style="color: black">Sahyadri (Captain-Men : Sai Manoj Reddy / Captain-Women : Vanukuru Lakshmi Sowjanaya)</span></li>
-					<li style="list-style-type: disc; color: #8C1310; font-size: 18px; display: list-item; list-style-position: inside;"><span style="color: black">Shivalik (Captain-Men : Mallikarjun / Captain-Women : Kanimozhi S)</span></li>
-					<li style="list-style-type: disc; color: #FFDB6D; font-size: 18px; display: list-item; list-style-position: inside;"><span style="color: black">Udaigiri (Captain-Men : Mogili Adarsh / Captain-Women : Ravali D)</span></li>
-					<li style="list-style-type: disc; color: #FF552C; font-size: 18px; display: list-item; list-style-position: inside;"><span style="color: black">Vindhya (Captain-Men : Swaminath A / Captain-Women : Shatakshi Gariya)</span></li>
-				</ul>
-				
-				<p class="smallParagraph" style="text-align: right; margin-bottom: 10px"><a href="../img/sports/HOUSES.xlsx" target="_blank" style="font-size: 12px">Download Detailed House List</a></p>
-                </div>
-                <div class='sportsec' style="display: none;">
-                <?php
-                      $obj=new SQL();
-					  $conn=$obj->SQLi();
-                      if(!$conn) die();
-                      else{
-                          $query='SELECT Ename,`Description`,imagesrc,imagedes from events where type="Sports" ORDER BY date desc';
-                          
-                          $res=mysqli_query($conn,$query);
-                          while($row=mysqli_fetch_assoc($res)){?>
-                              <p class='subheaderSpecial' style='margin:20px 0;'><?php echo $row['Ename'];?></p>
-                              <?php
-                                $imagearray=explode(' , ',$row['imagesrc']);
-								$imagedesarray=explode(' *#,#* ',$row['imagedes']);  
-                                if(sizeof($imagearray)==1){?>
-                                        <div style='display:flex;justify-content:center;'>
-										<div>
-											<img src="Profile/<?php echo $imagearray[0];?>" alt="Image not found" height="240" width="360">
-											<div class='imagedes'>
-												<?php echo $imagedesarray[0];?>
-											</div>
-										</div>
-                                        </div>
-                               <?php }
-                               else{
-                                   $ni=1;
-                                   if(sizeof($imagearray)%2==0) $ni=sizeof($imagearray);
-                                   else $ni=sizeof($imagearray)-1;
-                                   for($i=0;$i<$ni;$i++){?>
-                                        <div style='display:flex;justify-content:center;'>
-											<div>
-                                            	<img src="Profile/<?php echo $imagearray[$i];?>" alt="Image not found" height="240" width='360' style='margin-right:20px;'>
-												<div class='imagedes'>
-													<?php echo $imagedesarray[$i];?>
-												</div>
-											</div>
-											<div>
-											<img src="Profile/<?php echo $imagearray[$i+1];?>" alt="Image not found" height="240" width='360' style='margin-left:20px;'>
-											<div class='imagedes'>
-													<?php echo $imagedesarray[$i+1];?>
-												</div>
-											</div>
-                                        </div>
-                                  <?php 
-                                    $i++;  
-                                }
-								if($ni!=sizeof($imagearray)){ ?>
-									<div style='display:flex;justify-content:center;'>
-											<div>
-                                            	<img src="Profile/<?php echo $imagearray[sizeof($imagearray)-1];?>" alt="Image not found" height="240" width='360' style='margin-right:20px;'>
-												<div class='imagedes'>
-													<?php echo $imagedesarray[sizeof($imagearray)-1];?>
-												</div>
-											</div>
-                                        </div>
-								<?php }
-                               }
-                              ?>
-                              <div class='desc' style='margin-top:20px;'><?php echo $row['Description'];?></div>
-                        <?php
-                          }
-                      }
-                ?>
-                </div>
+				</style>
+				<script>
+					$(".container>li>div:nth-child(2)>a").click(function(){
+						$(".expanding").hide();
+						var num=this.parentElement.previousElementSibling.innerText;
+						if(num=="2021"){
+							$("<div class='expanding'><p class='header'>2021</p><div class='expanding_inside'><?php
+								$strname="";
+								$obj=new SQL();
+        						$conn=$obj->SQLi();
+								if(!$conn){
+									$strname.=$strname."<li><p class='paragraph' style='margin:0; text-align:inherit; display : inline-block'>No new oru rod published</p><p class='paragraph' style='margin:0 20px; text-align:inherit; border-top: 1px solid #ddd; padding-left:20px;'></p></li>";
+								}
+								else{
+										$quer = "SELECT `Title` FROM `publications` WHERE `Year`=2021 order by `PID` desc";
+										$result = mysqli_query($conn, $quer);
+										if(!$result){
+											$strname=$strname."<li><p class='paragraph' style='margin:0; text-align:inherit; display : inline-block'>No new Publications published</p><p class='paragraph' style='margin:0 20px; text-align:inherit; border-top: 1px solid #ddd; padding-left:20px;'></p></li>";
+										}
+										else{
+											while($row = mysqli_fetch_assoc($result)) {
+												$strname=$strname."<li><p class='paragraph' style='margin:0; text-align:inherit; display : inline-block'><a class='redirectlink'>".$row['Title']."</a></p><p class='paragraph' style='margin:0 20px; text-align:inherit; border-top: 1px solid #ddd; padding-left:20px;'></p></li>";
+											}
+									}
+									
+								}
+								echo $strname;
+								?></div></div>").insertBefore("#above");
+						}
+						if(num=="2020"){
+							$("<div class='expanding'><p class='header'>2020</p><div class='expanding_inside'><?php
+								$strname="";
+								$obj=new SQL();
+        						$conn=$obj->SQLi();
+								if(!$conn){
+									$strname.=$strname."<li><p class='paragraph' style='margin:0; text-align:inherit; display : inline-block'>No new oru rod published</p><p class='paragraph' style='margin:0 20px; text-align:inherit; border-top: 1px solid #ddd; padding-left:20px;'></p></li>";
+								}
+								else{
+										$quer = "SELECT `Title` FROM `publications` WHERE `Year`=2020 order by `PID` desc";
+										$result = mysqli_query($conn, $quer);
+										if(!$result){
+											$strname=$strname."<li><p class='paragraph' style='margin:0; text-align:inherit; display : inline-block'>No new Publications published</p><p class='paragraph' style='margin:0 20px; text-align:inherit; border-top: 1px solid #ddd; padding-left:20px;'></p></li>";
+										}
+										else{
+											while($row = mysqli_fetch_assoc($result)) {
+												$strname=$strname."<li><p class='paragraph' style='margin:0; text-align:inherit; display : inline-block'><a class='redirectlink'>".$row['Title']."</a></p><p class='paragraph' style='margin:0 20px; text-align:inherit; border-top: 1px solid #ddd; padding-left:20px;'></p></li>";
+											}
+									}
+									
+								}
+								echo $strname;?></div></div>").insertBefore("#above");
+						}
+							if(num=="2019"){
+							$("<div class='expanding'><p class='header'>2019</p><div class='expanding_inside'><?php
+								$strname="";
+								$obj=new SQL();
+       							 $conn=$obj->SQLi();
+								if(!$conn){
+									$strname.=$strname."<li><p class='paragraph' style='margin:0; text-align:inherit; display : inline-block'>No new oru rod published</p><p class='paragraph' style='margin:0 20px; text-align:inherit; border-top: 1px solid #ddd; padding-left:20px;'></p></li>";
+								}
+								else{
+										$quer = "SELECT `Title` FROM `publications` WHERE `Year`=2019 order by `PID` desc";
+										$result = mysqli_query($conn, $quer);
+										if(!$result){
+											$strname=$strname."<li><p class='paragraph' style='margin:0; text-align:inherit; display : inline-block'>No new Publications published</p><p class='paragraph' style='margin:0 20px; text-align:inherit; border-top: 1px solid #ddd; padding-left:20px;'></p></li>";
+										}
+										else{
+											while($row = mysqli_fetch_assoc($result)) {
+												$strname=$strname."<li><p class='paragraph' style='margin:0; text-align:inherit; display : inline-block'><a class='redirectlink'>".$row['Title']."</a></p><p class='paragraph' style='margin:0 20px; text-align:inherit; border-top: 1px solid #ddd; padding-left:20px;'></p></li>";
+											}
+									}
+									
+								}
+								echo $strname;
+								?></div></div>").insertBefore("#above");
+						}
+						if(num=="2018"){
+							$("<div class='expanding'><p class='header'>2018</p><div class='expanding_inside'><?php
+								$strname="";
+								$obj=new SQL();
+        						$conn=$obj->SQLi();
+								if(!$conn){
+									$strname.=$strname."<li><p class='paragraph' style='margin:0; text-align:inherit; display : inline-block'>No new oru rod published</p><p class='paragraph' style='margin:0 20px; text-align:inherit; border-top: 1px solid #ddd; padding-left:20px;'></p></li>";
+								}
+								else{
+										$quer = "SELECT `Title` FROM `publications` WHERE `Year`=2018 order by `PID` desc";
+										$result = mysqli_query($conn, $quer);
+										if(!$result){
+											$strname=$strname."<li><p class='paragraph' style='margin:0; text-align:inherit; display : inline-block'>No new Publications published</p><p class='paragraph' style='margin:0 20px; text-align:inherit; border-top: 1px solid #ddd; padding-left:20px;'></p></li>";
+										}
+										else{
+											while($row = mysqli_fetch_assoc($result)) {
+												$strname=$strname."<li><p class='paragraph' style='margin:0; text-align:inherit; display : inline-block'><a class='redirectlink'>".$row['Title']."</a></p><p class='paragraph' style='margin:0 20px; text-align:inherit; border-top: 1px solid #ddd; padding-left:20px;'></p></li>";
+											}
+									}
+									
+								}
+								echo $strname;
+								?></div></div>").insertBefore("#above");
+						}
+					});
+				</script>
+				<p class="header" id="above">Recent Publications</p>
+				<embed src="Publication.pdf" width="1200px" height="800px">
 			
-		</div>
-		
-<!-- style -->
-
-<style>
-	.imagedes{
-		background-color: #214B8C;
-		color : white;
-		margin: 10px auto;
-		width : 80%;
-		text-align: center;
-	}
-</style>
-
-<!-- style -->
+		</div>			
 <div style="background-color: white; width: 100%; height: 40px;"></div>
 <div style="background-color: #214B8C; width: 100%; height: 2px;"></div>
 				
@@ -583,7 +705,6 @@ aside
 							<p class="paragraph" style="line-height: 24px; margin-bottom: 0"><a href="../Others/tour.php" style="border-bottom-style: none">Campus Tour</a></p>
 							<p class="paragraph" style="line-height: 24px; margin-bottom: 0"><a href="../Others/gallery.php" style="border-bottom-style: none">Event Gallery</a></p>
 							<p class="paragraph" style="line-height: 24px; margin-bottom: 0"><a href="http://iiitcouncil.com/" style="border-bottom-style: none">IIIT Council</a></p>
-							<p class="paragraph" style="line-height: 24px; margin-bottom: 0"><a href="../img/IIIT_Council/FAQs   IIITDM Kancheepuram.pdf" style="border-bottom-style: none">FAQ</a></p>
 							<!--<p class="paragraph" style="line-height: 24px; margin-bottom: 0"><a href="https://www.gallantryawards.gov.in/" style="border-bottom-style: none" target='_blank'>Gallantry Awards Portal</a></p>
 							<p class="paragraph" style="line-height: 24px; margin-bottom: 0"><a href="https://cybercrime.gov.in/" style="border-bottom-style: none" target='_blank'>National Cyber Crime Reporting Portal</a></p>-->
 							<div id="google_translate_element" style="margin: 5px 0;"></div>
@@ -600,7 +721,7 @@ aside
 							<p class="paragraph" style="line-height: 24px; margin-bottom: 0"><a href="../Others/certificates.php" style="border-bottom-style: none">Academic Certificates</a></p>
 							<p class="paragraph" style="line-height: 24px; margin-bottom: 0"><a href="../img/Others/antiragging.jpg" style="border-bottom-style: none" target="_blank">Anti-Ragging Affidavit</a></p>
 						        <p class="paragraph" style="line-height: 24px; margin-bottom: 0"><a href="../Campus/ieee" style="border-bottom-style: none" target="_blank">IEEE Student Branch</a></p>
-                            <p class="paragraph" style="line-height: 24px; margin-bottom: 0"><a href="../img/academics/IIITDM IPR Policy Final - 04Feb2021.pdf" style="border-bottom-style: none" target="_blank">Institute IPR policy</a></p>
+                            
 								
 												
 												
@@ -733,7 +854,6 @@ function myFunction() {
 	</body>
 </html>
 
-				
-				
+		
 				
 					

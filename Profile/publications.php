@@ -1,5 +1,5 @@
 <?php
-        include_once("./testingpdf.php");
+        include_once("./SQLclass.php");
 
         // email Google session should be added here. For testing take an static email
         $email='sadagopan@iiitdm.ac.in';

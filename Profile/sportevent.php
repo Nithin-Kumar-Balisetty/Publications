@@ -1,4 +1,4 @@
-<?php include "./testingpdf.php"; ?>
+<?php include "./SQLclass.php"; ?>
 <!DOCTYPE html>
 <html lang="en">
 

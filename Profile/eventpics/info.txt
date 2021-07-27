@@ -1,0 +1,1 @@
+images posted in sportevent.php are saved in this current folder directory.

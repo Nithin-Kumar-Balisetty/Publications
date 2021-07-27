@@ -1,5 +1,5 @@
 <?php 
-    include "./testingpdf.php";
+    include "./SQLclass.php";
 ?>
 <!DOCTYPE html>
 <html lang="en">
